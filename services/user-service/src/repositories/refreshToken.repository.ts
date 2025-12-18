@@ -14,6 +14,6 @@ export class RefreshTokenRepository {
   }
 
   revoke(token: string) {
-    return RefreshToken.findByIdAndUpdate({ token }, { isRevoked: true });
+    return RefreshToken.findOneAndDelete({ token });
   }
 }

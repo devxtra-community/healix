@@ -15,9 +15,13 @@ export class AuthService {
   constructor(
     userRepo = new UserRepository(),
     refreshRepo = new RefreshTokenRepository()
-  ) {}
+  ) {
+    this.userRepo = userRepo;
+    this.refreshRepo = refreshRepo;
+  }
 
   async register(data: IUser) {
+
     data.password = await hashPassword(data.password)!;
     return this.userRepo.create(data);
   }
@@ -25,6 +29,7 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await this.userRepo.findByEmail(email);
     if (!user || !user.isActive) throw new Error("Unauthorized");
+
 
     const valid = await comparePassword(password, user.password);
     if (!valid) throw new Error("Unauthorized");
@@ -34,6 +39,7 @@ export class AuthService {
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
 
+    
     await this.refreshRepo.create({
       userId: user._id,
       token: refreshToken,
