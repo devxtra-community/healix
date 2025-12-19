@@ -1,0 +1,6 @@
+[00:00:03.226] Server  LOG      ✓ Ready in 2.4s
+[00:00:06.345] Server  LOG      ○ Compiling /login ...
+[00:00:11.827] Server  ERROR    ⨯ Error: The default export is not a React Component in "/login/page"
+[00:00:13.195] Server  ERROR    ⨯ Error: The default export is not a React Component in "/login/page"
+[00:00:16.206] Server  LOG      ○ Compiling /_error ...
+[00:00:18.238] Browser ERROR   uncaughtError: Error: The default export is not a React Component in "/login/page"
