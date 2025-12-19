@@ -21,7 +21,6 @@ export class AuthService {
   }
 
   async register(data: IUser) {
-
     data.password = await hashPassword(data.password)!;
     return this.userRepo.create(data);
   }
@@ -30,16 +29,14 @@ export class AuthService {
     const user = await this.userRepo.findByEmail(email);
     if (!user || !user.isActive) throw new Error("Unauthorized");
 
-
     const valid = await comparePassword(password, user.password);
     if (!valid) throw new Error("Unauthorized");
 
-    const payload = { id: user._id };
+    const payload = { sub: user._id };
 
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
 
-    
     await this.refreshRepo.create({
       userId: user._id,
       token: refreshToken,
@@ -50,11 +47,21 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    const stored = await this.refreshRepo.findValid(refreshToken);
-    if (!stored) throw new Error("Invalid Refresh Token");
+    const decoded = verifyRefreshToken(refreshToken);
 
-    const payload = verifyRefreshToken(refreshToken) as any;
-    const accessToken = signAccessToken(payload);
+    if (!decoded?.sub) {
+      throw new Error("Invalid refresh token");
+    }
+
+    const { sub: userId } = decoded as { sub: string };
+
+    const stored = await this.refreshRepo.findValid(refreshToken);
+
+    if (!stored) {
+      throw new Error("Invalid refresh token");
+    }
+
+    const accessToken = signAccessToken({ sub: userId });
 
     return { accessToken };
   }
