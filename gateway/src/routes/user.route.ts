@@ -1,23 +1,25 @@
 import { Router } from "express";
-import { forwardToUserService } from "../service/user.proxy.ts";
-
+import { createProxyMiddleware } from "http-proxy-middleware";
+import { verifyToken } from "../middleware/auth.middleware.ts";
 const router = Router();
 
-router.use(async (req, res) => {
-  try {
-    const response = await forwardToUserService(req);
-    res.status(response.status).json(response.data);
-  } catch (error: any) {
-    console.error("Gateway error:", {
-      message: error.message,
-      code: error.code,
-      url: error.config?.url,
-    });
+const userServiceProxy = createProxyMiddleware({
+    target: process.env.USER_SERVICE_URL!,
+    changeOrigin: true,
 
-    res.status(error.response?.status || 500).json({
-      message: error.response?.data || "User service error",
-    });
-  }
+    on: {
+        proxyReq(proxyReq, req: any) {
+            if (req.user) {
+                proxyReq.setHeader("x-user-id", req.user.sub);
+            }
+        },
+    },
 });
+
+router.post("/login", userServiceProxy);
+router.post("/register", userServiceProxy);
+router.get("/profile", verifyToken, userServiceProxy);
+router.post("/change_password", verifyToken, userServiceProxy);
+router.post("/update_profile", verifyToken, userServiceProxy);
 
 export default router;
