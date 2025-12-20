@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from "react";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
@@ -8,27 +7,24 @@ import api from "@/lib/axios";
 
 export default function RegisterPage() {
   const router = useRouter();
-
   const [formData, setFormData] = useState({
-    username: "",
+    name: "",
     email: "",
     password: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
     setError("");
   };
 
-  // submit register
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (formData.password.length < 8) {
@@ -37,22 +33,25 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
+    setError("");
 
     try {
-      const { data } = await api.post("/register", formData);
-
-      // optional: store token
+      const { data } = await api.post("/auth/register", formData);
+      
       if (data?.token) {
         localStorage.setItem("token", data.token);
       }
-
-      // redirect after success
+      
       router.push("/login");
     } catch (err: any) {
-      if (err.response) {
+      console.error("Registration Error:", err);
+      
+      if (err?.response) {
         setError(err.response.data?.message || "Registration failed");
+      } else if (err?.request) {
+        setError("Server not responding. Please try again later.");
       } else {
-        setError("Something went wrong. Try again.");
+        setError(err.message || "Unexpected error occurred.");
       }
     } finally {
       setLoading(false);
@@ -60,113 +59,181 @@ export default function RegisterPage() {
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = "YOUR_BACKEND_URL/api/auth/google";
+    window.location.href = "http://localhost:4000/api/auth/google";
   };
 
+ 
+
+
   return (
-    <main className="relative flex min-h-screen w-full items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 -z-10">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-50">
+      {/* Background image */}
+      <div className="absolute inset-0 z-0">
         <Image
           src="/pomegranate-oatmeal.png"
           alt="Background"
           fill
-          priority
           className="object-cover"
+          priority
         />
       </div>
 
-      <div className="relative z-10 m-4 flex w-[1093px] overflow-hidden rounded-3xl bg-white p-5 shadow-2xl">
-        <div className="relative hidden w-1/2 md:block">
+      {/* Main container */}
+      <div className="relative z-10 mx-4 flex w-full max-w-6xl  overflow-hidden rounded-2xl bg-white shadow-2xl">
+        {/* Left side - Image with zoom effect */}
+        <div className="relative hidden w-1/2 overflow-hidden lg:block">
           <Image
             src="/pomegranate-oatmeal.png"
-            alt="Pomegranate Oatmeal"
+            alt="Login illustration"
             fill
+            className="object-cover   p-6 rounded-2xl"
             priority
-            className="rounded-3xl object-cover"
           />
         </div>
 
-        <div className="flex w-full flex-col justify-center p-8 md:w-1/2 md:p-12 lg:p-16">
-          <h2 className="mb-8 text-center text-3xl font-bold text-gray-900">
-            Welcome to Healix
-          </h2>
+        {/* Right side - Form */}
+        <div className="flex w-full flex-col justify-center px-8 py-12 lg:w-1/2 lg:px-16">
+          <div className="mb-8">
+            <h1 className="mb-2 text-3xl font-bold text-gray-800">
+              Welcome to Healix
+            </h1>
+            <p className="text-gray-600">Create your account to get started</p>
+          </div>
 
+          {/* Google Sign In */}
           <button
+            type="button"
             onClick={handleGoogleAuth}
-            className="flex w-full items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="mb-6 flex w-full items-center justify-center gap-3 rounded-lg border-2 border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
           >
-            <FcGoogle size={20} />
+            <FcGoogle className="text-2xl" />
             Continue with Google
           </button>
 
-          <div className="my-8 flex items-center">
-            <div className="flex-grow border-t" />
-            <span className="mx-2 text-sm text-gray-500">Or</span>
-            <div className="flex-grow border-t" />
+          {/* Divider */}
+          <div className="mb-6 flex items-center">
+            <div className="flex-1 border-t border-gray-300" />
+            <span className="px-4 text-sm text-gray-500">Or</span>
+            <div className="flex-1 border-t border-gray-300" />
           </div>
 
+          {/* Error message */}
           {error && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+            <div className="mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-600">
               {error}
             </div>
           )}
 
+          {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              name="username"
-              placeholder="johndoe"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              className="w-full rounded-lg border px-4 py-3 focus:ring-2 focus:ring-green-500"
-            />
-
-            <input
-              type="email"
-              name="email"
-              placeholder="johndoe@gmail.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full rounded-lg border px-4 py-3 focus:ring-2 focus:ring-green-500"
-            />
+            <div>
+              <label
+                htmlFor="name"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                Full Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleChange}
+                
+                required
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 transition-all duration-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                placeholder="John Doe"
+              />
+            </div>
 
             <div>
+              <label
+                htmlFor="email"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                Email Address
+              </label>
               <input
-                type="password"
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                
+                required
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 transition-all duration-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                placeholder="john@example.com"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <input
+                id="password"
                 name="password"
-                placeholder="Password"
+                type="password"
                 value={formData.password}
                 onChange={handleChange}
+                
                 required
-                className="w-full rounded-lg border px-4 py-3 focus:ring-2 focus:ring-green-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 transition-all duration-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                placeholder="Minimum 8 characters"
               />
-              <p className="mt-1 text-xs text-gray-400">
-                At least 8 characters
-              </p>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-[#6aa342] py-3 text-white disabled:opacity-50"
+              className="w-full rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:from-green-700 hover:to-green-800 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="h-5 w-5 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Creating account...
+                </span>
+              ) : (
+                "Create account"
+              )}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm">
+          {/* Login link */}
+          <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <span
+            <button
+              type="button"
               onClick={() => router.push("/login")}
-              className="cursor-pointer text-green-600 font-semibold"
+              className="font-semibold text-green-600 transition-colors duration-200 hover:text-green-700 hover:underline"
             >
               Login
-            </span>
+            </button>
           </p>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
