@@ -14,14 +14,9 @@ export class RefreshTokenRepository {
   }
 
   revoke(token: string) {
-<<<<<<< Updated upstream
     return RefreshToken.findOneAndUpdate(
       { token },
       { $set: { isRevoked: true } }
     );
   }
-=======
-    return RefreshToken.findOneAndDelete({ token });
-  }         
->>>>>>> Stashed changes
 }
