@@ -5,6 +5,6 @@ app.use(express.json())
 app.get('/health',(_req,res)=>{
     res.json({status:'gateway is alive!'})
 })
-app.use('/api/users',user)
+app.use('/api/v1/auth',user)
 export default app
 
