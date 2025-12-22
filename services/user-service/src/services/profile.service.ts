@@ -1,0 +1,47 @@
+import type { IUserProfile } from "../models/profile.model.ts";
+import { ProfileRepository } from "../repositories/profile.repository.ts";
+
+export class ProfileService {
+  private profileRepo;
+  constructor(profileRepo: ProfileRepository) {
+    this.profileRepo = profileRepo;
+  }
+
+  async createProfile(
+    userId: string,
+    data: IUserProfile
+  ): Promise<IUserProfile> {
+    const existingProfile = await this.profileRepo.findByUserId(userId);
+
+    if (existingProfile) {
+      throw new Error("Profile already exists for this user");
+    }
+
+    return this.profileRepo.create({
+      ...data,
+      userId,
+    });
+  }
+
+  async getProfileByUserId(userId: string): Promise<IUserProfile | null> {
+    return this.profileRepo.findByUserId(userId);
+  }
+
+  async updateProfile(
+    userId: string,
+    data: Partial<IUserProfile>
+  ): Promise<IUserProfile | null> {
+    const profile = await this.profileRepo.findByUserId(userId);
+
+    if (!profile) {
+      throw new Error("Profile not found");
+    }
+
+    return this.profileRepo.updateByUserId(userId, data);
+  }
+
+  async deleteProfile(userId: string): Promise<boolean> {
+    const deleted = await this.profileRepo.deleteByUserId(userId);
+    return Boolean(deleted);
+  }
+}

@@ -1,17 +1,15 @@
 import { Router } from "express";
-import {
-  login,
-  logout,
-  refresh,
-  register,
-} from "../../controllers/auth.controller.ts";
+import { AuthService } from "../../services/auth.service.ts";
+import { AuthController } from "../../controllers/auth.controller.ts";
 
 const router = Router();
 
-router.post("/register", register);
-router.post("/login", login);
-router.post("/refresh", refresh);
-router.delete("/logout", logout);
+const authService = new AuthService();
+const authController = new AuthController(authService);
 
+router.post("/register", authController.register);
+router.post("/login", authController.login);
+router.post("/refresh", authController.refresh);
+router.post("/logout", authController.logout);
 
-export default router
+export default router;
