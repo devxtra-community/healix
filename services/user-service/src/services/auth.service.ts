@@ -32,7 +32,7 @@ export class AuthService {
     const valid = await comparePassword(password, user.password);
     if (!valid) throw new Error("The password is wrong");
 
-    const payload = { id: user._id, role: "user" };
+    const payload = { sub: user._id, role: "user" };
 
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
@@ -48,21 +48,19 @@ export class AuthService {
 
   async refresh(refreshToken: string) {
     const decoded = verifyRefreshToken(refreshToken);
-
+    
     if (!decoded?.sub) {
       throw new Error("Invalid refresh token");
     }
 
-    const { id: userId } = decoded as { id: string; role: string };
-
+    const { sub: userId } = decoded as { sub: string; role: string };
     const stored = await this.refreshRepo.findValid(refreshToken);
 
     if (!stored) {
       throw new Error("Invalid refresh token");
     }
 
-    const accessToken = signAccessToken({ id: userId });
-
+    const accessToken = signAccessToken({ sub: userId });
     return { accessToken };
   }
 
