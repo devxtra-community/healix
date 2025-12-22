@@ -53,7 +53,7 @@ export class AuthService {
       throw new Error("Invalid refresh token");
     }
 
-    const { id: userId } = decoded as { id: string, role: string };
+    const { id: userId } = decoded as { id: string; role: string };
 
     const stored = await this.refreshRepo.findValid(refreshToken);
 
