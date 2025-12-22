@@ -11,10 +11,15 @@ pathRewrite: {
   },
         on: {
             proxyReq(proxyReq, req: any) {
-                if (req.user) {
-                    proxyReq.setHeader("x-user-id", req.user.sub);
-                }
-            },
+              const userId = req.user?.sub;
+
+    if (!userId) {
+      console.error("x-user-id missing in gateway");
+      return;
+    }
+
+    proxyReq.setHeader("x-user-id", userId);
+  },
         },
     });
 router.get("/", verifyToken, userServiceProxy);
