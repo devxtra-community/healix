@@ -23,7 +23,7 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }));
-    setError("");
+    if (error) setError(""); // Clear error when user types
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,16 +37,14 @@ export default function LoginPage() {
       if (data?.token) {
         localStorage.setItem("token", data.token);
       }
-
       router.push("/dashboard");
+
     } catch (err: any) {
-      if (err?.response) {
-        setError(err.response.data?.message || "Login failed");
-      } else if (err?.request) {
-        setError("Server not responding. Please try again later.");
-      } else {
-        setError("Unexpected error occurred.");
-      }
+      console.error("Login Error:", err);
+      setError(
+        err?.response?.data?.message || 
+        "Login failed. Please check your email and password."
+      );
     } finally {
       setLoading(false);
     }
@@ -70,17 +68,17 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Main container */}
-      <div className="relative z-10 mx-4 flex w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+      {/* FIX 1: Added 'min-h-[650px]' to lock the container height */}
+      <div className="relative z-10 mx-4 flex w-full max-w-6xl min-h-[650px] overflow-hidden rounded-2xl bg-white shadow-2xl">
         
         {/* Left image */}
-        <div className="relative hidden w-1/2 overflow-hidden lg:block">
+        <div className="relative hidden w-1/2 m-6 overflow-hidden lg:block">
           <Image
             src="/pomegranate-oatmeal.png"
             alt="Login illustration"
             fill
             priority
-            className="object-cover rounded-2xl "
+            className="object-cover rounded-2xl"
           />
         </div>
 
@@ -94,7 +92,6 @@ export default function LoginPage() {
             <p className="text-gray-600">Login to continue</p>
           </div>
 
-          {/* Google login */}
           <button
             type="button"
             onClick={handleGoogleAuth}
@@ -104,20 +101,20 @@ export default function LoginPage() {
             <FcGoogle className="text-2xl" />
             Continue with Google
           </button>
-
-          {/* Divider */}
+          
           <div className="mb-6 flex items-center">
             <div className="flex-1 border-t border-gray-300" />
             <span className="px-4 text-sm text-gray-500">Or</span>
             <div className="flex-1 border-t border-gray-300" />
           </div>
 
-          {/* Error */}
-          {error && (
-            <div className="mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+          <div className="min-h-[24px] mb-4">
+            {error && (
+              <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-600 animate-pulse">
+                {error}
+              </div>
+            )}
+          </div>
 
           {/* Login form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -133,8 +130,7 @@ export default function LoginPage() {
                 onChange={handleChange}
                 required
                 placeholder="john@example.com"
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900
-                          "
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900"
               />
             </div>
 
@@ -149,8 +145,7 @@ export default function LoginPage() {
                 onChange={handleChange}
                 required
                 placeholder="Enter your password"
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900
-                           "
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900"
               />
             </div>
 
@@ -158,13 +153,12 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               className="w-full rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-4 py-3 font-semibold text-white
-                         shadow-md "
+                         shadow-md"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
-          {/* Register link */}
           <p className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?{" "}
             <button
