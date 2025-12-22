@@ -27,10 +27,10 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.userRepo.findByEmail(email);
-    if (!user || !user.isActive) throw new Error("Unauthorized");
+    if (!user || !user.isActive) throw new Error("The email does not exist");
 
     const valid = await comparePassword(password, user.password);
-    if (!valid) throw new Error("Unauthorized");
+    if (!valid) throw new Error("The password is wrong");
 
     const payload = { sub: user._id };
 
