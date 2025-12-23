@@ -21,6 +21,9 @@ export class AuthService {
   }
 
   async register(data: IUser) {
+    if (!data.password) {
+    throw new Error("Password is required");
+  }
     data.password = await hashPassword(data.password)!;
     return this.userRepo.create(data);
   }
@@ -28,6 +31,7 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await this.userRepo.findByEmail(email);
     if (!user || !user.isActive) throw new Error("The email does not exist");
+    if (!user.password) throw new Error("User password is not set");
 
     const valid = await comparePassword(password, user.password);
     if (!valid) throw new Error("The password is wrong");

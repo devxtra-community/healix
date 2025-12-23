@@ -8,7 +8,7 @@ import { Router } from "express";
  pathRewrite: {
      "^/login": "/api/v1/auth/login",
     "^/register": "/api/v1/auth/register",
-    "^/refresh": "/api/v1/auth/refresh",
+    "^/profile": "/api/v1/auth/profile",
   },
         on: {
             proxyReq(proxyReq, req: any) {
@@ -17,7 +17,7 @@ import { Router } from "express";
                 }
             },
         },
-    });
+    }); 
 
     router.post("/login", userServiceProxy);
     router.post("/register", userServiceProxy);

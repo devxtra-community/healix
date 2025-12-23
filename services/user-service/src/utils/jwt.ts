@@ -24,3 +24,15 @@ export const verifyRefreshToken = (token: string) => {
   return jwt.verify(token, env.jwt.refresh.secret!);
 };
 
+
+export interface JWTPayload {
+  userId: string;
+  email: string;
+  role: 'user' | 'admin';
+}
+
+export const generateToken = (payload: JWTPayload): string => {
+  return jwt.sign(payload, env.jwt.access.secret!, {
+    expiresIn: env.jwt.access.expiresIn,
+  });
+};

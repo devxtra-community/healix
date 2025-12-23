@@ -51,7 +51,7 @@ export default function RegisterPage() {
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = "http://localhost:4000/api/auth/google";
+    window.location.href = "http://localhost:4001/api/v1/auth/google";
   };
 
   return (
@@ -114,7 +114,7 @@ export default function RegisterPage() {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-all"
+              className="w-full rounded-lg border border-gray-300 text-black px-4 py-3 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-all"
             />
 
             <input
@@ -124,7 +124,7 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-all"
+              className="w-full rounded-lg border border-gray-300 text-black px-4 py-3 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-all"
             />
 
             <input
@@ -134,7 +134,7 @@ export default function RegisterPage() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-all"
+              className="w-full rounded-lg border border-gray-300 text-black px-4 py-3 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-all"
             />
 
             

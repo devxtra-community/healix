@@ -23,7 +23,8 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }));
-    if (error) setError(""); // Clear error when user types
+    // Clear error immediately when user starts typing again
+    if (error) setError(""); 
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -40,49 +41,47 @@ export default function LoginPage() {
       router.push("/dashboard");
 
     } catch (err: any) {
-      console.error("Login Error:", err);
-      setError(
-        err?.response?.data?.message || 
-        "Login failed. Please check your email and password."
-      );
+      console.error("Full Error Object:", err);
+      
+      // CAPTURE THE BACKEND MESSAGE HERE
+      const msg = err?.response?.data?.message;
+
+      // Display it
+      setError(msg || "Login failed. Please check your email and password.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = "http://localhost:4000/api/auth/google";
+    window.location.href = "http://localhost:4001/api/v1/auth/google";
   };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-50">
       
-      {/* Background image */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/pomegranate-oatmeal.png"
           alt="Background"
           fill
           priority
-          className="object-cover"
+          className="object-cover blur-[3px] opacity-100"
         />
       </div>
 
-      {/* FIX 1: Added 'min-h-[650px]' to lock the container height */}
       <div className="relative z-10 mx-4 flex w-full max-w-6xl min-h-[650px] overflow-hidden rounded-2xl bg-white shadow-2xl">
         
-        {/* Left image */}
-        <div className="relative hidden w-1/2 m-6 overflow-hidden lg:block">
+        <div className="relative hidden w-1/2 m-6 overflow-hidden lg:block rounded-2xl">
           <Image
             src="/pomegranate-oatmeal.png"
             alt="Login illustration"
             fill
             priority
-            className="object-cover rounded-2xl"
+            className="object-cover"
           />
         </div>
 
-        {/* Right form */}
         <div className="flex w-full flex-col justify-center px-8 py-12 lg:w-1/2 lg:px-16">
           
           <div className="mb-8">
@@ -95,8 +94,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={handleGoogleAuth}
-            className="mb-6 flex w-full items-center justify-center gap-3 rounded-lg border-2 border-gray-300 bg-white px-4 py-3 font-medium text-gray-700
-                        hover:border-gray-400 hover:bg-gray-50"
+            className="mb-6 flex w-full items-center justify-center gap-3 rounded-lg border-2 border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50"
           >
             <FcGoogle className="text-2xl" />
             Continue with Google
@@ -108,6 +106,7 @@ export default function LoginPage() {
             <div className="flex-1 border-t border-gray-300" />
           </div>
 
+          {/* Error Message Display Area */}
           <div className="min-h-[24px] mb-4">
             {error && (
               <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-600 animate-pulse">
@@ -116,7 +115,6 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Login form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             
             <div>
@@ -130,7 +128,7 @@ export default function LoginPage() {
                 onChange={handleChange}
                 required
                 placeholder="john@example.com"
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
               />
             </div>
 
@@ -145,15 +143,14 @@ export default function LoginPage() {
                 onChange={handleChange}
                 required
                 placeholder="Enter your password"
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-4 py-3 font-semibold text-white
-                         shadow-md"
+              className="w-full rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-4 py-3 font-semibold text-white shadow-md hover:from-green-700 hover:to-green-800 disabled:opacity-70"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
