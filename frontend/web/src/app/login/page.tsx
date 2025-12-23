@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
-import api from "@/lib/axios";
+import api from "@/src/lib/axios";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -62,7 +62,7 @@ export default function LoginPage() {
       
       <div className="absolute inset-0 z-0">
         <Image
-          src="/pomegranate-oatmeal.png"
+          src="/images/pomegranate-oatmeal.png"
           alt="Background"
           fill
           priority
@@ -74,7 +74,7 @@ export default function LoginPage() {
         
         <div className="relative hidden w-1/2 m-6 overflow-hidden lg:block rounded-2xl">
           <Image
-            src="/pomegranate-oatmeal.png"
+          src="/images/pomegranate-oatmeal.png"
             alt="Login illustration"
             fill
             priority

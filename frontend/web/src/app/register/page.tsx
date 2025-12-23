@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
-import api from "@/lib/axios";
+import api from "@/src/lib/axios";
 // Optional: Import a spinner icon if you have one, or use CSS
 import { CgSpinner } from "react-icons/cg"; 
 
@@ -59,7 +59,7 @@ export default function RegisterPage() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image 
-          src="/pomegranate-oatmeal.png" 
+          src="/images/pomegranate-oatmeal.png"
           alt="Background" 
           fill 
           priority 
@@ -72,7 +72,7 @@ export default function RegisterPage() {
         {/* Left Side Image */}
         <div className="relative hidden w-1/2 m-6 overflow-hidden lg:block rounded-2xl">
           <Image 
-            src="/pomegranate-oatmeal.png" 
+          src="/images/pomegranate-oatmeal.png"
             alt="Register illustration" 
             fill 
             priority 
