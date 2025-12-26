@@ -5,6 +5,7 @@ import product from "./routes/product.route.ts"
 import checkout from "./routes/product.route.ts"
 import { morganMiddleware } from "./config/morgan.ts"
 import { errorHandler } from "./middleware/errorHandler.ts"
+import apiV1 from "./routes/index.ts"
 const app=express()
 app.use(morganMiddleware);
 
@@ -16,10 +17,10 @@ app.get("/health", (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+app.use('/api/v1',apiV1)
+// app.use('/api/v1/auth',user)
 
-app.use('/api/v1/auth',user)
-
-app.use('/api/v1/profile',profileRoute)
+// app.use('/api/v1/profile',profileRoute)
 
 // app.use('/api/v1/catalog',product)
 // app.use('/api/v1/checkout',checkout)
