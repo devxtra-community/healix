@@ -1,1 +1,2 @@
 {"level":"info","message":"POST /api/v1/profile 401 5.155 ms","service":"api-gateway","timestamp":"2025-12-23T07:44:23.011Z"}
+{"level":"info","message":"GET /health 200 69.228 ms","service":"api-gateway","timestamp":"2025-12-26T13:28:48.251Z"}

@@ -8,9 +8,15 @@ import { errorHandler } from "./middleware/errorHandler.ts"
 const app=express()
 app.use(morganMiddleware);
 
-app.get('/health',(_req,res)=>{
-    res.json({status:'gateway is alive!'})
-})
+app.get("/health", (_req, res) => {
+  res.json({
+    service: "api-gateway",
+    status: "healthy",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.use('/api/v1/auth',user)
 
 app.use('/api/v1/profile',profileRoute)
