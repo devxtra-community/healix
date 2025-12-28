@@ -16,10 +16,13 @@
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
     "http": "0.0.1-security",
     "http-proxy-middleware": "^3.0.5",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
+    "rate-limit-redis": "^4.3.1",
     "winston": "^3.19.0"
   },
   "devDependencies": {
