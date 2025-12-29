@@ -1,0 +1,13 @@
+import { PERMISSIONS } from "./permissions.ts";
+import { ROLES } from "./roles.ts";
+
+export const ROLE_PERMISSIONS={
+    [ROLES.ADMIN]:[
+        PERMISSIONS.AUTHENTICATED,
+    ],
+    [ROLES.USER]:[
+        PERMISSIONS.AUTHENTICATED,
+        PERMISSIONS.MANAGE_PROFILE,
+        PERMISSIONS.MANAGE_REVIEWS
+    ]
+}

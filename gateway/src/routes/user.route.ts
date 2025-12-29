@@ -1,6 +1,7 @@
 import { Router } from "express";
     import { createProxyMiddleware } from "http-proxy-middleware";
     import { verifyToken } from "../middleware/auth.middleware.ts";
+    import { requireRole } from "../middleware/requireRole.middleware.ts";
     const router = Router();
     const userServiceProxy = createProxyMiddleware({
         target: process.env.USER_SERVICE_URL!,
