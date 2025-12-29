@@ -1,6 +1,8 @@
  import { Router } from "express";
     import { createProxyMiddleware } from "http-proxy-middleware";
     import { verifyToken } from "../middleware/auth.middleware.ts";
+import { requireRole } from "../middleware/requireRole.middleware.ts";
+import { ROLES } from "../auth/roles.ts";
     const router = Router();
 
     const userServiceProxy = createProxyMiddleware({
@@ -22,9 +24,9 @@ pathRewrite: {
   },
         },
     });
-router.get("/", verifyToken, userServiceProxy);
-router.put("/", verifyToken, userServiceProxy);
-router.post("/", verifyToken, userServiceProxy);
-router.delete("/", verifyToken, userServiceProxy);
+router.get("/", verifyToken,requireRole([ROLES.USER]),userServiceProxy);
+router.put("/", verifyToken,requireRole([ROLES.USER]),userServiceProxy);
+router.post("/", verifyToken,requireRole([ROLES.USER]), userServiceProxy);
+router.delete("/", verifyToken,requireRole([ROLES.USER]), userServiceProxy);
 
 export default router
