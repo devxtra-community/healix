@@ -10,37 +10,48 @@ The system is designed to support personalized nutrition products, health profil
 Healix follows a microservices architecture with an **API Gateway pattern**.  
 Services communicate through **REST APIs** for synchronous operations and **RabbitMQ** for asynchronous, event-driven workflows.
 
+## Architecture Overview
 
-┌─────────────┐
-│   Next.js   │
-│  Frontend   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────────────────────────────┐
-│           API Gateway                    │
-│  - JWT Authentication                    │
-│  - Rate Limiting (Redis)                 │
-│  - Role-Based Access Control             │
-│  - Request Routing                       │
-└───┬─────────┬──────────┬─────────┬──────┘
-    │         │          │         │
-    ▼         ▼          ▼         ▼
-┌────────┐ ┌──────┐ ┌────────┐ ┌────────┐
-│  User  │ │Product│ │ Order  │ │ Admin  │
-│Service │ │Catalog│ │  Cart  │ │  CMS   │
-└────────┘ └──────┘ └────────┘ └────────┘
-    │         │          │         │
-    └─────────┴──────────┴─────────┘
-                   │
-            ┌──────▼──────┐
-            │  RabbitMQ   │
-            │   Events    │
-            └──────┬──────┘
-                   │
-            ┌──────▼──────┐
-            │   Workers   │
-            └─────────────┘
+Healix follows a microservices architecture with an API Gateway pattern.
+
+```mermaid
+flowchart TB
+    Client[Next.js Frontend]
+
+    Gateway[API Gateway<br/>JWT Auth<br/>Rate Limiting (Redis)<br/>RBAC]
+
+    UserSvc[User Service]
+    ProductSvc[Product Catalog Service]
+    OrderSvc[Order & Cart Service]
+    AdminSvc[Admin / CMS Service]
+
+    Rabbit[RabbitMQ]
+    Workers[Background Workers]
+
+    Mongo[(MongoDB)]
+    Redis[(Redis)]
+    Dynamo[(DynamoDB)]
+    Elastic[(Elasticsearch)]
+
+    Client --> Gateway
+
+    Gateway --> UserSvc
+    Gateway --> ProductSvc
+    Gateway --> OrderSvc
+    Gateway --> AdminSvc
+
+    UserSvc --> Mongo
+    ProductSvc --> Mongo
+    ProductSvc --> Elastic
+    OrderSvc --> Dynamo
+    Gateway --> Redis
+
+    UserSvc --> Rabbit
+    ProductSvc --> Rabbit
+    OrderSvc --> Rabbit
+
+    Rabbit --> Workers
+```
 
 ---
 
