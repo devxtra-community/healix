@@ -10,12 +10,6 @@ The system is designed to support personalized nutrition products, health profil
 Healix follows a microservices architecture with an **API Gateway pattern**.  
 Services communicate through **REST APIs** for synchronous operations and **RabbitMQ** for asynchronous, event-driven workflows.
 
-## Architecture Overview
-
-Healix follows a microservices architecture with an API Gateway pattern.
-
-## Architecture Overview
-
 ```text
 ┌─────────────┐
 │   Next.js   │
