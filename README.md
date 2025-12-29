@@ -11,34 +11,36 @@ Healix follows a microservices architecture with an **API Gateway pattern**.
 Services communicate through **REST APIs** for synchronous operations and **RabbitMQ** for asynchronous, event-driven workflows.
 
 
-Client (Next.js)
-|
-v
-+---------------------------+
-| API Gateway |
-| - JWT Authentication |
-| - Rate Limiting (Redis) |
-| - Role-Based Access |
-| - Request Routing |
-+----+---------+-----------+
-| |
-v v
-+---------+ +---------+ +-----------+ +---------+
-| User | | Product | | Order & | | Admin |
-| Service | | Catalog | | Cart | | CMS |
-+---------+ +---------+ +-----------+ +---------+
-___________ ____________/
-\ /
-+-----------+
-| RabbitMQ |
-| Events |
-+-----------+
-|
-v
-+-----------+
-| Workers |
-+-----------+
-
+┌─────────────┐
+│   Next.js   │
+│  Frontend   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────────┐
+│           API Gateway                    │
+│  - JWT Authentication                    │
+│  - Rate Limiting (Redis)                 │
+│  - Role-Based Access Control             │
+│  - Request Routing                       │
+└───┬─────────┬──────────┬─────────┬──────┘
+    │         │          │         │
+    ▼         ▼          ▼         ▼
+┌────────┐ ┌──────┐ ┌────────┐ ┌────────┐
+│  User  │ │Product│ │ Order  │ │ Admin  │
+│Service │ │Catalog│ │  Cart  │ │  CMS   │
+└────────┘ └──────┘ └────────┘ └────────┘
+    │         │          │         │
+    └─────────┴──────────┴─────────┘
+                   │
+            ┌──────▼──────┐
+            │  RabbitMQ   │
+            │   Events    │
+            └──────┬──────┘
+                   │
+            ┌──────▼──────┐
+            │   Workers   │
+            └─────────────┘
 
 ---
 
