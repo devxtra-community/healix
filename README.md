@@ -14,43 +14,40 @@ Services communicate through **REST APIs** for synchronous operations and **Rabb
 
 Healix follows a microservices architecture with an API Gateway pattern.
 
-```mermaid
-flowchart TB
-    Client[Next.js Frontend]
+## Architecture Overview
 
-    Gateway[API Gateway<br/>JWT Auth<br/>Rate Limiting (Redis)<br/>RBAC]
+```text
+┌─────────────┐
+│   Next.js   │
+│  Frontend   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────────┐
+│           API Gateway                    │
+│  - JWT Authentication                   │
+│  - Rate Limiting (Redis)                │
+│  - Role-Based Access Control            │
+│  - Request Routing                      │
+└───┬─────────┬──────────┬─────────┬──────┘
+    │         │          │         │
+    ▼         ▼          ▼         ▼
+┌────────┐ ┌──────┐ ┌────────┐ ┌────────┐
+│  User  │ │Product│ │ Order  │ │ Admin  │
+│Service │ │Catalog│ │  Cart  │ │  CMS   │
+└────────┘ └──────┘ └────────┘ └────────┘
+    │         │          │         │
+    └─────────┴──────────┴─────────┘
+                   │
+            ┌──────▼──────┐
+            │  RabbitMQ   │
+            │   Events    │
+            └──────┬──────┘
+                   │
+            ┌──────▼──────┐
+            │   Workers   │
+            └─────────────┘
 
-    UserSvc[User Service]
-    ProductSvc[Product Catalog Service]
-    OrderSvc[Order & Cart Service]
-    AdminSvc[Admin / CMS Service]
-
-    Rabbit[RabbitMQ]
-    Workers[Background Workers]
-
-    Mongo[(MongoDB)]
-    Redis[(Redis)]
-    Dynamo[(DynamoDB)]
-    Elastic[(Elasticsearch)]
-
-    Client --> Gateway
-
-    Gateway --> UserSvc
-    Gateway --> ProductSvc
-    Gateway --> OrderSvc
-    Gateway --> AdminSvc
-
-    UserSvc --> Mongo
-    ProductSvc --> Mongo
-    ProductSvc --> Elastic
-    OrderSvc --> Dynamo
-    Gateway --> Redis
-
-    UserSvc --> Rabbit
-    ProductSvc --> Rabbit
-    OrderSvc --> Rabbit
-
-    Rabbit --> Workers
 ```
 
 ---
@@ -70,8 +67,9 @@ flowchart TB
 
 
 
-##Repository Structure
+## Repository Structure
 
+```text
 healix/
 ├── gateway/                     # API Gateway
 ├── services/
@@ -82,6 +80,7 @@ healix/
 ├── workers/                     # Background workers
 ├── frontend/                    # Next.js frontend
 └── README.md
+```
 
 
 ---
@@ -144,10 +143,11 @@ Node.js 18+
 
 npm / pnpm
 ### Enable pnpm (if not already enabled):
+```bash
 corepack enable
 corepack prepare pnpm@latest --activate
-
-##Start Infrastructure
+```
+## Start Infrastructure
 
 Starts:
 
@@ -161,19 +161,19 @@ Elasticsearch
 
 DynamoDB Local
 
-##Start Services
+### Start Services
 
-# API Gateway
+## API Gateway
 cd gateway
 pnpm install
 pnpm run dev
 
-# User Service
+## User Service
 cd services/user-service
 pnpm install
 pnpm run dev
 
-## Health Check Endpoints
+### Health Check Endpoints
 
 | Service         | Endpoint      |
 | --------------- | ------------- |
