@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { AuthService } from "../../services/auth.service.ts";
 import { AuthController } from "../../controllers/auth.controller.ts";
-import cookieParser from 'cookie-parser';
-import passport from '../../config/passport.ts';
-import { generateToken } from '../../utils/jwt.ts';
+import cookieParser from "cookie-parser";
+import passport from "../../config/passport.ts";
+import { generateToken } from "../../utils/jwt.ts";
 const router = Router();
 
 const authService = new AuthService();
@@ -14,6 +14,10 @@ router.post("/login", authController.login);
 router.post("/refresh", authController.refresh);
 router.post("/logout", authController.logout);
 
+//passwordless login
+router.post("/magic-link/request", authController.requestMagicLink);
+router.post("/magic-link/verify", authController.verifyMagicLink);
+
 router.get(
   "/google",
   passport.authenticate("google", {
@@ -21,17 +25,16 @@ router.get(
   })
 );
 
-
 router.get(
-  '/google/callback',
-  passport.authenticate('google', {
+  "/google/callback",
+  passport.authenticate("google", {
     session: false,
     failureRedirect: `${process.env.FRONTEND_URL}/login?error=google_auth_failed`,
   }),
   (req, res) => {
     try {
       const user = req.user as any;
-      
+
       const token = generateToken({
         userId: user._id.toString(),
         email: user.email,
@@ -39,20 +42,21 @@ router.get(
       });
 
       // Set token in HTTP-only cookie (NOT in URL)
-      res.cookie('token', token, {
-        httpOnly: true,      // JavaScript can't access it
-        secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-        sameSite: 'lax',     // CSRF protection
+      res.cookie("token", token, {
+        httpOnly: true, // JavaScript can't access it
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+        sameSite: "lax", // CSRF protection
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
-      
+
       // Redirect WITHOUT token in URL
       res.redirect(`${process.env.FRONTEND_URL}/auth/callback?success=true`);
     } catch (error) {
-      res.redirect(`${process.env.FRONTEND_URL}/login?error=token_generation_failed`);
+      res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=token_generation_failed`
+      );
     }
   }
 );
-
 
 export default router;
