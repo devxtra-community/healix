@@ -1,5 +1,10 @@
-import { Request, Response } from 'express';
-import { CustomError } from '../../types/express.ts';
+import type { Request, Response } from 'express';
+
+export interface CustomError extends Error {
+  statusCode?: number;
+  isOperational?: boolean;
+  stack?: string;
+}
 
 export const globalErrorHandler = (
   err: CustomError,
