@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
-import { env } from "../config/env.ts";
+import jwt from 'jsonwebtoken';
+import { env } from '../config/env.ts';
 
 //method for sign access token
 export const signAccessToken = (payload: object) => {
@@ -23,7 +23,6 @@ export const verifyAccessToken = (token: string) => {
 export const verifyRefreshToken = (token: string) => {
   return jwt.verify(token, env.jwt.refresh.secret!);
 };
-
 
 export interface JWTPayload {
   userId: string;

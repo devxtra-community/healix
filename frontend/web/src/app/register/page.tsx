@@ -1,49 +1,52 @@
 'use client';
 
-import React, { useState } from "react";
-import Image from "next/image";
-import { FcGoogle } from "react-icons/fc";
-import { useRouter } from "next/navigation";
-import api from "@/src/lib/axios";
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { FcGoogle } from 'react-icons/fc';
+import { useRouter } from 'next/navigation';
+import api from '@/src/lib/axios';
 // Optional: Import a spinner icon if you have one, or use CSS
-import { CgSpinner } from "react-icons/cg"; 
+import { CgSpinner } from 'react-icons/cg';
 
 export default function RegisterPage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
+    name: '',
+    email: '',
+    password: '',
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Don't clear error immediately to prevent jumping, or clear it if you prefer
-    if (error) setError(""); 
+    if (error) setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
-      await api.post("/auth/register", formData);
-      router.push("/login");
+      await api.post('/auth/register', formData);
+      router.push('/login');
     } catch (err: any) {
-      console.error("Register Error:", err);
-      
-      const rawMessage = err?.response?.data?.message || "";
+      console.error('Register Error:', err);
 
-      if (rawMessage.includes("duplicate key") || rawMessage.includes("E11000")) {
-        setError("This email is already registered. Please login instead.");
+      const rawMessage = err?.response?.data?.message || '';
+
+      if (
+        rawMessage.includes('duplicate key') ||
+        rawMessage.includes('E11000')
+      ) {
+        setError('This email is already registered. Please login instead.');
       } else {
-        setError(rawMessage || "Registration failed");
+        setError(rawMessage || 'Registration failed');
       }
     } finally {
       setLoading(false);
@@ -51,32 +54,31 @@ export default function RegisterPage() {
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = "http://localhost:4001/api/v1/auth/google";
+    window.location.href = 'http://localhost:4001/api/v1/auth/google';
   };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-50">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
-        <Image 
+        <Image
           src="/images/pomegranate-oatmeal.png"
-          alt="Background" 
-          fill 
-          priority 
-          className="object-cover blur-[2px] opacity-100" 
+          alt="Background"
+          fill
+          priority
+          className="object-cover blur-[2px] opacity-100"
         />
       </div>
 
       <div className="relative z-10 mx-4 flex w-full max-w-6xl min-h-[650px] overflow-hidden rounded-2xl bg-white shadow-2xl">
-        
         {/* Left Side Image */}
         <div className="relative hidden w-1/2 m-6 overflow-hidden lg:block rounded-2xl">
-          <Image 
-          src="/images/pomegranate-oatmeal.png"
-            alt="Register illustration" 
-            fill 
-            priority 
-            className="object-cover" 
+          <Image
+            src="/images/pomegranate-oatmeal.png"
+            alt="Register illustration"
+            fill
+            priority
+            className="object-cover"
           />
         </div>
 
@@ -98,7 +100,6 @@ export default function RegisterPage() {
             Continue with Google
           </button>
 
-          
           <div className="min-h-[24px] mb-4">
             {error && (
               <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-600 animate-pulse">
@@ -137,7 +138,6 @@ export default function RegisterPage() {
               className="w-full rounded-lg border border-gray-300 text-black px-4 py-3 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-all"
             />
 
-            
             <button
               type="submit"
               disabled={loading}
@@ -149,14 +149,17 @@ export default function RegisterPage() {
                   <span>Processing...</span>
                 </>
               ) : (
-                "Register"
+                'Register'
               )}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{" "}
-            <button onClick={() => router.push("/login")} className="font-semibold text-green-600 hover:underline">
+            Already have an account?{' '}
+            <button
+              onClick={() => router.push('/login')}
+              className="font-semibold text-green-600 hover:underline"
+            >
               Login
             </button>
           </p>

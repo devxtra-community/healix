@@ -1,5 +1,5 @@
-import type { IUserProfile } from "../models/profile.model.ts";
-import { ProfileRepository } from "../repositories/profile.repository.ts";
+import type { IUserProfile } from '../models/profile.model.ts';
+import { ProfileRepository } from '../repositories/profile.repository.ts';
 
 export class ProfileService {
   private profileRepo;
@@ -9,12 +9,12 @@ export class ProfileService {
 
   async createProfile(
     userId: string,
-    data: IUserProfile
+    data: IUserProfile,
   ): Promise<IUserProfile> {
     const existingProfile = await this.profileRepo.findByUserId(userId);
 
     if (existingProfile) {
-      throw new Error("Profile already exists for this user");
+      throw new Error('Profile already exists for this user');
     }
 
     return this.profileRepo.create({
@@ -29,12 +29,12 @@ export class ProfileService {
 
   async updateProfile(
     userId: string,
-    data: Partial<IUserProfile>
+    data: Partial<IUserProfile>,
   ): Promise<IUserProfile | null> {
     const profile = await this.profileRepo.findByUserId(userId);
 
     if (!profile) {
-      throw new Error("Profile not found");
+      throw new Error('Profile not found');
     }
 
     return this.profileRepo.updateByUserId(userId, data);

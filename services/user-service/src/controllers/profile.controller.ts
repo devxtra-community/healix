@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { ProfileService } from "../services/profile.service.ts";
+import type { Request, Response, NextFunction } from 'express';
+import { ProfileService } from '../services/profile.service.ts';
 
 export class ProfileController {
   private profileService;
@@ -10,11 +10,11 @@ export class ProfileController {
   // POST /profile
   createProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.headers["x-user-id"] as string;
+      const userId = req.headers['x-user-id'] as string;
       if (!userId) {
         return res
           .status(401)
-          .json({ success: false, message: "Unauthorized" });
+          .json({ success: false, message: 'Unauthorized' });
       }
 
       const profile = await this.profileService.createProfile(userId, req.body);
@@ -31,11 +31,11 @@ export class ProfileController {
   // GET /profile
   getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.headers["x-user-id"] as string;
+      const userId = req.headers['x-user-id'] as string;
       if (!userId) {
         return res
           .status(401)
-          .json({ success: false, message: "Unauthorized" });
+          .json({ success: false, message: 'Unauthorized' });
       }
 
       const profile = await this.profileService.getProfileByUserId(userId);
@@ -43,7 +43,7 @@ export class ProfileController {
       if (!profile) {
         return res
           .status(404)
-          .json({ success: false, message: "Profile not found" });
+          .json({ success: false, message: 'Profile not found' });
       }
 
       res.status(200).json({ success: true, data: profile });
@@ -55,11 +55,11 @@ export class ProfileController {
   // PUT /profile
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.headers["x-user-id"] as string;
+      const userId = req.headers['x-user-id'] as string;
       if (!userId) {
         return res
           .status(401)
-          .json({ success: false, message: "Unauthorized" });
+          .json({ success: false, message: 'Unauthorized' });
       }
 
       const profile = await this.profileService.updateProfile(userId, req.body);
@@ -73,11 +73,11 @@ export class ProfileController {
   // DELETE /profile
   deleteProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.headers["x-user-id"] as string;
+      const userId = req.headers['x-user-id'] as string;
       if (!userId) {
         return res
           .status(401)
-          .json({ success: false, message: "Unauthorized" });
+          .json({ success: false, message: 'Unauthorized' });
       }
 
       await this.profileService.deleteProfile(userId);

@@ -1,4 +1,7 @@
-import { type IUserProfile, UserProfileModel } from "../models/profile.model.ts";
+import {
+  type IUserProfile,
+  UserProfileModel,
+} from '../models/profile.model.ts';
 
 export class ProfileRepository {
   async findByUserId(userId: string) {

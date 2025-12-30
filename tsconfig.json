@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "frontend/web" },
+    { "path": "gateway" },
+    { "path": "services/user-service" },
+    { "path": "services/admin-service" }
+  ]
+}

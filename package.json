@@ -1,13 +1,30 @@
 {
   "name": "Healix",
   "version": "1.0.0",
-  "description": "",
+  "description": "Healix is a nutrition-focused platform built with a microservices architecture, designed to handle personalized health data and real-world commerce and fulfillment workflows at scale.",
+  "workspaces": [
+    "frontend",
+    "gateway",
+    "service"
+  ],
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint frontend gateway services --ext .js,.ts,.jsx,.tsx",
+    "format": "prettier --write frontend gateway services"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.26.0"
+  "packageManager": "pnpm@10.26.0",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^16.1.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.7.4"
+  }
 }

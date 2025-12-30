@@ -1,9 +1,9 @@
-import { Router } from "express";
-import mongoose from "mongoose";
+import { Router } from 'express';
+import mongoose from 'mongoose';
 
 const router = Router();
 
-router.get("/db", (_req, res) => {
+router.get('/db', (_req, res) => {
   const state = mongoose.connection.readyState;
 
   /*
@@ -15,22 +15,22 @@ router.get("/db", (_req, res) => {
 
   if (state === 1) {
     return res.status(200).json({
-      status: "UP",
-      database: "connected",
+      status: 'UP',
+      database: 'connected',
     });
   }
 
   return res.status(503).json({
-    status: "DOWN",
-    database: "not connected",
+    status: 'DOWN',
+    database: 'not connected',
     state,
   });
 });
 
-router.get("/", (_req, res) => {
+router.get('/', (_req, res) => {
   res.json({
-    service: "user-service",
-    status: "healthy",
+    service: 'user-service',
+    status: 'healthy',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
   });

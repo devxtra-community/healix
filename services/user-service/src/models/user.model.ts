@@ -1,16 +1,16 @@
-import { model } from "mongoose";
-import { Document, Schema } from "mongoose";
+import { model } from 'mongoose';
+import { Document, Schema } from 'mongoose';
 
 export interface IUser {
   name: string;
   email: string;
 
-  password?: string;             
+  password?: string;
   provider: 'google' | 'email';
 
-  google_id?: string;                
-  email_verified?: boolean;           
-  role: 'user' | 'admin';             
+  google_id?: string;
+  email_verified?: boolean;
+  role: 'user' | 'admin';
 
   avatar?: string;
   phone?: string;
@@ -20,7 +20,6 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
 }
-
 
 const userSchema = new Schema(
   {
@@ -70,8 +69,7 @@ const userSchema = new Schema(
     isActive: { type: Boolean, default: true },
     last_login: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-
-export const User = model<IUser>("User", userSchema)
+export const User = model<IUser>('User', userSchema);

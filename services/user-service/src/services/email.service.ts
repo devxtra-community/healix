@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 
 export class EmailService {
   private transporter;
@@ -26,7 +26,7 @@ export class EmailService {
       await this.transporter.sendMail({
         from: `"Healix" <${process.env.SMTP_USER}>`,
         to: email,
-        subject: "Your Login Link",
+        subject: 'Your Login Link',
         html: `
           <p>Hello,</p>
           <p>Click the link below to login:</p>
@@ -36,8 +36,8 @@ export class EmailService {
       });
       console.log(`Magic link sent to ${email}`);
     } catch (err) {
-      console.error("Error sending magic link email:", err);
-      throw new Error("Could not send email");
+      console.error('Error sending magic link email:', err);
+      throw new Error('Could not send email');
     }
   }
 }

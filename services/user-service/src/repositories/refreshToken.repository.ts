@@ -1,4 +1,4 @@
-import { RefreshToken } from "../models/refreshToken.model.ts";
+import { RefreshToken } from '../models/refreshToken.model.ts';
 
 export class RefreshTokenRepository {
   async create(data: any) {
@@ -16,7 +16,7 @@ export class RefreshTokenRepository {
   revoke(token: string) {
     return RefreshToken.findOneAndUpdate(
       { token },
-      { $set: { isRevoked: true } }
+      { $set: { isRevoked: true } },
     );
   }
 }
