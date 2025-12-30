@@ -1,4 +1,4 @@
-import {Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { MagicToken } from '../models/magicToken.model.ts';
 
 export class MagicTokenRepository {

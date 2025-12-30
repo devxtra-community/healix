@@ -3,7 +3,7 @@ import { AuthService } from '../../services/auth.service.ts';
 import { AuthController } from '../../controllers/auth.controller.ts';
 import passport from '../../config/passport.ts';
 import { generateToken } from '../../utils/jwt.ts';
-import { IUser } from '../../models/user.model.ts';
+import type { IUser } from '../../models/user.model.ts';
 const router = Router();
 
 const authService = new AuthService();
@@ -55,7 +55,7 @@ router.get(
       res.redirect(
         `${process.env.FRONTEND_URL}/login?error=token_generation_failed`,
       );
-      console.log(error)
+      console.log(error);
     }
   },
 );
