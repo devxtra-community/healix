@@ -6,7 +6,7 @@ const productServiceProxy = createProxyMiddleware({
   target: process.env.PRODUCT_SERVICE_URL!,
   changeOrigin: true,
   on: {
-    proxyReq(proxyReq, req: any) {},
+    // proxyReq(proxyReq, req: any) {},
   },
 });
 route.use('/', productServiceProxy);

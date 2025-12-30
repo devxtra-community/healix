@@ -6,7 +6,7 @@ const checkoutServiceProxy = createProxyMiddleware({
   target: process.env.CHECKOUT_SERVICE_URL,
   changeOrigin: true,
   on: {
-    proxyReq: (proxyReq, req: any) => {},
+    // proxyReq: (proxyReq, req: Request) => {},
   },
 });
 route.use('/', checkoutServiceProxy);

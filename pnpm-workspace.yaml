@@ -1,4 +1,8 @@
 packages:
-  - frontend
+  - frontend/web
   - gateway
   - services
+
+ignoredBuiltDependencies:
+  - esbuild
+  - unrs-resolver

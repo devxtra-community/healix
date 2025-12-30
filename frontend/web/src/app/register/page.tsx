@@ -7,6 +7,11 @@ import { useRouter } from 'next/navigation';
 import api from '@/src/lib/axios';
 // Optional: Import a spinner icon if you have one, or use CSS
 import { CgSpinner } from 'react-icons/cg';
+import { AxiosError } from 'axios';
+
+interface ErrorResponse {
+  message: string;
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -35,10 +40,12 @@ export default function RegisterPage() {
     try {
       await api.post('/auth/register', formData);
       router.push('/login');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Register Error:', err);
 
-      const rawMessage = err?.response?.data?.message || '';
+      const error = err as AxiosError<ErrorResponse>;
+
+      const rawMessage = error?.response?.data?.message || '';
 
       if (
         rawMessage.includes('duplicate key') ||

@@ -5,6 +5,11 @@ import Image from 'next/image';
 import { FcGoogle } from 'react-icons/fc';
 import { useRouter } from 'next/navigation';
 import api from '@/src/lib/axios';
+import { AxiosError } from 'axios';
+
+interface ErrorResponse {
+  message: string;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,11 +44,13 @@ export default function LoginPage() {
         localStorage.setItem('token', data.token);
       }
       router.push('/dashboard');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Full Error Object:', err);
 
+      const error = err as AxiosError<ErrorResponse>;
+
       // CAPTURE THE BACKEND MESSAGE HERE
-      const msg = err?.response?.data?.message;
+      const msg = error?.response?.data?.message;
 
       // Display it
       setError(msg || 'Login failed. Please check your email and password.');

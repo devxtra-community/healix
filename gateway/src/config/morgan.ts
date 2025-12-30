@@ -2,7 +2,7 @@ import morgan from 'morgan';
 import logger from './logger.ts';
 
 const stream = {
-  write: (message: String) => {
+  write: (message: string) => {
     logger.info(message.trim());
   },
 };

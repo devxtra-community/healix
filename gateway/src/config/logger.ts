@@ -1,4 +1,3 @@
-import { level } from 'winston';
 import winston from 'winston';
 
 const logger = winston.createLogger({

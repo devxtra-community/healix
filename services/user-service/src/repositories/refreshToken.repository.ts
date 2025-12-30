@@ -1,7 +1,7 @@
-import { RefreshToken } from '../models/refreshToken.model.ts';
+import { IRefreshToken, RefreshToken } from '../models/refreshToken.model.ts';
 
 export class RefreshTokenRepository {
-  async create(data: any) {
+  async create(data: IRefreshToken) {
     return RefreshToken.create(data);
   }
 

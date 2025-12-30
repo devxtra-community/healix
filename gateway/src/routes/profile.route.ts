@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { verifyToken } from '../middleware/auth.middleware.ts';
 import { requireRole } from '../middleware/requireRole.middleware.ts';
@@ -12,7 +12,7 @@ const userServiceProxy = createProxyMiddleware({
     '^/': '/api/v1/profile/',
   },
   on: {
-    proxyReq(proxyReq, req: any) {
+    proxyReq(proxyReq, req: Request) {
       const userId = req.user?.sub;
 
       if (!userId) {
