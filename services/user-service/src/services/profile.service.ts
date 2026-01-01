@@ -1,5 +1,5 @@
-import type { IUserProfile } from '../models/profile.model.ts';
-import { ProfileRepository } from '../repositories/profile.repository.ts';
+import type { IUserProfile } from '../models/profile.model.js';
+import { ProfileRepository } from '../repositories/profile.repository.js';
 
 export class ProfileService {
   private profileRepo;

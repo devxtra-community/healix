@@ -1,7 +1,7 @@
 import {
   type IUserProfile,
   UserProfileModel,
-} from '../models/profile.model.ts';
+} from '../models/profile.model.js';
 
 export class ProfileRepository {
   async findByUserId(userId: string) {

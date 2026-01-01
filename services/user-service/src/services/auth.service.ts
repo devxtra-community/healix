@@ -1,16 +1,16 @@
-import { RefreshToken } from '../models/refreshToken.model.ts';
-import type { IUser } from '../models/user.model.ts';
-import { MagicTokenRepository } from '../repositories/magicToken.repository.ts';
-import { RefreshTokenRepository } from '../repositories/refreshToken.repository.ts';
-import { UserRepository } from '../repositories/user.repository.ts';
+import { RefreshToken } from '../models/refreshToken.model.js';
+import type { IUser } from '../models/user.model.js';
+import { MagicTokenRepository } from '../repositories/magicToken.repository.js';
+import { RefreshTokenRepository } from '../repositories/refreshToken.repository.js';
+import { UserRepository } from '../repositories/user.repository.js';
 import {
   signAccessToken,
   signRefreshToken,
   verifyRefreshToken,
-} from '../utils/jwt.ts';
-import { comparePassword, hashPassword } from '../utils/password.ts';
-import { generateMagicToken } from '../utils/token.ts';
-import { EmailService } from './email.service.ts';
+} from '../utils/jwt.js';
+import { comparePassword, hashPassword } from '../utils/password.js';
+import { generateMagicToken } from '../utils/token.js';
+import { EmailService } from './email.service.js';
 import crypto from 'crypto';
 
 export class AuthService {
@@ -42,7 +42,7 @@ export class AuthService {
     const { token, tokenHash } = generateMagicToken();
 
     await this.magicRepo.create({
-      userId: user._id.toString(),
+      userId: user._id,
       tokenHash,
       expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
     });

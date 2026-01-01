@@ -1,7 +1,7 @@
-import { Schema, model } from 'mongoose';
+import { Schema, Types, model } from 'mongoose';
 
 export interface IRefreshToken extends Document {
-  userId: string;
+  userId: Types.ObjectId;
   token: string;
   expiresAt: Date;
   isRevoked: boolean;

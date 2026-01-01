@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { env } from '../config/env.ts';
+import { env } from '../config/env.js';
 
 export const hashPassword = (password: string): Promise<string> => {
   return bcrypt.hash(password, env.bcryptSaltRounds);

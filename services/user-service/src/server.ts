@@ -1,6 +1,6 @@
-import app from './app.ts';
-import { connectDB, registerDBEvents } from './config/db.ts';
-import { env } from './config/env.ts';
+import app from './app.js';
+import { connectDB, registerDBEvents } from './config/db.js';
+import { env } from './config/env.js';
 
 registerDBEvents();
 connectDB();

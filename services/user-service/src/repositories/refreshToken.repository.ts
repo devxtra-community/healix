@@ -1,10 +1,14 @@
+import { Types } from 'mongoose';
 import {
-  type IRefreshToken,
   RefreshToken,
-} from '../models/refreshToken.model.ts';
+} from '../models/refreshToken.model.js';
 
 export class RefreshTokenRepository {
-  async create(data: IRefreshToken) {
+  async create(data: {
+    userId: Types.ObjectId;
+    token: string;
+    expiresAt: Date;
+  }) {
     return RefreshToken.create(data);
   }
 

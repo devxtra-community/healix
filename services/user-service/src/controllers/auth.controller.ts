@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { AuthService } from '../services/auth.service.ts';
+import { AuthService } from '../services/auth.service.js';
 
 export class AuthController {
   private authService;
