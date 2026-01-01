@@ -1214,3 +1214,4 @@
 {"level":"info","message":"GET /api/v1/profile 200 71.453 ms","service":"api-gateway","timestamp":"2025-12-29T06:33:40.137Z"}
 {"level":"info","message":"POST /api/v1/auth/register 400 145.362 ms","service":"api-gateway","timestamp":"2025-12-29T08:55:30.179Z"}
 {"level":"info","message":"POST /api/v1/auth/register 500 74.470 ms","service":"api-gateway","timestamp":"2025-12-29T08:55:38.918Z"}
+{"level":"info","message":"POST /api/v1/auth/login 200 307.402 ms","service":"api-gateway","timestamp":"2025-12-30T11:42:09.895Z"}
