@@ -47,12 +47,7 @@ jobs:
         run: |
           cd services/user-service
           pnpm run build
-
-      # -------- BUILD ADMIN SERVICE --------
-      - name: Build Admin Service
-        run: |
-          cd services/admin-service
-          pnpm run build
+          
 
       # (Repeat for other services if you have 4)
       # - services/order-service
