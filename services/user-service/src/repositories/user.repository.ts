@@ -1,4 +1,4 @@
-import { type IUser, User } from '../models/user.model.ts';
+import { type IUser, User } from '../models/user.model.js';
 
 export class UserRepository {
   findByEmail(email: string) {

@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
-import { MagicToken } from '../models/magicToken.model.ts';
+import { MagicToken } from '../models/magicToken.model.js';
 
 export class MagicTokenRepository {
   async create(tokenData: {
-    userId: string;
+    userId: Types.ObjectId;
     tokenHash: string;
     expiresAt: Date;
   }) {

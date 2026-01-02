@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { AuthService } from '../../services/auth.service.ts';
-import { AuthController } from '../../controllers/auth.controller.ts';
-import passport from '../../config/passport.ts';
-import { generateToken } from '../../utils/jwt.ts';
-import type { IUser } from '../../models/user.model.ts';
+import { AuthService } from '../../services/auth.service.js';
+import { AuthController } from '../../controllers/auth.controller.js';
+import passport from '../../config/passport.js';
+import { generateToken } from '../../utils/jwt.js';
+import type { IUser } from '../../models/user.model.js';
 const router = Router();
 
 const authService = new AuthService();

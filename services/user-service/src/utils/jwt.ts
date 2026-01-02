@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { env } from '../config/env.ts';
+import { env } from '../config/env.js';
 
 //method for sign access token
 export const signAccessToken = (payload: object) => {

@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { ProfileService } from '../services/profile.service.ts';
+import { ProfileService } from '../services/profile.service.js';
 
 export class ProfileController {
   private profileService;

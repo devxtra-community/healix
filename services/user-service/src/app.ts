@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import authRoutes from './api/routes/auth.routes.ts';
-import profileRoutes from './api/routes/profile.routes.ts';
-import healthRouter from './api/routes/health.routes.ts';
-import { globalErrorHandler } from './api/middlewares/error.middleware.ts';
+import authRoutes from './api/routes/auth.routes.js';
+import profileRoutes from './api/routes/profile.routes.js';
+import healthRouter from './api/routes/health.routes.js';
+import { globalErrorHandler } from './api/middlewares/error.middleware.js';
 
 const app = express();
 app.use(express.json());

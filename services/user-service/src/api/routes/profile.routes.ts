@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { ProfileRepository } from '../../repositories/profile.repository.ts';
-import { ProfileService } from '../../services/profile.service.ts';
-import { ProfileController } from '../../controllers/profile.controller.ts';
+import { ProfileRepository } from '../../repositories/profile.repository.js';
+import { ProfileService } from '../../services/profile.service.js';
+import { ProfileController } from '../../controllers/profile.controller.js';
 
 const router = Router();
 
