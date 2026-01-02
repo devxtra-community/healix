@@ -1,7 +1,7 @@
 packages:
   - frontend/web
   - gateway
-  - services
+  - services/*
 
 ignoredBuiltDependencies:
   - esbuild

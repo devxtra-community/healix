@@ -34,11 +34,11 @@ jobs:
 
       # -------- BUILD GATEWAY --------
       - name: Build Gateway
-        run: pnpm --filter gateway build
+        run: pnpm --filter "./gateway" build
 
       # -------- BUILD SERVICES --------
       - name: Build Services
-        run: pnpm --filter "./services/**" build
+        run: pnpm --filter "./services/*" build
 
       # -------- DEPLOY --------
       - name: Copy dist to EC2
