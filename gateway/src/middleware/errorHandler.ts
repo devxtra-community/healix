@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import logger from '../config/logger.ts';
+import { Request, Response } from 'express';
+import logger from '../config/logger.js';
 
 // Define a custom error type (optional)
 interface ErrorWithMessage extends Error {
@@ -9,7 +9,7 @@ interface ErrorWithMessage extends Error {
 
 export function errorHandler(
   err: ErrorWithMessage, // Specify error type
-  req: Request,
+  _req: Request,
   res: Response,
 ) {
   // Log the error with detailed information

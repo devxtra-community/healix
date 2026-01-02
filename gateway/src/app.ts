@@ -1,8 +1,8 @@
 import express from 'express';
-import { morganMiddleware } from './config/morgan.ts';
-import { errorHandler } from './middleware/errorHandler.ts';
-import apiV1 from './routes/index.ts';
-import { globalRateLimiter } from './middleware/rateLimit.middleware.ts';
+import { morganMiddleware } from './config/morgan.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import apiV1 from './routes/index.js';
+import { globalRateLimiter } from './middleware/rateLimit.middleware.js';
 const app = express();
 app.use(morganMiddleware);
 app.use(globalRateLimiter);

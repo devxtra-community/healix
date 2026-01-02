@@ -1,5 +1,5 @@
-import { PERMISSIONS } from './permissions.ts';
-import { ROLES } from './roles.ts';
+import { PERMISSIONS } from './permissions.js';
+import { ROLES } from './roles.js';
 
 export const ROLE_PERMISSIONS = {
   [ROLES.ADMIN]: [PERMISSIONS.AUTHENTICATED],

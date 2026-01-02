@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import user from './user.route.ts';
-import profileRoute from './profile.route.ts';
+import user from './user.route.js';
+import profileRoute from './profile.route.js';
 
 const route = Router();
 route.use('/auth', user);

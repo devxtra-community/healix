@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
-import { redis } from '../config/redis.ts';
+import { redis } from '../config/redis.js';
 export const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
