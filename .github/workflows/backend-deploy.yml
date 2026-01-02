@@ -1,0 +1,59 @@
+name: Backend Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - gateway/**
+      - services/**
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # -------- GATEWAY --------
+      - name: Build Gateway
+        run: |
+          cd gateway
+          npm ci
+          npm run build
+
+      # -------- SERVICES --------
+      - name: Build Services
+        run: |
+          for s in services/*; do
+            cd $s
+            npm ci
+            npm run build
+            cd -
+          done
+
+      # -------- DEPLOY --------
+      - name: Copy dist to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: |
+            gateway/dist
+            services/*/dist
+          target: /var/www
+
+      # -------- RESTART --------
+      - name: Restart backend
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            pm2 restart all || pm2 start ecosystem.config.js
+            pm2 save
