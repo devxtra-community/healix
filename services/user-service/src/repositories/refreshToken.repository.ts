@@ -1,7 +1,5 @@
 import { Types } from 'mongoose';
-import {
-  RefreshToken,
-} from '../models/refreshToken.model.js';
+import { RefreshToken } from '../models/refreshToken.model.js';
 
 export class RefreshTokenRepository {
   async create(data: {
