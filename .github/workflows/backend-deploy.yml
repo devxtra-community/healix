@@ -33,23 +33,38 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # ==============================
-      # 🔨 BUILD STEP
+      # 🔨 BUILD GATEWAY
       # ==============================
-
-      # -------- BUILD GATEWAY --------
       - name: Build Gateway
         run: |
           cd gateway
           pnpm run build
 
-      # -------- BUILD USER SERVICE --------
+      # 🐛 DEBUG – gateway build output (IMPORTANT)
+      - name: DEBUG – gateway build output
+        run: |
+          echo "PWD:"
+          pwd
+
+          echo "gateway contents:"
+          ls -la gateway
+
+          echo "gateway/dist:"
+          ls -la gateway/dist || echo "❌ gateway/dist missing"
+
+          echo "find dist anywhere:"
+          find . -type d -name dist
+
+      # ==============================
+      # 🔨 BUILD USER SERVICE
+      # ==============================
       - name: Build User Service
         run: |
           cd services/user-service
           pnpm run build
 
       # ==============================
-      # ✅ ASSERT BUILD OUTPUT (CRITICAL)
+      # ✅ ASSERT BUILD OUTPUT
       # ==============================
       - name: ASSERT BUILD OUTPUT
         run: |
@@ -66,26 +81,6 @@ jobs:
           done
 
           $found || (echo "❌ No service dist found" && exit 1)
-
-      # ==============================
-      # 🐛 DEBUG DIST FOLDERS
-      # ==============================
-      - name: DEBUG – check dist folders
-        run: |
-          echo "===== ROOT ====="
-          pwd
-          ls -la
-
-          echo "===== GATEWAY ====="
-          ls -la gateway || true
-          ls -la gateway/dist || echo "❌ gateway/dist NOT FOUND"
-
-          echo "===== SERVICES ====="
-          for dir in services/*; do
-            echo "---- $dir ----"
-            ls -la "$dir" || true
-            ls -la "$dir/dist" || echo "❌ $dir/dist NOT FOUND"
-          done
 
       # ==============================
       # 🚀 DEPLOY
