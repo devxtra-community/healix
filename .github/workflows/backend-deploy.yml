@@ -40,21 +40,6 @@ jobs:
           cd gateway
           pnpm run build
 
-      # 🐛 DEBUG – gateway build output (IMPORTANT)
-      - name: DEBUG – gateway build output
-        run: |
-          echo "PWD:"
-          pwd
-
-          echo "gateway contents:"
-          ls -la gateway
-
-          echo "gateway/dist:"
-          ls -la gateway/dist || echo "❌ gateway/dist missing"
-
-          echo "find dist anywhere:"
-          find . -type d -name dist
-
       # ==============================
       # 🔨 BUILD USER SERVICE
       # ==============================
@@ -93,7 +78,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: |
             gateway/dist
-            services/*/dist
+            services/user-service/dist
           target: /var/www
 
       # ==============================
