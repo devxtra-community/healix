@@ -47,11 +47,18 @@ jobs:
         run: |
           cd services/user-service
           pnpm run build
-          
 
-      # (Repeat for other services if you have 4)
-      # - services/order-service
-      # - services/payment-service
+      # -------- BUILD OTHER SERVICES --------
+      - name: Build Other Services
+        run: |
+          for service in services/*/; do
+            if [ -f "$service/package.json" ] && [ "$service" != "services/user-service/" ]; then
+              echo "Building $service"
+              cd "$service"
+              pnpm run build
+              cd ../..
+            fi
+          done
 
       # ==============================
       # 🐛 DEBUG DIST FOLDERS
@@ -74,7 +81,28 @@ jobs:
           done
 
       # ==============================
-      # 🚀 DEPLOY
+      # 🚀 DEPLOY - CREATE ARCHIVE
+      # ==============================
+      - name: Create deployment archive
+        run: |
+          mkdir -p deploy-temp
+          cp -r gateway/dist deploy-temp/gateway-dist
+          
+          # Copy each service dist folder
+          for service in services/*/; do
+            service_name=$(basename "$service")
+            if [ -d "$service/dist" ]; then
+              mkdir -p "deploy-temp/services-dist/$service_name"
+              cp -r "$service/dist" "deploy-temp/services-dist/$service_name/"
+            fi
+          done
+          
+          # Show what we're deploying
+          echo "===== DEPLOYMENT ARCHIVE ====="
+          ls -laR deploy-temp
+
+      # ==============================
+      # 🚀 DEPLOY TO EC2
       # ==============================
       - name: Copy dist to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -82,20 +110,43 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: |
-            gateway/dist
-            services/*/dist
-          target: /var/www
+          source: "deploy-temp/*"
+          target: /tmp/deploy
+          strip_components: 1
 
       # ==============================
-      # ♻️ RESTART
+      # 📦 ORGANIZE FILES ON EC2
       # ==============================
-      - name: Restart backend
+      - name: Organize files and restart
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Create target directories
+            mkdir -p /var/www/gateway
+            mkdir -p /var/www/services
+            
+            # Move gateway
+            if [ -d /tmp/deploy/gateway-dist ]; then
+              rm -rf /var/www/gateway/dist
+              mv /tmp/deploy/gateway-dist /var/www/gateway/dist
+            fi
+            
+            # Move services
+            if [ -d /tmp/deploy/services-dist ]; then
+              for service in /tmp/deploy/services-dist/*; do
+                service_name=$(basename "$service")
+                mkdir -p "/var/www/services/$service_name"
+                rm -rf "/var/www/services/$service_name/dist"
+                mv "$service/dist" "/var/www/services/$service_name/"
+              done
+            fi
+            
+            # Cleanup temp
+            rm -rf /tmp/deploy
+            
+            # Restart PM2
             pm2 reload all || pm2 start ecosystem.config.js
             pm2 save
