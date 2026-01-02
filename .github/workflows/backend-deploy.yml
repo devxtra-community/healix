@@ -12,104 +12,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ==============================
-      # 📦 CHECKOUT
-      # ==============================
+      # -------- CHECKOUT --------
       - uses: actions/checkout@v4
 
-      # ==============================
-      # 🟢 NODE
-      # ==============================
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      # -------- NODE --------
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # ==============================
-      # 📦 PNPM
-      # ==============================
-      - name: Enable pnpm via Corepack
+      # -------- PNPM --------
+      - name: Enable pnpm
         run: |
           corepack enable
           corepack prepare pnpm@9 --activate
-          pnpm --version
 
-      # ==============================
-      # 📥 INSTALL DEPENDENCIES
-      # ==============================
-      - name: Install dependencies (monorepo)
+      # -------- INSTALL --------
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # ==============================
-      # 🔨 BUILD GATEWAY
-      # ==============================
+      # -------- BUILD --------
       - name: Build Gateway
         run: |
           cd gateway
-          pnpm run build
+          pnpm build
 
-      # ==============================
-      # 🔨 BUILD ALL SERVICES
-      # ==============================
-      - name: Build Services
+      - name: Build User Service
         run: |
-          for dir in services/*; do
-            if [ -f "$dir/package.json" ]; then
-              echo "Building $dir"
-              cd "$dir"
-              pnpm run build
-              cd - >/dev/null
-            fi
-          done
+          cd services/user-service
+          pnpm build
 
-      # ==============================
-      # ✅ ASSERT BUILD OUTPUT (FAIL FAST)
-      # ==============================
-      - name: Assert dist folders exist
+      # -------- ASSERT --------
+      - name: Assert dist exists
         run: |
-          echo "Checking gateway/dist"
-          test -d gateway/dist || (echo "❌ gateway/dist missing" && exit 1)
-
-          echo "Checking services dist"
-          found=false
-          for d in services/*; do
-            if [ -d "$d/dist" ]; then
-              echo "✔ $d/dist exists"
-              found=true
-            fi
-          done
-
-          $found || (echo "❌ No service dist found" && exit 1)
+          test -d gateway/dist
+          test -d services/user-service/dist
 
       # ==============================
-      # 🚀 DEPLOY TO EC2 (RSYNC – SAFE)
+      # 🚀 DEPLOY FILES (ONLY SCP)
       # ==============================
-      - name: Deploy dist folders to EC2
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Upload Gateway
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            set -e
+          source: gateway/dist
+          target: /var/www/gateway
+          strip_components: 2
 
-            echo "Deploying gateway"
-            mkdir -p /var/www/gateway
-            rsync -avz --delete gateway/dist/ /var/www/gateway/dist/
-
-            echo "Deploying services"
-            mkdir -p /var/www/services
-            for dir in services/*; do
-              if [ -d "$dir/dist" ]; then
-                name=$(basename "$dir")
-                echo "Deploying service: $name"
-                mkdir -p "/var/www/services/$name"
-                rsync -avz --delete "$dir/dist/" "/var/www/services/$name/dist/"
-              fi
-            done
+      - name: Upload User Service
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: services/user-service/dist
+          target: /var/www/services/user-service
+          strip_components: 3
 
       # ==============================
-      # ♻️ PM2 RESTART
+      # ♻️ RESTART (NO FILE OPS)
       # ==============================
       - name: Restart backend
         uses: appleboy/ssh-action@v1.0.0
