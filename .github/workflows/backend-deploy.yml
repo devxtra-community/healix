@@ -12,24 +12,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # -------- CHECKOUT --------
+      # ==============================
+      # 📦 CHECKOUT
+      # ==============================
       - uses: actions/checkout@v4
 
-      # -------- NODE --------
+      # ==============================
+      # 🟢 NODE
+      # ==============================
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: "pnpm"
 
-      # -------- COREPACK / PNPM --------
+      # ==============================
+      # 📦 PNPM
+      # ==============================
       - name: Enable pnpm via Corepack
         run: |
           corepack enable
           corepack prepare pnpm@9 --activate
           pnpm --version
 
-      # -------- INSTALL DEPENDENCIES (MONOREPO) --------
-      - name: Install dependencies
+      # ==============================
+      # 📥 INSTALL DEPENDENCIES
+      # ==============================
+      - name: Install dependencies (monorepo)
         run: pnpm install --frozen-lockfile
 
       # ==============================
@@ -41,17 +50,23 @@ jobs:
           pnpm run build
 
       # ==============================
-      # 🔨 BUILD USER SERVICE
+      # 🔨 BUILD ALL SERVICES
       # ==============================
-      - name: Build User Service
+      - name: Build Services
         run: |
-          cd services/user-service
-          pnpm run build
+          for dir in services/*; do
+            if [ -f "$dir/package.json" ]; then
+              echo "Building $dir"
+              cd "$dir"
+              pnpm run build
+              cd - >/dev/null
+            fi
+          done
 
       # ==============================
-      # ✅ ASSERT BUILD OUTPUT
+      # ✅ ASSERT BUILD OUTPUT (FAIL FAST)
       # ==============================
-      - name: ASSERT BUILD OUTPUT
+      - name: Assert dist folders exist
         run: |
           echo "Checking gateway/dist"
           test -d gateway/dist || (echo "❌ gateway/dist missing" && exit 1)
@@ -68,21 +83,34 @@ jobs:
           $found || (echo "❌ No service dist found" && exit 1)
 
       # ==============================
-      # 🚀 DEPLOY
+      # 🚀 DEPLOY TO EC2 (RSYNC – SAFE)
       # ==============================
-      - name: Copy dist to EC2
-        uses: appleboy/scp-action@v0.1.7
+      - name: Deploy dist folders to EC2
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: |
-            gateway/dist
-            services/user-service/dist
-          target: /var/www
+          script: |
+            set -e
+
+            echo "Deploying gateway"
+            mkdir -p /var/www/gateway
+            rsync -avz --delete gateway/dist/ /var/www/gateway/dist/
+
+            echo "Deploying services"
+            mkdir -p /var/www/services
+            for dir in services/*; do
+              if [ -d "$dir/dist" ]; then
+                name=$(basename "$dir")
+                echo "Deploying service: $name"
+                mkdir -p "/var/www/services/$name"
+                rsync -avz --delete "$dir/dist/" "/var/www/services/$name/dist/"
+              fi
+            done
 
       # ==============================
-      # ♻️ RESTART
+      # ♻️ PM2 RESTART
       # ==============================
       - name: Restart backend
         uses: appleboy/ssh-action@v1.0.0
