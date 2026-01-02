@@ -32,15 +32,35 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # ==============================
+      # 🔨 BUILD STEP (EXPLICIT)
+      # ==============================
+
       # -------- BUILD GATEWAY --------
       - name: Build Gateway
-        run: pnpm --filter "./gateway" build
+        run: |
+          cd gateway
+          pnpm run build
 
-      # -------- BUILD SERVICES --------
-      - name: Build Services
-        run: pnpm --filter "./services/*" build
+      # -------- BUILD USER SERVICE --------
+      - name: Build User Service
+        run: |
+          cd services/user-service
+          pnpm run build
 
-      # -------- DEBUG DIST FOLDERS --------
+      # -------- BUILD ADMIN SERVICE --------
+      - name: Build Admin Service
+        run: |
+          cd services/admin-service
+          pnpm run build
+
+      # (Repeat for other services if you have 4)
+      # - services/order-service
+      # - services/payment-service
+
+      # ==============================
+      # 🐛 DEBUG DIST FOLDERS
+      # ==============================
       - name: DEBUG – check dist folders
         run: |
           echo "===== ROOT ====="
@@ -49,14 +69,18 @@ jobs:
 
           echo "===== GATEWAY ====="
           ls -la gateway || true
-          find gateway -maxdepth 3 -type d -name dist || echo "❌ gateway/dist NOT FOUND"
+          ls -la gateway/dist || echo "❌ gateway/dist NOT FOUND"
 
-          echo "===== USER SERVICE ====="
-          ls -la services || true
-          ls -la services/user-service || true
-          find services/user-service -maxdepth 3 -type d -name dist || echo "❌ services/user-service/dist NOT FOUND"
+          echo "===== SERVICES ====="
+          for dir in services/*; do
+            echo "---- $dir ----"
+            ls -la "$dir" || true
+            ls -la "$dir/dist" || echo "❌ $dir/dist NOT FOUND"
+          done
 
-      # -------- DEPLOY --------
+      # ==============================
+      # 🚀 DEPLOY
+      # ==============================
       - name: Copy dist to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -68,7 +92,9 @@ jobs:
             services/*/dist
           target: /var/www
 
-      # -------- RESTART --------
+      # ==============================
+      # ♻️ RESTART
+      # ==============================
       - name: Restart backend
         uses: appleboy/ssh-action@v1.0.0
         with:
