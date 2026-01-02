@@ -53,8 +53,8 @@ jobs:
 
           echo "===== USER SERVICE ====="
           ls -la services || true
-          ls -la services/userservice || true
-          find services/userservice -maxdepth 3 -type d -name dist || echo "❌ services/userservice/dist NOT FOUND"
+          ls -la services/user-service || true
+          find services/user-service -maxdepth 3 -type d -name dist || echo "❌ services/user-service/dist NOT FOUND"
 
       # -------- DEPLOY --------
       - name: Copy dist to EC2
