@@ -12,43 +12,56 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # -------- CHECKOUT --------
+      # ==============================
+      # 📦 CHECKOUT
+      # ==============================
       - uses: actions/checkout@v4
 
-      # -------- NODE --------
+      # ==============================
+      # 🟢 NODE
+      # ==============================
       - uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # -------- PNPM --------
+      # ==============================
+      # 📦 PNPM
+      # ==============================
       - name: Enable pnpm
         run: |
           corepack enable
           corepack prepare pnpm@9 --activate
+          pnpm --version
 
-      # -------- INSTALL --------
+      # ==============================
+      # 📥 INSTALL (MONOREPO)
+      # ==============================
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # -------- BUILD --------
+      # ==============================
+      # 🔨 BUILD
+      # ==============================
       - name: Build Gateway
         run: |
           cd gateway
-          pnpm build
+          pnpm run build
 
       - name: Build User Service
         run: |
           cd services/user-service
-          pnpm build
-
-      # -------- ASSERT --------
-      - name: Assert dist exists
-        run: |
-          test -d gateway/dist
-          test -d services/user-service/dist
+          pnpm run build
 
       # ==============================
-      # 🚀 DEPLOY FILES (ONLY SCP)
+      # ✅ ASSERT BUILD OUTPUT
+      # ==============================
+      - name: Assert dist exists
+        run: |
+          test -d gateway/dist || (echo "❌ gateway/dist missing" && exit 1)
+          test -d services/user-service/dist || (echo "❌ user-service/dist missing" && exit 1)
+
+      # ==============================
+      # 🚀 DEPLOY — GATEWAY
       # ==============================
       - name: Upload Gateway
         uses: appleboy/scp-action@v0.1.7
@@ -56,22 +69,29 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: gateway/dist
+          source: |
+            gateway/dist
+            gateway/package.json
+            gateway/pnpm-lock.yaml
           target: /var/www/gateway
-          strip_components: 2
 
+      # ==============================
+      # 🚀 DEPLOY — USER SERVICE
+      # ==============================
       - name: Upload User Service
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: services/user-service/dist
+          source: |
+            services/user-service/dist
+            services/user-service/package.json
+            services/user-service/pnpm-lock.yaml
           target: /var/www/services/user-service
-          strip_components: 3
 
       # ==============================
-      # ♻️ RESTART (NO FILE OPS)
+      # ♻️ RESTART (REMOTE)
       # ==============================
       - name: Restart backend
         uses: appleboy/ssh-action@v1.0.0
@@ -80,5 +100,11 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            cd /var/www/gateway
+            pnpm install --prod
+
+            cd /var/www/services/user-service
+            pnpm install --prod
+
             pm2 reload all || pm2 start ecosystem.config.js
             pm2 save
