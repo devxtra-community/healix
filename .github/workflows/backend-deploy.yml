@@ -56,12 +56,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: |
-            gateway/dist
-            gateway/package.json
-            gateway/pnpm-lock.yaml
+          source: gateway/dist
           target: /var/www/gateway
-          strip_components: 1
+          strip_components: 2
 
       - name: Upload User Service
         uses: appleboy/scp-action@v0.1.7
@@ -69,12 +66,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: | 
-            services/user-service/dist
-            services/user-service/package.json
-            services/user-service/pnpm-lock.yaml
+          source: services/user-service/dist
           target: /var/www/services/user-service
-          strip_components: 2
+          strip_components: 3
 
       # ==============================
       # ♻️ RESTART (NO FILE OPS)
