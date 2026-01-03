@@ -1,4 +1,4 @@
-name: Backend Deploy to EC2
+name: Backend CI/CD
 
 on:
   push:
@@ -6,17 +6,26 @@ on:
     paths:
       - gateway/**
       - services/**
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  deploy:
+  # ==============================
+  # 🧪 CI — BUILD & PACKAGE
+  # ==============================
+  ci:
+    name: CI (Build Backend)
     runs-on: ubuntu-latest
 
     steps:
       # -------- CHECKOUT --------
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       # -------- NODE --------
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
@@ -30,55 +39,113 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # ✅ LINT
+      - name: Lint backend
+        run: pnpm lint
+
       # -------- BUILD --------
       - name: Build Gateway
         run: |
           cd gateway
           pnpm build
 
-      - name: Build User Service
+      - name: Build Services
         run: |
-          cd services/user-service
-          pnpm build
+          for dir in services/*; do
+            if [ -f "$dir/package.json" ]; then
+              echo "Building $dir"
+              (cd "$dir" && pnpm build)
+            fi
+          done
 
       # -------- ASSERT --------
       - name: Assert dist exists
         run: |
           test -d gateway/dist
-          test -d services/user-service/dist
+          found=false
+          for dir in services/*; do
+            [ -d "$dir/dist" ] && found=true
+          done
+          $found
 
-      # ==============================
-      # 🚀 DEPLOY FILES (ONLY SCP)
-      # ==============================
-      - name: Upload Gateway
+      # -------- PACKAGE ARTIFACT --------
+      - name: Prepare backend artifact
+        run: |
+          rm -rf backend-prod
+          mkdir -p backend-prod/gateway
+          mkdir -p backend-prod/services
+
+          # Gateway
+          cp -r gateway/dist gateway/package.json gateway/pnpm-lock.yaml backend-prod/gateway/
+
+          # Services
+          for dir in services/*; do
+            if [ -d "$dir/dist" ]; then
+              name=$(basename "$dir")
+              mkdir -p backend-prod/services/$name
+              cp -r "$dir/dist" "$dir/package.json" "$dir/pnpm-lock.yaml" backend-prod/services/$name/
+            fi
+          done
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-prod
+          path: backend-prod
+
+  # ==============================
+  # 🚀 CD — DEPLOY TO EC2
+  # ==============================
+  cd:
+    name: CD (Deploy Backend to EC2)
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-prod
+          path: backend-prod
+
+      - name: Debug artifact
+        run: |
+          echo "===== backend-prod ====="
+          ls -R backend-prod
+
+      # -------- SCP (WHOLE FOLDER) --------
+      - name: Upload backend to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: gateway/*
-          target: /var/www/gateway
-          strip_components: 1
+          source: backend-prod
+          target: /var/www
+          overwrite: true
 
-      - name: Upload User Service
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: services/*
-          target: /var/www/services
-          strip_components: 1
-
-      # ==============================
-      # ♻️ RESTART (NO FILE OPS)
-      # ==============================
-      - name: Restart backend
-        uses: appleboy/ssh-action@v1.0.0
+      # -------- SSH / PM2 --------
+      - name: Install prod deps & restart
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            pm2 reload all || pm2 start ecosystem.config.js
+            set -e
+
+            echo "=== Gateway ==="
+            cd /var/www/backend-prod/gateway
+            pnpm install --prod
+            pm2 reload gateway || pm2 start dist/server.js --name gateway
+
+            echo "=== Services ==="
+            for dir in /var/www/backend-prod/services/*; do
+              cd "$dir"
+              name=$(basename "$dir")
+              pnpm install --prod
+              pm2 reload "$name" || pm2 start dist/server.js --name "$name"
+            done
+
             pm2 save
