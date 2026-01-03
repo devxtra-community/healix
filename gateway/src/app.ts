@@ -7,7 +7,7 @@ const app = express();
 app.use(morganMiddleware);
 app.use(globalRateLimiter);
 
-//health checking
+//health
 app.get('/health', (_req, res) => {
   res.json({
     service: 'api-gateway',
