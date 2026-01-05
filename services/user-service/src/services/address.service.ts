@@ -1,3 +1,4 @@
+import { ConflictError } from '../errors/ConflictError.js';
 import { IAddress } from '../models/address.model.js';
 import { AddressRepository } from '../repositories/address.repository.js';
 
@@ -9,7 +10,17 @@ export class AddressService {
   }
 
   //creating address
-  async createAddress(data: IAddress): Promise<IAddress> {
+  async createAddress(userId: string, data: IAddress): Promise<IAddress> {
+    const existing = await this.addressRepo.findByUserIdAndType(
+      userId,
+      data.addressType,
+    );
+
+    console.log(existing);
+
+    if (existing) {
+      throw new ConflictError(`${data.addressType} is already exist`);
+    }
     return this.addressRepo.create(data);
   }
 

@@ -3,9 +3,9 @@ import { model, Schema, Types } from 'mongoose';
 export interface IAddress {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
-  address_type: 'billing' | 'home' | 'office';
-  address_line1: string;
-  address_line2?: string;
+  addressType: 'billing' | 'home' | 'office';
+  addressLine1: string;
+  addressLine2?: string;
   city: string;
   state: string;
   country: string;
@@ -22,13 +22,13 @@ const AddressSchema = new Schema<IAddress>(
       required: true,
       index: true,
     },
-    address_type: {
+    addressType: {
       type: String,
       enum: ['billing', 'home', 'office'],
       required: true,
     },
-    address_line1: { type: String, required: true },
-    address_line2: { type: String },
+    addressLine1: { type: String, required: true },
+    addressLine2: { type: String },
     city: { type: String, required: true },
     state: { type: String, required: true },
     country: { type: String, required: true },

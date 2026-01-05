@@ -1,3 +1,5 @@
+import { BadRequestError } from '../errors/BadRequestError.js';
+import { UnauthorizedError } from '../errors/UnauthorizedError.js';
 import { RefreshToken } from '../models/refreshToken.model.js';
 import type { IUser } from '../models/user.model.js';
 import { MagicTokenRepository } from '../repositories/magicToken.repository.js';
@@ -83,11 +85,12 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.userRepo.findByEmail(email);
-    if (!user || !user.isActive) throw new Error('The email does not exist');
-    if (!user.password) throw new Error('User password is not set');
+    if (!user || !user.isActive)
+      throw new UnauthorizedError('The email does not exist');
+    if (!user.password) throw new BadRequestError('User password is not set');
 
     const valid = await comparePassword(password, user.password);
-    if (!valid) throw new Error('The password is wrong');
+    if (!valid) throw new UnauthorizedError('The password is wrong');
 
     const payload = { sub: user._id, role: user.role };
 

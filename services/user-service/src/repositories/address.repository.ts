@@ -5,6 +5,10 @@ export class AddressRepository {
     return Address.find({ userId }).lean();
   }
 
+  findByUserIdAndType(userId: string, addressType: string) {
+    return Address.findOne({ userId, addressType }).lean();
+  }
+
   findById(userId: string, addressId: string) {
     return Address.findOne({ _id: addressId, userId }).lean();
   }

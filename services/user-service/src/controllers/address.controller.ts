@@ -11,13 +11,20 @@ export class AddressController {
   // POST /profile
   createAddress = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const userId = req.headers['x-user-id'] as string;
+      if (!userId) {
+        return res
+          .status(401)
+          .json({ success: false, message: 'Unauthorized' });
+      }
+
       if (!req.body) {
         return res
           .status(400)
           .json({ success: false, message: 'Request body is required' });
       }
 
-      const address = await this.addressService.createAddress(req.body);
+      const address = await this.addressService.createAddress(userId, req.body);
       res.status(201).json({ success: true, data: address });
     } catch (error) {
       next(error);
