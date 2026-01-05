@@ -25,7 +25,6 @@ export function verifyToken(
 
   const token = authHeader.split(' ')[1];
 
-  console.log(token);
 
   try {
     const decoded = jwt.verify(

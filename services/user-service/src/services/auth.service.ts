@@ -57,7 +57,7 @@ export class AuthService {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const record = await this.magicRepo.findValidToken(tokenHash);
 
-    if (!record) throw new Error('Invalid or expired link');
+    if (!record) throw new BadRequestError('Invalid or expired link');
 
     // Mark token as used
     await this.magicRepo.markUsed(record._id);
@@ -76,10 +76,10 @@ export class AuthService {
   }
 
   async register(data: IUser) {
-    if (!data.password) {
-      throw new Error('Password is required');
+    if (data.provider === 'email' && !data.password) {
+      throw new BadRequestError('Password is required');
     }
-    data.password = await hashPassword(data.password)!;
+    data.password = await hashPassword(data.password!);
     return this.userRepo.create(data);
   }
 
@@ -117,7 +117,7 @@ export class AuthService {
     const stored = await this.refreshRepo.findValid(refreshToken);
 
     if (!stored) {
-      throw new Error('Invalid refresh token');
+      throw new BadRequestError('Invalid refresh token');
     }
 
     const accessToken = signAccessToken({ sub: userId });

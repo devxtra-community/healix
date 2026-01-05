@@ -16,8 +16,6 @@ export class AddressService {
       data.addressType,
     );
 
-    console.log(existing);
-
     if (existing) {
       throw new ConflictError(`${data.addressType} is already exist`);
     }
