@@ -89,7 +89,7 @@ export class AuthService {
     const valid = await comparePassword(password, user.password);
     if (!valid) throw new Error('The password is wrong');
 
-    const payload = { sub: user._id, role: 'user' };
+    const payload = { sub: user._id, role: user.role };
 
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
