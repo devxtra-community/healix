@@ -18,7 +18,7 @@ export class AddressRepository {
   }
 
   update(addressId: string, data: IAddress, userId: string) {
-    return Address.findOneAndUpdate( {_id: addressId, userId }, data, {
+    return Address.findOneAndUpdate({ _id: addressId, userId }, data, {
       new: true,
       runValidators: true,
     });

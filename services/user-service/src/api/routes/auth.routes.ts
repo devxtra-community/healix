@@ -4,13 +4,15 @@ import { AuthController } from '../../controllers/auth.controller.js';
 import passport from '../../config/passport.js';
 import { generateToken } from '../../utils/jwt.js';
 import type { IUser } from '../../models/user.model.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import { LoginSchema, RegisterSchema } from '@healix/contracts';
 const router = Router();
 
 const authService = new AuthService();
 const authController = new AuthController(authService);
 
-router.post('/register', authController.register);
-router.post('/login', authController.login);
+router.post('/register', validate(RegisterSchema), authController.register);
+router.post('/login', validate(LoginSchema), authController.login);
 router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);
 
