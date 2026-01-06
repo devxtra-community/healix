@@ -4,25 +4,22 @@ import { ReviewDocument } from '../models/review.type.js';
 
 export class ReviewRepository {
   //create a new review
-  static create(data: Partial<ReviewDocument>) {
+  create(data: Partial<ReviewDocument>) {
     return ReviewModel.create(data);
   }
 
   //find by id
-  static findById(reviewId: string | Types.ObjectId) {
+  findById(reviewId: string | Types.ObjectId) {
     return ReviewModel.findById(reviewId);
   }
 
   //find by product and user
-  static findByProductAndUser(
-    productId: Types.ObjectId,
-    userId: Types.ObjectId,
-  ) {
+  findByProductAndUser(productId: Types.ObjectId, userId: Types.ObjectId) {
     return ReviewModel.findOne({ productId, userId });
   }
 
   //find by product
-  static findByProduct(
+  findByProduct(
     productId: Types.ObjectId,
     filter: QueryFilter<ReviewDocument> = {},
   ) {
@@ -30,20 +27,16 @@ export class ReviewRepository {
   }
 
   //update by id
-  static updateById(reviewId: Types.ObjectId, update: Partial<ReviewDocument>) {
+  updateById(reviewId: Types.ObjectId, update: Partial<ReviewDocument>) {
     return ReviewModel.findByIdAndUpdate(reviewId, update, { new: true });
   }
 
-  static deleteById(reviewId: Types.ObjectId) {
+  deleteById(reviewId: Types.ObjectId) {
     return ReviewModel.findByIdAndDelete(reviewId);
   }
 
   //paginated reviews by product
-  static findPaginatedByProduct(
-    productId: Types.ObjectId,
-    page = 1,
-    limit = 10,
-  ) {
+  findPaginatedByProduct(productId: Types.ObjectId, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
 
     return Promise.all([
@@ -55,10 +48,8 @@ export class ReviewRepository {
     ]);
   }
 
-  /**
-   * Average rating for a product
-   */
-  static getAverageRating(productId: Types.ObjectId) {
+  //average rating for a product
+  getAverageRating(productId: Types.ObjectId) {
     return ReviewModel.aggregate([
       { $match: { productId } },
       {

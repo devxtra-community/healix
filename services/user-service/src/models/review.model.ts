@@ -1,9 +1,5 @@
 import { Schema, model, Types } from 'mongoose';
-import {
-  ReviewDocument,
-  ReviewerGoal,
-  AttachmentType,
-} from './review.type.js';
+import { ReviewDocument, ReviewerGoal, AttachmentType } from './review.type.js';
 
 const attachmentSchema = new Schema(
   {
@@ -20,7 +16,7 @@ const attachmentSchema = new Schema(
   },
   {
     _id: false,
-  }
+  },
 );
 
 const reviewSchema = new Schema<ReviewDocument>(
@@ -87,7 +83,7 @@ const reviewSchema = new Schema<ReviewDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Prevent multiple reviews by same user for same product
