@@ -1,11 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
-import {
-  ReviewerGoal,
-  AttachmentType,
-} from '../models/review.type.js';
+import { ReviewerGoal, AttachmentType } from '../models/review.type.js';
 import { ReviewService } from '../services/review.service.js';
-
 
 export class ReviewController {
   private reviewService;

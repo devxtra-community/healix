@@ -1,8 +1,6 @@
 import { Types } from 'mongoose';
 import { ReviewRepository } from '../repositories/review.repository.js';
-import {
-  ReviewDocument,
-} from '../models/review.type.js';
+import { ReviewDocument } from '../models/review.type.js';
 import { ConflictError } from '../errors/ConflictError.js';
 import { NotFoundError } from '../errors/NotFoundError.js';
 import { UnauthorizedError } from '../errors/UnauthorizedError.js';
