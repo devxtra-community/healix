@@ -120,6 +120,9 @@ importers:
       axios:
         specifier: ^1.13.2
         version: 1.13.2
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -151,6 +154,9 @@ importers:
         specifier: ^3.19.0
         version: 3.19.0
     devDependencies:
+      '@types/cors':
+        specifier: ^2.8.19
+        version: 2.8.19
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
@@ -5527,7 +5533,7 @@ snapshots:
 
   '@types/oauth@0.9.6':
     dependencies:
-      '@types/node': 20.19.27
+      '@types/node': 25.0.3
 
   '@types/passport-google-oauth20@2.0.17':
     dependencies:

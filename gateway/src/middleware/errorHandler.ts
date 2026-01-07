@@ -1,25 +1,27 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import logger from '../config/logger.js';
 
-// Define a custom error type (optional)
 interface ErrorWithMessage extends Error {
   message: string;
   stack?: string;
+  status?: number;
 }
 
 export function errorHandler(
-  err: ErrorWithMessage, // Specify error type
+  err: ErrorWithMessage,
   _req: Request,
   res: Response,
+  next: NextFunction, // ✅ REQUIRED even if unused
 ) {
-  // Log the error with detailed information
+  if (res.headersSent) {
+    return next(err);
+  }
   logger.error('Unhandled application error', {
     message: err.message,
     stack: err.stack,
   });
 
-  // Send the error response
-  res.status(500).json({
-    message: 'Internal server error',
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal server error',
   });
 }

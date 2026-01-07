@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { morganMiddleware } from './config/morgan.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import apiV1 from './routes/index.js';
@@ -6,6 +7,8 @@ import { globalRateLimiter } from './middleware/rateLimit.middleware.js';
 const app = express();
 app.use(morganMiddleware);
 app.use(globalRateLimiter);
+
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 //health
 app.get('/health', (_req, res) => {

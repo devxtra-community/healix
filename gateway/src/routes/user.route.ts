@@ -7,23 +7,30 @@ const userServiceProxy = createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: {
     '^/login': '/api/v1/auth/login',
+    '^/admin/login': '/api/v1/auth/admin/login',
     '^/register': '/api/v1/auth/register',
     '^/profile': '/api/v1/auth/profile',
+    '^/refresh': '/api/v1/auth/refresh',
+    '^/me': '/api/v1/auth/me',
   },
   on: {
     proxyReq(proxyReq, req: Request) {
       if (req.user) {
-        proxyReq.setHeader('x-user-id', req.user.sub!);
+        proxyReq.setHeader('x-user-id', req.user.sub);
+        proxyReq.setHeader('x-user-role', req.user.role);
+        proxyReq.setHeader('x-user-type', req.user.type);
       }
     },
   },
 });
 
 router.post('/login', userServiceProxy);
+router.post('/admin/login', userServiceProxy);
 router.post('/register', userServiceProxy);
 router.put('/change_password', verifyToken, userServiceProxy);
 router.post('/logout', verifyToken, userServiceProxy);
 router.post('/refresh', userServiceProxy);
+router.get('/me', verifyToken, userServiceProxy);
 router.post('/review', verifyToken, userServiceProxy);
 router.put('/review/:id', verifyToken, userServiceProxy);
 router.delete('/review/:id', verifyToken, userServiceProxy);
