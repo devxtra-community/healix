@@ -1,4 +1,5 @@
 import { BadRequestError } from '../errors/BadRequestError.js';
+import { NotFoundError } from '../errors/NotFoundError.js';
 import { UnauthorizedError } from '../errors/UnauthorizedError.js';
 import { RefreshToken } from '../models/refreshToken.model.js';
 import type { IUser } from '../models/user.model.js';
@@ -6,10 +7,15 @@ import { MagicTokenRepository } from '../repositories/magicToken.repository.js';
 import { RefreshTokenRepository } from '../repositories/refreshToken.repository.js';
 import { UserRepository } from '../repositories/user.repository.js';
 import {
-  signAccessToken,
-  signRefreshToken,
-  verifyRefreshToken,
+  JWTPayload,
+  signAdminAccessToken,
+  signAdminRefreshToken,
+  signUserAccessToken,
+  signUserRefreshToken,
+  verifyAdminRefreshToken,
+  verifyUserRefreshToken,
 } from '../utils/jwt.js';
+
 import { comparePassword, hashPassword } from '../utils/password.js';
 import { generateMagicToken } from '../utils/token.js';
 import { EmailService } from './email.service.js';
@@ -62,13 +68,18 @@ export class AuthService {
     // Mark token as used
     await this.magicRepo.markUsed(record._id);
 
-    const payload = { sub: record.userId, role: 'user' };
-    const accessToken = signAccessToken(payload);
-    const refreshToken = signRefreshToken(payload);
+    const payload: JWTPayload = {
+      sub: record.userId.toString(),
+      role: 'user',
+      type: 'user',
+    };
+    const accessToken = signUserAccessToken(payload);
+    const refreshToken = signUserRefreshToken(payload);
 
     await this.refreshRepo.create({
       userId: record.userId,
       token: refreshToken,
+      type: 'user',
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
@@ -85,21 +96,65 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.userRepo.findByEmail(email);
+
     if (!user || !user.isActive)
       throw new UnauthorizedError('The email does not exist');
+
     if (!user.password) throw new BadRequestError('User password is not set');
+
+    //ROLE CHECK
+    if (user.role !== 'user') {
+      throw new UnauthorizedError('Use admin login');
+    }
 
     const valid = await comparePassword(password, user.password);
     if (!valid) throw new UnauthorizedError('The password is wrong');
 
-    const payload = { sub: user._id, role: user.role };
+    const payload: JWTPayload = {
+      sub: user._id.toString(),
+      role: 'user',
+      type: 'user',
+    };
 
-    const accessToken = signAccessToken(payload);
-    const refreshToken = signRefreshToken(payload);
+    const accessToken = signUserAccessToken(payload);
+    const refreshToken = signUserRefreshToken(payload);
 
     await this.refreshRepo.create({
       userId: user._id,
       token: refreshToken,
+      type: 'user',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  async loginAdmin(email: string, password: string) {
+    const user = await this.userRepo.findByEmail(email);
+
+    if (!user || !user.isActive)
+      throw new UnauthorizedError('Invalid credentials');
+
+    if (!user.password) throw new BadRequestError('User password is not set');
+
+    if (user.role !== 'admin') throw new UnauthorizedError('Not an admin');
+
+    const valid = await comparePassword(password, user.password);
+    if (!valid) throw new UnauthorizedError('Invalid credentials');
+
+    const payload: JWTPayload = {
+      sub: user._id.toString(),
+      role: 'admin',
+      type: 'admin',
+    };
+
+    const accessToken = signAdminAccessToken(payload);
+    const refreshToken = signAdminRefreshToken(payload);
+
+    await this.refreshRepo.create({
+      userId: user._id,
+      token: refreshToken,
+      type: 'admin',
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
@@ -107,21 +162,43 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    const decoded = verifyRefreshToken(refreshToken);
-
-    if (!decoded?.sub) {
-      throw new Error('Invalid refresh token');
-    }
-
-    const { sub: userId } = decoded as { sub: string; role: string };
     const stored = await this.refreshRepo.findValid(refreshToken);
 
     if (!stored) {
-      throw new BadRequestError('Invalid refresh token');
+      throw new UnauthorizedError('Refresh token revoked or expired');
     }
 
-    const accessToken = signAccessToken({ sub: userId });
+    const decoded =
+      stored.type === 'admin'
+        ? verifyAdminRefreshToken(refreshToken)
+        : verifyUserRefreshToken(refreshToken);
+
+    if (!decoded?.sub) {
+      throw new UnauthorizedError('Invalid refresh token');
+    }
+
+    const payload = {
+      sub: decoded.sub,
+      role: decoded.role,
+      type: decoded.type,
+    };
+
+    const accessToken =
+      decoded.type === 'admin'
+        ? signAdminAccessToken(payload)
+        : signUserAccessToken(payload);
+
     return { accessToken };
+  }
+
+  async me(userId: string) {
+    const user = await this.userRepo.findById(userId);
+
+    if (!user) {
+      throw new NotFoundError('User is not found');
+    }
+
+    return user;
   }
 
   async logout(refreshToken: string) {

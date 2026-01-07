@@ -5,6 +5,7 @@ export class RefreshTokenRepository {
   async create(data: {
     userId: Types.ObjectId;
     token: string;
+    type: string;
     expiresAt: Date;
   }) {
     return RefreshToken.create(data);

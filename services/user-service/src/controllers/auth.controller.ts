@@ -54,10 +54,33 @@ export class AuthController {
     }
   };
 
+  loginAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, password } = req.body;
+
+      const { accessToken, refreshToken } = await this.authService.loginAdmin(
+        email,
+        password,
+      );
+
+      res.cookie('adminRefreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/admin',
+      });
+
+      res.status(200).json({ success: true, accessToken });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // POST /refresh
   refresh = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = req.cookies.refreshToken;
+      console.log(refreshToken);
       if (!refreshToken) {
         return res
           .status(401)
@@ -69,6 +92,23 @@ export class AuthController {
     } catch (error) {
       next(error);
     }
+  };
+
+  me = async (req: Request, res: Response) => {
+    const userId = req.headers['x-user-id'] as string;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const user = await this.authService.me(userId);
+
+    res.json({
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    });
   };
 
   // POST /logout

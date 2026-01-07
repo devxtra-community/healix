@@ -8,17 +8,34 @@ export const env = {
   mongoUri: process.env.MONGO_URI || '',
 
   jwt: {
-    access: {
-      secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn:
-        (process.env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn']) ||
-        '15m',
+    user: {
+      access: {
+        secret: process.env.USER_JWT_SECRET!,
+        expiresIn:
+          (process.env.USER_JWT_EXPIRES_IN as SignOptions['expiresIn']) ||
+          '15m',
+      },
+      refresh: {
+        secret: process.env.USER_REFRESH_SECRET!,
+        expiresIn:
+          (process.env.USER_REFRESH_EXPIRES_IN as SignOptions['expiresIn']) ||
+          '7d',
+      },
     },
-    refresh: {
-      secret: process.env.JWT_REFRESH_SECRET,
-      expiresIn:
-        (process.env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn']) ||
-        '7d',
+
+    admin: {
+      access: {
+        secret: process.env.ADMIN_JWT_SECRET!,
+        expiresIn:
+          (process.env.ADMIN_JWT_EXPIRES_IN as SignOptions['expiresIn']) ||
+          '10m',
+      },
+      refresh: {
+        secret: process.env.ADMIN_REFRESH_SECRET!,
+        expiresIn:
+          (process.env.ADMIN_REFRESH_EXPIRES_IN as SignOptions['expiresIn']) ||
+          '3d',
+      },
     },
   },
 

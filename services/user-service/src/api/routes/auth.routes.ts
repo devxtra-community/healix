@@ -6,6 +6,7 @@ import { generateToken } from '../../utils/jwt.js';
 import type { IUser } from '../../models/user.model.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import { LoginSchema, RegisterSchema } from '@healix/contracts';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 const router = Router();
 
 const authService = new AuthService();
@@ -13,8 +14,13 @@ const authController = new AuthController(authService);
 
 router.post('/register', validate(RegisterSchema), authController.register);
 router.post('/login', validate(LoginSchema), authController.login);
-router.post('/refresh', authController.refresh);
-router.post('/logout', authController.logout);
+
+router.post('/admin/login', validate(LoginSchema), authController.loginAdmin);
+
+router.post('/refresh', authMiddleware, authController.refresh);
+router.delete('/logout', authController.logout);
+
+router.get('/me', authMiddleware, authController.me);
 
 //passwordless login
 router.post('/magic-link/request', authController.requestMagicLink);
@@ -38,9 +44,9 @@ router.get(
       const user = req.user as IUser;
 
       const token = generateToken({
-        userId: user._id.toString(),
-        email: user.email,
+        sub: user._id.toString(),
         role: user.role,
+        type: 'user',
       });
 
       // Set token in HTTP-only cookie (NOT in URL)

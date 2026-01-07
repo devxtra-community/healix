@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import type mongoose from 'mongoose';
 
 export interface CustomError extends Error {
@@ -13,8 +13,12 @@ export const globalErrorHandler = (
   err: CustomError,
   _req: Request,
   res: Response,
-  // _next: NextFunction,
+  next: NextFunction,
 ) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
 
