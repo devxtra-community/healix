@@ -17,18 +17,19 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const router = useRouter()
+  const router = useRouter();
 
   const handleSubmit = async () => {
     setError('');
     setIsLoading(true);
-    const formData = { email, password, role: 'admin', provider: "email" };
+    const formData = { email, password, role: 'admin', provider: 'email' };
     try {
-      const { data } = await api.post('/auth/login', formData);
-      if(data.accessToken && data.success) {
-        localStorage.setItem('token', data.accessToken)
+      const { data } = await api.post('/auth/admin/login', formData);
+
+      if (data.accessToken && data.success) {
+        localStorage.setItem('token', data.accessToken);
       }
-      setIsLoading(false)
+      setIsLoading(false);
       router.push('/dashboard');
     } catch (err) {
       console.error('Full Error Object:', err);
@@ -40,6 +41,7 @@ export default function AdminLogin() {
 
       // Display it
       setError(msg || 'Login failed. Please check your email and password.');
+      setIsLoading(false);
     }
   };
 
