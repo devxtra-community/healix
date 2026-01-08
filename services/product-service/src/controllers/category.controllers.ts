@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { CategoryService } from '../services/category.services';
+import { CategoryService } from '../services/category.services.js';
 export class CategoryControll {
   private categoryService: CategoryService;
   constructor(categoryService: CategoryService) {

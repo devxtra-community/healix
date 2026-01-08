@@ -1,5 +1,5 @@
-import { CategoryRepository } from '../repositories/category.repositories';
-import { ICategory } from '../models/category.model';
+import { CategoryRepository } from '../repositories/category.repositories.js';
+import { ICategory } from '../models/category.model.js';
 import { Types, UpdateQuery } from 'mongoose';
 export class CategoryService {
   private categoryRepository: CategoryRepository;
@@ -18,7 +18,7 @@ export class CategoryService {
     return this.categoryRepository.findById(id);
   }
   async getAllCategories(
-    filter: Partial<ICategory> & Record<string, any>,
+    filter: Partial<ICategory> & Record<string, unknown>,
   ): Promise<ICategory[]> {
     return this.categoryRepository.findAll(filter);
   }

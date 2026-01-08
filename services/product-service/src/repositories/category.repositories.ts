@@ -1,5 +1,5 @@
 import { Model, Types, UpdateQuery } from 'mongoose';
-import { ICategory, CategoryModel } from '../models/category.model';
+import { ICategory } from '../models/category.model.js';
 export class CategoryRepository {
   private categoryModel: Model<ICategory>;
   constructor(categoryModel: Model<ICategory>) {
@@ -15,12 +15,12 @@ export class CategoryRepository {
     return this.categoryModel.findById(id).exec();
   }
   async findAll(
-    filter: Partial<ICategory> & Record<string, any>,
+    filter: Partial<ICategory> & Record<string, unknown>,
   ): Promise<ICategory[]> {
     return this.categoryModel.find(filter).exec();
   }
   async update(
-    id: String | Types.ObjectId,
+    id: string | Types.ObjectId,
     updateData: UpdateQuery<ICategory>,
   ): Promise<ICategory | null> {
     return this.categoryModel

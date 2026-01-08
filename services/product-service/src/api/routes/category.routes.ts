@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { CategoryControll } from '../../controllers/category.controllers';
-import { CategoryRepository } from '../../repositories/category.repositories';
-import { CategoryModel } from '../../models/category.model';
-import { CategoryService } from '../../services/category.services';
+import { CategoryControll } from '../../controllers/category.controllers.js';
+import { CategoryRepository } from '../../repositories/category.repositories.js';
+import { CategoryModel } from '../../models/category.model.js';
+import { CategoryService } from '../../services/category.services.js';
 
 const route = Router();
 const repo = new CategoryRepository(CategoryModel);

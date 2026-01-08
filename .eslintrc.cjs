@@ -8,7 +8,7 @@ module.exports = {
     './frontend/web/tsconfig.json',
     './gateway/tsconfig.json',
     './services/user-service/tsconfig.json',
-    './services/admin-service/tsconfig.json'
+    './services/product-service/tsconfig.json'
   ],
   tsconfigRootDir: __dirname
 },

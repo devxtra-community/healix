@@ -1,4 +1,4 @@
-import { Date, model, Model, Schema, Types } from 'mongoose';
+import { Date, model, Schema, Types } from 'mongoose';
 export interface ICategory {
   _id: Types.ObjectId;
   name: string;
