@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { Shield, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import api from '@/src/lib/axios';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
+import { authService } from '@/src/services/auth.services';
 
 interface ErrorResponse {
   message: string;
@@ -18,19 +18,20 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
+  const { adminLogin } = authService;
 
   const handleSubmit = async () => {
     setError('');
     setIsLoading(true);
     const formData = { email, password, role: 'admin', provider: 'email' };
     try {
-      const { data } = await api.post('/auth/admin/login', formData);
+      const data = await adminLogin(formData);
 
-      if (data.accessToken && data.success) {
-        localStorage.setItem('token', data.accessToken);
-      }
+      console.log(data);
       setIsLoading(false);
-      router.push('/dashboard');
+      if (data.success && data.accessToken) {
+        router.push('/admin');
+      }
     } catch (err) {
       console.error('Full Error Object:', err);
 

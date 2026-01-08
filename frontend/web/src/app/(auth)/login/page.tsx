@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { FcGoogle } from 'react-icons/fc';
 import { useRouter } from 'next/navigation';
-import api from '@/src/lib/axios';
 import { AxiosError } from 'axios';
+import { authService } from '@/src/services/auth.services';
 
 interface ErrorResponse {
   message: string;
@@ -21,6 +21,8 @@ export default function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const { login } = authService;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,12 +40,11 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const { data } = await api.post('/auth/login', formData);
+      const data = await login(formData);
 
-      if (data?.token) {
-        localStorage.setItem('token', data.token);
+      if (data.success && data.accessToken) {
+        router.push('/');
       }
-      router.push('/dashboard');
     } catch (err) {
       console.error('Full Error Object:', err);
 
