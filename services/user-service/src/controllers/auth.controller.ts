@@ -27,7 +27,7 @@ export class AuthController {
   };
 
   // POST /login
-  login = async (req: Request, res: Response, next: NextFunction) => {
+  loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body;
 
@@ -37,7 +37,7 @@ export class AuthController {
           .json({ success: false, message: 'Email and password are required' });
       }
 
-      const { accessToken, refreshToken } = await this.authService.login(
+      const { accessToken, refreshToken } = await this.authService.loginUser(
         email,
         password,
       );
@@ -77,7 +77,7 @@ export class AuthController {
   };
 
   // POST /refresh
-  refresh = async (req: Request, res: Response, next: NextFunction) => {
+  refreshUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = req.cookies.refreshToken;
       console.log(refreshToken);
@@ -87,7 +87,25 @@ export class AuthController {
           .json({ success: false, message: 'Refresh token missing' });
       }
 
-      const { accessToken } = await this.authService.refresh(refreshToken);
+      const { accessToken } = await this.authService.refreshUser(refreshToken);
+      res.status(200).json({ success: true, accessToken });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  refreshAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const adminRefreshToken = req.cookies.adminRefreshToken;
+      console.log(adminRefreshToken);
+      if (!adminRefreshToken) {
+        return res
+          .status(401)
+          .json({ success: false, message: 'Admin refresh token missing' });
+      }
+
+      const { accessToken } =
+        await this.authService.refreshAdmin(adminRefreshToken);
       res.status(200).json({ success: true, accessToken });
     } catch (error) {
       next(error);
@@ -112,7 +130,7 @@ export class AuthController {
   };
 
   // POST /logout
-  logout = async (req: Request, res: Response, next: NextFunction) => {
+  logoutUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = req.cookies.refreshToken;
       if (!refreshToken) {
@@ -123,6 +141,23 @@ export class AuthController {
 
       await this.authService.logout(refreshToken);
       res.clearCookie('refreshToken');
+      res.sendStatus(204);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  logoutAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const adminRefreshToken = req.cookies.adminRefreshToken;
+      if (!adminRefreshToken) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Admin Refresh token missing' });
+      }
+
+      await this.authService.logout(adminRefreshToken);
+      res.clearCookie('adminRefreshToken');
       res.sendStatus(204);
     } catch (error) {
       next(error);

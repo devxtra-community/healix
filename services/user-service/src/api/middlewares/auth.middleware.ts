@@ -19,3 +19,10 @@ export const authMiddleware = (
 
   next();
 };
+
+export const adminOnly = (req: Request, _res: Response, next: NextFunction) => {
+  if (req.auth?.role !== 'admin') {
+    throw new UnauthorizedError('Admin only');
+  }
+  next();
+};

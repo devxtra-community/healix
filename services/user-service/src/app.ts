@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import authRoutes from './api/routes/auth.routes.js';
+import userRoutes from './api/routes/user.routes.js';
+import adminRoutes from './api/routes/admin.routes.js';
 import profileRoutes from './api/routes/profile.routes.js';
 import addressRoutes from './api/routes/address.routes.js';
 import healthRouter from './api/routes/health.routes.js';
@@ -22,7 +23,8 @@ app.use(
 );
 
 //routes
-app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/auth/user', userRoutes);
+app.use('/api/v1/auth/admin', adminRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/address', addressRoutes);
 app.use('/health', healthRouter);

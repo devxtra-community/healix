@@ -13,12 +13,10 @@ const authService = new AuthService();
 const authController = new AuthController(authService);
 
 router.post('/register', validate(RegisterSchema), authController.register);
-router.post('/login', validate(LoginSchema), authController.login);
+router.post('/login', validate(LoginSchema), authController.loginUser);
 
-router.post('/admin/login', validate(LoginSchema), authController.loginAdmin);
-
-router.post('/refresh', authMiddleware, authController.refresh);
-router.delete('/logout', authController.logout);
+router.post('/refresh', authMiddleware, authController.refreshUser);
+router.delete('/logout', authController.logoutUser);
 
 router.get('/me', authMiddleware, authController.me);
 
