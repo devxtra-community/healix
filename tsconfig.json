@@ -4,6 +4,6 @@
     { "path": "frontend/web" },
     { "path": "gateway" },
     { "path": "services/user-service" },
-    { "path": "services/admin-service" }
+    { "path": "services/product-service" }
   ]
 }

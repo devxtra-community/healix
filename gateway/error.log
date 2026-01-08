@@ -1141,7 +1141,6 @@
 {"level":"info","message":"GET /health 429 0.483 ms","service":"api-gateway","timestamp":"2025-12-28T17:13:20.055Z"}
 {"level":"info","message":"GET /health 429 0.458 ms","service":"api-gateway","timestamp":"2025-12-28T17:13:20.067Z"}
 {"level":"info","message":"GET /health 429 0.330 ms","service":"api-gateway","timestamp":"2025-12-28T17:13:20.077Z"}
-{"level":"info","message":"GET /health 429 0.465 ms","service":"api-gateway","timestamp":"2025-12-28T17:13:20.088Z"}
 {"level":"info","message":"GET /health 429 0.309 ms","service":"api-gateway","timestamp":"2025-12-28T17:13:20.098Z"}
 {"level":"info","message":"GET /health 429 0.317 ms","service":"api-gateway","timestamp":"2025-12-28T17:13:20.106Z"}
 {"level":"info","message":"GET /health 429 0.312 ms","service":"api-gateway","timestamp":"2025-12-28T17:13:20.116Z"}
