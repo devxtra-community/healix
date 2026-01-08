@@ -6,12 +6,12 @@ const userServiceProxy = createProxyMiddleware({
   target: process.env.USER_SERVICE_URL!,
   changeOrigin: true,
   pathRewrite: {
-    '^/login': '/api/v1/auth/login',
-    '^/admin/login': '/api/v1/auth/admin/login',
-    '^/register': '/api/v1/auth/register',
-    '^/profile': '/api/v1/auth/profile',
-    '^/refresh': '/api/v1/auth/refresh',
-    '^/me': '/api/v1/auth/me',
+    '^/login': '/api/v1/auth/user/login',
+    '^/register': '/api/v1/auth/user/register',
+    '^/logut': '/api/v1/auth/user/logout',
+    '^/profile': '/api/v1/auth/user/profile',
+    '^/refresh': '/api/v1/auth/user/refresh',
+    '^/me': '/api/v1/auth/user/me',
   },
   on: {
     proxyReq(proxyReq, req: Request) {
@@ -25,7 +25,6 @@ const userServiceProxy = createProxyMiddleware({
 });
 
 router.post('/login', userServiceProxy);
-router.post('/admin/login', userServiceProxy);
 router.post('/register', userServiceProxy);
 router.put('/change_password', verifyToken, userServiceProxy);
 router.post('/logout', verifyToken, userServiceProxy);
