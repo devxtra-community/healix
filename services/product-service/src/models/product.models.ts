@@ -39,5 +39,5 @@ const ProductSchema = new Schema<IProduct>(
     },
   },
 );
-ProductSchema.index({ category_id: 1 });
+
 export const ProductModel = model<IProduct>('product', ProductSchema);
