@@ -1,6 +1,7 @@
 import { CategoryRepository } from '../repositories/category.repositories.js';
 import { ICategory } from '../models/category.model.js';
 import { Types, UpdateQuery } from 'mongoose';
+import { BadRequestError } from '../errors/BadRequestError.js';
 export class CategoryService {
   private categoryRepository: CategoryRepository;
   constructor(categoryRepository: CategoryRepository) {
@@ -10,7 +11,7 @@ export class CategoryService {
     categoryData: Omit<ICategory, '_id' | 'created_at' | 'updated_at'>,
   ) {
     if (!categoryData.name) {
-      throw new Error('Category name is required');
+      throw new BadRequestError('Category name is required');
     }
     return this.categoryRepository.create(categoryData);
   }
