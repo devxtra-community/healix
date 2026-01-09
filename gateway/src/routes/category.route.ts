@@ -16,13 +16,20 @@ const productServiceProxy = createProxyMiddleware({
   on: {
     proxyReq(proxyReq, req: Request) {
       const userId = req.user?.sub;
+      const userRole = req.user?.role;
 
       if (!userId) {
         console.error('x-user-id missing in gateway');
         return;
       }
 
+      if (!userRole) {
+        console.error('x-user-role missing in gateway');
+        return;
+      }
+
       proxyReq.setHeader('x-user-id', userId);
+      proxyReq.setHeader('x-user-role', userRole);
     },
   },
 });
