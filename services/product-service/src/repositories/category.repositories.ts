@@ -1,5 +1,5 @@
 import { Model, Types, UpdateQuery } from 'mongoose';
-import { ICategory } from '../models/category.model.js';
+import { ICategory } from '../models/category.models.js';
 export class CategoryRepository {
   private categoryModel: Model<ICategory>;
   constructor(categoryModel: Model<ICategory>) {

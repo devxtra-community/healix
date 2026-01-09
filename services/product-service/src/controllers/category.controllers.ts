@@ -63,11 +63,10 @@ export class CategoryControll {
   };
   //user
   getActiveCategoriesHandler = async (req: Request, res: Response) => {
-  const categories =
-    await this.categoryService.getActiveCategories();
+    const categories = await this.categoryService.getActiveCategories();
 
-  res.status(200).json(categories);
-};
+    res.status(200).json(categories);
+  };
 
   updateHandler = async (req: Request, res: Response): Promise<void> => {
     try {

@@ -1,5 +1,5 @@
 import { CategoryRepository } from '../repositories/category.repositories.js';
-import { ICategory } from '../models/category.model.js';
+import { ICategory } from '../models/category.models.js';
 import { Types, UpdateQuery } from 'mongoose';
 import { BadRequestError } from '../errors/BadRequestError.js';
 export class CategoryService {
@@ -15,7 +15,7 @@ export class CategoryService {
     }
     return this.categoryRepository.create(categoryData);
   }
-  async categoryById(id: string | Types.ObjectId): Promise<ICategory |null> {
+  async categoryById(id: string | Types.ObjectId): Promise<ICategory | null> {
     return this.categoryRepository.findById(id);
   }
   async getAllCategories(
@@ -25,8 +25,8 @@ export class CategoryService {
   }
   //user
   async getActiveCategories() {
-  return this.categoryRepository.findAll({ isActive: true });
-}
+    return this.categoryRepository.findAll({ isActive: true });
+  }
 
   async update(
     id: string | Types.ObjectId,
