@@ -49,7 +49,7 @@ export class CategoryControll {
     try {
       const category = await this.categoryService.getAllCategories(req.query);
       if (category.length === 0) {
-        res.status(404).json({ message: 'No Categories Found' });
+        res.status(200).json([]);
         return;
       }
       res.status(200).json(category);
@@ -61,6 +61,14 @@ export class CategoryControll {
       }
     }
   };
+  //user
+  getActiveCategoriesHandler = async (req: Request, res: Response) => {
+  const categories =
+    await this.categoryService.getActiveCategories();
+
+  res.status(200).json(categories);
+};
+
   updateHandler = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;

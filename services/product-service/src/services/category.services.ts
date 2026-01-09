@@ -15,7 +15,7 @@ export class CategoryService {
     }
     return this.categoryRepository.create(categoryData);
   }
-  async categoryById(id: string | Types.ObjectId): Promise<ICategory | null> {
+  async categoryById(id: string | Types.ObjectId): Promise<ICategory |null> {
     return this.categoryRepository.findById(id);
   }
   async getAllCategories(
@@ -23,6 +23,11 @@ export class CategoryService {
   ): Promise<ICategory[]> {
     return this.categoryRepository.findAll(filter);
   }
+  //user
+  async getActiveCategories() {
+  return this.categoryRepository.findAll({ isActive: true });
+}
+
   async update(
     id: string | Types.ObjectId,
     updateData: UpdateQuery<ICategory>,

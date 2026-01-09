@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { CategoryControll } from '../../controllers/category.controllers.js';
 import { CategoryRepository } from '../../repositories/category.repositories.js';
-import { CategoryModel } from '../../models/category.model.js';
+import { CategoryModel } from '../../models/category.models.js';
 import { CategoryService } from '../../services/category.services.js';
 import { adminOnly } from '../middlewares/auth.middleware.js';
 
