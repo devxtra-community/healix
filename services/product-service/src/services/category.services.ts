@@ -6,9 +6,12 @@ import { ProductRepository } from '../repositories/product.repositories.js';
 export class CategoryService {
   private categoryRepository: CategoryRepository;
   private productRepository: ProductRepository;
-  constructor(categoryRepository: CategoryRepository,productRepository:ProductRepository) {
+  constructor(
+    categoryRepository: CategoryRepository,
+    productRepository: ProductRepository,
+  ) {
     this.categoryRepository = categoryRepository;
-    this.productRepository=productRepository;
+    this.productRepository = productRepository;
   }
   async createCategory(
     categoryData: Omit<ICategory, '_id' | 'created_at' | 'updated_at'>,
@@ -39,16 +42,15 @@ export class CategoryService {
   }
   async disabled(id: string | Types.ObjectId): Promise<ICategory | null> {
     if (!Types.ObjectId.isValid(id)) {
-    throw new Error('Invalid category id');
-  }
-  const hasProducts =
-    await this.productRepository.existsByCategory(id);
+      throw new Error('Invalid category id');
+    }
+    const hasProducts = await this.productRepository.existsByCategory(id);
 
-  if (hasProducts) {
-    throw new Error(
-      'Cannot disable category. Products exist under this category.',
-    );
-  }
+    if (hasProducts) {
+      throw new Error(
+        'Cannot disable category. Products exist under this category.',
+      );
+    }
     return this.categoryRepository.disabled(id);
   }
   async restore(id: string | Types.ObjectId): Promise<ICategory | null> {
