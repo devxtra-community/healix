@@ -175,4 +175,12 @@ export class ProductRepository {
       { new: true },
     );
   }
+  async existsByCategory(categoryId: string | Types.ObjectId): Promise<boolean> {
+  const count = await ProductModel.countDocuments({
+    category_id: categoryId,
+    is_delete: false,
+  });
+
+  return count > 0;
+}
 }
