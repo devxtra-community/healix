@@ -20,7 +20,8 @@ const ProductSchema = new Schema<IProduct>(
     current_version_id: {
       type: Schema.Types.ObjectId,
       ref: 'ProductVersion',
-      required: true,
+      default: null,
+      //required: true
     },
     is_delete: {
       type: Boolean,

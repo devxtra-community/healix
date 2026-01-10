@@ -105,4 +105,18 @@ export class ProdutController {
       next(error);
     }
   }
+
+  async deleteProduct(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { productId } = req.params;
+      const products = await productService.deleteProduct(productId);
+      res.status(200).json(products);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

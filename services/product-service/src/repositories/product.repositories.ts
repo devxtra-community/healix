@@ -103,7 +103,7 @@ export class ProductRepository {
     const product = await ProductModel.findById(productId)
       .populate({
         path: 'current_version_id',
-        model: 'productVersion',
+        model: 'ProductVersion',
       })
       .lean();
     if (!product) return null;
