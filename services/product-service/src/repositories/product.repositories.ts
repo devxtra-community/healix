@@ -1,5 +1,5 @@
-import { startSession, Types } from 'mongoose';
-import { ProductModel } from '../models/product.models.js';
+import { ClientSession, Types } from 'mongoose';
+import { IProduct, ProductModel } from '../models/product.models.js';
 import {
   IProductDetails,
   ProductDetailsModel,
@@ -10,95 +10,98 @@ import {
 } from '../models/product-version.models.js';
 
 export class ProductRepository {
+  //CREATE PRODUCT
   async createProduct(
-    category_id: string,
+    categoryId: string,
     versionData: Partial<IProductVersion>,
     detailsData: Partial<IProductDetails>,
-  ) {
-    const session = await startSession();
-    try {
-      session.startTransaction();
-      const [product] = await ProductModel.create(
-        [{ category_id: new Types.ObjectId(category_id) }],
-        { session },
-      );
-      const [version] = await ProductVersionModel.create(
-        [
-          {
-            ...versionData,
-            product_id: product._id,
-            version: 1,
-          },
-        ],
-        { session },
-      );
-      await ProductDetailsModel.create(
-        [
-          {
-            ...detailsData,
-            product_version_id: version._id,
-          },
-        ],
-        { session },
-      );
-      product.current_version_id = version._id;
-      await product.save({ session });
-      await session.commitTransaction();
-      return product;
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
-    }
+    session: ClientSession,
+  ): Promise<{
+    product: IProduct;
+    version: IProductVersion;
+  }> {
+    // 1. Create Product (WITHOUT current_version_id initially)
+    const [product] = await ProductModel.create(
+      [{ category_id: new Types.ObjectId(categoryId) }],
+      { session },
+    );
+
+    // 2. Create Product Version v1
+    const [version] = await ProductVersionModel.create(
+      [
+        {
+          ...versionData,
+          product_id: product._id,
+          version: 1,
+        },
+      ],
+      { session },
+    );
+
+    // 3. Create Product Details
+    await ProductDetailsModel.create(
+      [
+        {
+          ...detailsData,
+          product_version_id: version._id,
+        },
+      ],
+      { session },
+    );
+
+    // 4. Update Product with current version
+    product.current_version_id = version._id;
+    await product.save({ session });
+
+    return { product, version };
   }
+
+  //CREATE NEW VERSION
   async createNewVersion(
     productId: string,
-    updateData: Partial<IProductVersion>,
-    deatilsData: Partial<IProductDetails>,
-  ) {
-    const session = await startSession();
-    try {
-      session.startTransaction();
-      const lastVersion = await ProductVersionModel.findOne({
-        product_id: productId,
-      })
-        .sort({ version: -1 })
-        .session(session);
-      const nextVersionNumber = (lastVersion?.version || 0) + 1;
-      const [newVersion] = await ProductVersionModel.create(
-        [
-          {
-            ...updateData,
-            product_id: new Types.ObjectId(productId),
-            version: nextVersionNumber,
-          },
-        ],
-        { session },
-      );
-      await ProductDetailsModel.create(
-        [
-          {
-            ...deatilsData,
-            product_version_id: newVersion._id,
-          },
-        ],
-        { session },
-      );
-      await ProductModel.findByIdAndUpdate(
-        productId,
-        { current_version_id: newVersion._id },
-        { session },
-      );
-      await session.commitTransaction();
-      return newVersion;
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      await session.endSession();
-    }
+    versionData: Partial<IProductVersion>,
+    detailsData: Partial<IProductDetails>,
+    session: ClientSession,
+  ): Promise<IProductVersion> {
+    const lastVersion = await ProductVersionModel.findOne({
+      product_id: productId,
+    })
+      .sort({ version: -1 })
+      .session(session);
+
+    const nextVersionNumber = (lastVersion?.version ?? 0) + 1;
+
+    const [newVersion] = await ProductVersionModel.create(
+      [
+        {
+          ...versionData,
+          product_id: new Types.ObjectId(productId),
+          version: nextVersionNumber,
+        },
+      ],
+      { session },
+    );
+
+    await ProductDetailsModel.create(
+      [
+        {
+          ...detailsData,
+          product_version_id: newVersion._id,
+        },
+      ],
+      { session },
+    );
+
+    await ProductModel.findByIdAndUpdate(
+      productId,
+      { current_version_id: newVersion._id },
+      { session },
+    );
+
+    return newVersion;
   }
+
+  //GET SINGLE PRODUCT
   async getProduct(productId: string) {
     const product = await ProductModel.findById(productId)
       .populate({
@@ -106,15 +109,20 @@ export class ProductRepository {
         model: 'ProductVersion',
       })
       .lean();
+
     if (!product) return null;
+
     const details = await ProductDetailsModel.findOne({
       product_version_id: product.current_version_id,
     }).lean();
+
     return {
       ...product,
       details,
     };
   }
+
+  //ADMIN LIST
   async getAllProductsForAdmin({
     page,
     limit,
@@ -141,8 +149,10 @@ export class ProductRepository {
       total,
     };
   }
-  async getProductsFroUser() {
-    return await ProductModel.aggregate([
+
+  //USER LIST
+  async getProductsForUser() {
+    return ProductModel.aggregate([
       { $match: { is_delete: false } },
       {
         $lookup: {
@@ -152,7 +162,7 @@ export class ProductRepository {
           as: 'current_version',
         },
       },
-      { $unwind: 'current_version' },
+      { $unwind: '$current_version' },
       { $match: { 'current_version.status': 'active' } },
       {
         $lookup: {
@@ -162,11 +172,13 @@ export class ProductRepository {
           as: 'details',
         },
       },
-      { $unwind: { path: 'details', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$details', preserveNullAndEmptyArrays: true } },
     ]);
   }
+
+  //DELETE
   async deleteProduct(productId: string) {
-    return await ProductModel.findByIdAndUpdate(
+    return ProductModel.findByIdAndUpdate(
       productId,
       {
         is_delete: true,

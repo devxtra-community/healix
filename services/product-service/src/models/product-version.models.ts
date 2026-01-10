@@ -1,10 +1,12 @@
 import { Schema, model, Types } from 'mongoose';
+
 export type ProductStatus =
   | 'active'
   | 'inactive'
   | 'out-of-stock'
   | 'coming-soon'
   | 'discontinued';
+
 export interface IProductVersion {
   _id: Types.ObjectId;
   product_id: Types.ObjectId;
@@ -15,17 +17,19 @@ export interface IProductVersion {
   tags?: string[];
   price: number;
   images: string[];
-  stock: number;
   status: ProductStatus;
+
   attributes: {
     flavor?: string;
     pack_size?: string;
     form?: 'powder' | 'capsule' | 'liquid' | 'bar';
   };
+
   ratings: {
     count: number;
     average: number;
   };
+
   created_at: Date;
 }
 
@@ -33,24 +37,20 @@ const ProductVersionSchema = new Schema<IProductVersion>(
   {
     product_id: {
       type: Schema.Types.ObjectId,
-      ref: 'product',
+      ref: 'Product',
       required: true,
       index: true,
     },
-    version: {
-      type: Number,
-      required: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
+
+    version: { type: Number, required: true },
+
+    name: { type: String, required: true },
     description: String,
     brand: String,
     tags: [String],
+
     price: { type: Number, required: true },
     images: [String],
-    stock: { type: Number, default: 0 },
 
     status: {
       type: String,
@@ -85,6 +85,7 @@ const ProductVersionSchema = new Schema<IProductVersion>(
     },
   },
 );
+
 ProductVersionSchema.index({ product_id: 1, version: -1 });
 
 export const ProductVersionModel = model<IProductVersion>(

@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { ProdutController } from '../../controllers/product.controllers.js';
+import { ProductController } from '../../controllers/product.controllers.js';
 import { adminOnly } from '../middlewares/auth.middleware.js';
 const router = Router();
-const productcontroller = new ProdutController();
+const productcontroller = new ProductController();
 router.get('/admin/all', adminOnly, productcontroller.getAllProductsForAdmin);
 router.get('/:productId', productcontroller.getProduct);
 router.post('/', adminOnly, productcontroller.createProduct);
