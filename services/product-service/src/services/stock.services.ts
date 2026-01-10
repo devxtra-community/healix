@@ -16,11 +16,7 @@ export class StockService {
       throw new Error('Initial stock cannot be negative');
     }
 
-    return this.stockRepo.createInitialStock(
-      versionId,
-      total,
-      session,
-    );
+    return this.stockRepo.createInitialStock(versionId, total, session);
   }
 
   // ================= READ =================
@@ -47,11 +43,7 @@ export class StockService {
       throw new Error('Quantity must be positive');
     }
 
-    return this.stockRepo.reserveStock(
-      versionId,
-      quantity,
-      session,
-    );
+    return this.stockRepo.reserveStock(versionId, quantity, session);
   }
 
   // Payment failed / order cancelled
@@ -64,11 +56,7 @@ export class StockService {
       throw new Error('Quantity must be positive');
     }
 
-    return this.stockRepo.releaseStock(
-      versionId,
-      quantity,
-      session,
-    );
+    return this.stockRepo.releaseStock(versionId, quantity, session);
   }
 
   // Order success
@@ -81,20 +69,13 @@ export class StockService {
       throw new Error('Quantity must be positive');
     }
 
-    return this.stockRepo.confirmStock(
-      versionId,
-      quantity,
-      session,
-    );
+    return this.stockRepo.confirmStock(versionId, quantity, session);
   }
 
   // ADMIN
 
   // Increase physical stock
-  async restock(
-    versionId: Types.ObjectId,
-    quantity: number,
-  ) {
+  async restock(versionId: Types.ObjectId, quantity: number) {
     if (quantity <= 0) {
       throw new Error('Restock quantity must be positive');
     }
@@ -103,10 +84,7 @@ export class StockService {
   }
 
   // Decrease stock (damage/loss)
-  async decreaseStock(
-    versionId: Types.ObjectId,
-    quantity: number,
-  ) {
+  async decreaseStock(versionId: Types.ObjectId, quantity: number) {
     if (quantity <= 0) {
       throw new Error('Decrease quantity must be positive');
     }
@@ -115,10 +93,7 @@ export class StockService {
   }
 
   // Hard correction (audit fix)
-  async correctStock(
-    versionId: Types.ObjectId,
-    newTotal: number,
-  ) {
+  async correctStock(versionId: Types.ObjectId, newTotal: number) {
     if (newTotal < 0) {
       throw new Error('Total cannot be negative');
     }

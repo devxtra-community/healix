@@ -2,7 +2,6 @@ import { ClientSession, Types } from 'mongoose';
 import { ProductStockModel } from '../models/product-stock.models.js';
 
 export class StockRepository {
-
   // CREATE INITIAL STOCK (idempotent-safe)
   async createInitialStock(
     productVersionId: Types.ObjectId,
@@ -102,13 +101,10 @@ export class StockRepository {
     return stock;
   }
 
-  // ADMIN OPERATIONS 
+  // ADMIN OPERATIONS
 
   // RESTOCK (increase physical stock)
-  async restock(
-    productVersionId: Types.ObjectId,
-    quantity: number,
-  ) {
+  async restock(productVersionId: Types.ObjectId, quantity: number) {
     if (quantity <= 0) {
       throw new Error('Restock quantity must be positive');
     }
@@ -126,10 +122,7 @@ export class StockRepository {
   }
 
   // ADMIN DECREASE (loss / damage)
-  async decreaseStock(
-    productVersionId: Types.ObjectId,
-    quantity: number,
-  ) {
+  async decreaseStock(productVersionId: Types.ObjectId, quantity: number) {
     if (quantity <= 0) {
       throw new Error('Decrease quantity must be positive');
     }
@@ -156,10 +149,7 @@ export class StockRepository {
   }
 
   // HARD CORRECTION (audit fix)
-  async correctTotal(
-    productVersionId: Types.ObjectId,
-    newTotal: number,
-  ) {
+  async correctTotal(productVersionId: Types.ObjectId, newTotal: number) {
     const stock = await ProductStockModel.findOne({
       product_version_id: productVersionId,
     });

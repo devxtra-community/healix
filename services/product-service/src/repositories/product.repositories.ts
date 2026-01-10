@@ -9,10 +9,6 @@ import {
   ProductVersionModel,
 } from '../models/product-version.models.js';
 
-type ProductWithVersion = Omit<IProduct, 'current_version_id'> & {
-  current_version_id: IProductVersion;
-};
-
 export class ProductRepository {
   //CREATE PRODUCT
   async createProduct(
@@ -65,13 +61,14 @@ export class ProductRepository {
     productId: string,
     versionData: Partial<IProductVersion>,
     detailsData: Partial<IProductDetails>,
-    session: ClientSession,
+    session?: ClientSession,
   ): Promise<IProductVersion> {
+    const mongoSession: ClientSession | null = session ?? null;
     const lastVersion = await ProductVersionModel.findOne({
       product_id: productId,
     })
       .sort({ version: -1 })
-      .session(session);
+      .session(mongoSession);
 
     const nextVersionNumber = (lastVersion?.version ?? 0) + 1;
 

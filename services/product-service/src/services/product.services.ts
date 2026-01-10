@@ -12,7 +12,7 @@ export class ProductService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly stockRepository: StockRepository,
-  ) { }
+  ) {}
 
   // ================= CREATE PRODUCT =================
   async createProduct(
@@ -111,12 +111,10 @@ export class ProductService {
   }
 
   // ================= GET PRODUCT =================
-  async getProduct(
-    productId: string,
-  ): Promise<
+  async getProduct(productId: string): Promise<
     | (ProductWithCurrentVersion & {
-      details?: IProductDetails | null;
-    })
+        details?: IProductDetails | null;
+      })
     | null
   > {
     if (!Types.ObjectId.isValid(productId)) {
