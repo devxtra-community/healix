@@ -4,12 +4,15 @@ import { IProductVersion } from '../models/product-version.models.js';
 import { IProduct } from '../models/product.models.js';
 import { ProductRepository } from '../repositories/product.repositories.js';
 import { StockRepository } from '../repositories/stock.repositories.js';
+type ProductWithCurrentVersion = Omit<IProduct, 'current_version_id'> & {
+  current_version_id: IProductVersion;
+};
 
 export class ProductService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly stockRepository: StockRepository,
-  ) {}
+  ) { }
 
   // ================= CREATE PRODUCT =================
   async createProduct(
@@ -110,7 +113,12 @@ export class ProductService {
   // ================= GET PRODUCT =================
   async getProduct(
     productId: string,
-  ): Promise<(IProduct & { details?: IProductDetails | null }) | null> {
+  ): Promise<
+    | (ProductWithCurrentVersion & {
+      details?: IProductDetails | null;
+    })
+    | null
+  > {
     if (!Types.ObjectId.isValid(productId)) {
       throw new Error('Invalid product ID');
     }

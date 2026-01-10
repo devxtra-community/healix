@@ -9,6 +9,10 @@ import {
   ProductVersionModel,
 } from '../models/product-version.models.js';
 
+type ProductWithVersion = Omit<IProduct, 'current_version_id'> & {
+  current_version_id: IProductVersion;
+};
+
 export class ProductRepository {
   //CREATE PRODUCT
   async createProduct(
@@ -118,6 +122,8 @@ export class ProductRepository {
 
     return {
       ...product,
+      current_version_id:
+        product.current_version_id as unknown as IProductVersion,
       details,
     };
   }
