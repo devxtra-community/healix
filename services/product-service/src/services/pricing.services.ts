@@ -7,16 +7,46 @@ export class PricingService {
     private productRepository: ProductRepository,
     private pricingRepository: PricingRepository,
   ) {}
-  async setBasePrice(productId: string, price: number) {
+
+  async setBasePrice(productId: string, newPrice: number) {
     if (!Types.ObjectId.isValid(productId)) {
       throw new Error('Invalid product Id');
     }
-    if (price <= 0) {
+
+    if (newPrice <= 0) {
       throw new Error('Price must be greater than 0');
     }
-    return this.productRepository.createNewVersion(productId, { price }, {});
+
+    const product = await this.productRepository.getProduct(productId);
+
+    if (!product?.current_version_id || !product.details) {
+      throw new Error('Product data incomplete');
+    }
+
+    const {
+      _id: ignoreVersionId,
+      price: ignorePrice,
+      ...versionData
+    } = product.current_version_id;
+
+    const { _id: ignoreDetailsId, ...detailsData } = product.details;
+
+    // Explicitly mark as used
+    void ignoreVersionId;
+    void ignorePrice;
+    void ignoreDetailsId;
+
+    return this.productRepository.createNewVersion(
+      productId,
+      {
+        ...versionData,
+        price: newPrice,
+      },
+      detailsData,
+    );
   }
-  async applyDiscount(
+
+  async createDiscount(
     data: Omit<IDiscount, 'used_count' | 'created_at' | 'updated_at'>,
   ) {
     if (data.value <= 0) {

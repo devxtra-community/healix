@@ -1,4 +1,4 @@
-import { PricingService } from '../services/pricing.service.js';
+import { PricingService } from '../services/pricing.services.js';
 import { Request, Response, NextFunction } from 'express';
 export class PricingController {
   constructor(private pricingservice: PricingService) {}
@@ -11,9 +11,9 @@ export class PricingController {
       next(error);
     }
   };
-  applyDiscount = async (req: Request, res: Response, next: NextFunction) => {
+  createDiscount = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const discount = await this.pricingservice.applyDiscount(req.body);
+      const discount = await this.pricingservice.createDiscount(req.body);
       res.status(201).json(discount);
     } catch (error) {
       next(error);
