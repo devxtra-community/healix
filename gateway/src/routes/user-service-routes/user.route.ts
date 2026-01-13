@@ -1,6 +1,6 @@
 import { Router, Request } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import { verifyToken } from '../middleware/auth.middleware.js';
+import { verifyToken } from '../../middleware/auth.middleware.js';
 const router = Router();
 const userServiceProxy = createProxyMiddleware({
   target: process.env.USER_SERVICE_URL!,
@@ -8,7 +8,7 @@ const userServiceProxy = createProxyMiddleware({
   pathRewrite: {
     '^/login': '/api/v1/auth/user/login',
     '^/register': '/api/v1/auth/user/register',
-    '^/logut': '/api/v1/auth/user/logout',
+    '^/logout': '/api/v1/auth/user/logout',
     '^/profile': '/api/v1/auth/user/profile',
     '^/refresh': '/api/v1/auth/user/refresh',
     '^/me': '/api/v1/auth/user/me',
