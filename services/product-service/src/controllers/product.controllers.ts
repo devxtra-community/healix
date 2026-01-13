@@ -45,7 +45,7 @@ export class ProductController {
     }
   }
 
-  //REATE NEW VERSION
+  //CREATE NEW VERSION
   async createNewVersion(
     req: Request,
     res: Response,

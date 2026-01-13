@@ -11,6 +11,6 @@ router.post('/release', controller.releaseStock);
 
 router.post('/restock', adminOnly, controller.reStock);
 router.post('/decrease', adminOnly, controller.decreaseStock);
-router.get('/:versionId', adminOnly, controller.getStock);
+router.get('/:versionId', controller.getStock);
 
 export default router;

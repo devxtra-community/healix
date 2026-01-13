@@ -1,11 +1,14 @@
 import { ProductRepository } from '../repositories/product.repositories.js';
 import { PricingRepository } from '../repositories/pricing.repositories.js';
-import { Types } from 'mongoose';
+import { startSession, Types } from 'mongoose';
 import { IDiscount } from '../models/discount.model.js';
+import { StockRepository } from '../repositories/stock.repositories.js';
+
 export class PricingService {
   constructor(
     private productRepository: ProductRepository,
     private pricingRepository: PricingRepository,
+    private readonly stockRepository: StockRepository,
   ) {}
 
   async setBasePrice(productId: string, newPrice: number) {
@@ -24,7 +27,7 @@ export class PricingService {
     }
 
     const {
-      _id: ignoreVersionId,
+      _id: versionId,
       price: ignorePrice,
       ...versionData
     } = product.current_version_id;
@@ -32,18 +35,39 @@ export class PricingService {
     const { _id: ignoreDetailsId, ...detailsData } = product.details;
 
     // Explicitly mark as used
-    void ignoreVersionId;
     void ignorePrice;
     void ignoreDetailsId;
 
-    return this.productRepository.createNewVersion(
-      productId,
-      {
-        ...versionData,
-        price: newPrice,
-      },
-      detailsData,
-    );
+    const session = await startSession();
+
+    try {
+      await session.startTransaction();
+
+      const newVersion = await this.productRepository.createNewVersion(
+        productId,
+        {
+          ...versionData,
+          price: newPrice,
+        },
+        detailsData,
+        session,
+      );
+
+      await this.stockRepository.updateStock(
+        versionId,
+        newVersion._id,
+        session,
+      );
+
+      await session.commitTransaction();
+
+      return newVersion;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
   async createDiscount(

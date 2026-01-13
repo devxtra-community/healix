@@ -22,6 +22,21 @@ export class StockRepository {
     );
   }
 
+  //UPDATE
+  async updateStock(
+    versionId: Types.ObjectId,
+    newVersionId: Types.ObjectId,
+    session?: ClientSession,
+  ) {
+    return ProductStockModel.findOneAndUpdate(
+      {
+        product_version_id: versionId,
+      },
+      { $set: { product_version_id: newVersionId } },
+      { new: true, session },
+    );
+  }
+
   // READ STOCK
   async getStock(productVersionId: Types.ObjectId) {
     return ProductStockModel.findOne({
