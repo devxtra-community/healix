@@ -1,3 +1,5 @@
+'use client';
+
 import adminApi from '../lib/axios.admin';
 import userApi from '../lib/axios.user';
 
@@ -9,12 +11,11 @@ export const authService = {
 
   adminLogin: async (data: { email: string; password: string }) => {
     const res = await adminApi.post('/auth/admin/login', data);
-
     return res.data;
   },
 
   adminMe: async () => {
-    return await adminApi.get('/auth/admin/me', { authType: 'admin' });
+    return await adminApi.get('/auth/admin/me');
   },
 
   // logoutUser: async () => {

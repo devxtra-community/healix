@@ -36,7 +36,7 @@ router.post('/register', userServiceProxy);
 router.put('/change_password', verifyToken, userServiceProxy);
 router.post('/logout', verifyToken, userServiceProxy);
 router.post('/refresh', setUserRefreshToken, userServiceProxy);
-router.post('/me', verifyToken, userServiceProxy);
+router.get('/me', verifyToken, userServiceProxy);
 router.post('/review', verifyToken, userServiceProxy);
 router.put('/review/:id', verifyToken, userServiceProxy);
 router.delete('/review/:id', verifyToken, userServiceProxy);

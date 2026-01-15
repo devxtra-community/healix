@@ -1,24 +1,33 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const publicRoutes = ['/', '/login', '/register', '/admin/login'];
+const PUBLIC_PATHS = ['/', '/login', '/register', '/admin/login'];
+
+// Helper
+function isPublicPath(pathname: string) {
+  return PUBLIC_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
+}
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (publicRoutes.includes(pathname)) {
+  // Skip public routes
+  if (isPublicPath(pathname)) {
     return NextResponse.next();
   }
 
-  const isAdmin = pathname.startsWith('/admin');
+  const isAdminRoute = pathname.startsWith('/admin');
 
-  const refreshToken = req.cookies.get(
-    isAdmin ? 'adminRefreshToken' : 'refreshToken',
+  // USE ACCESS TOKEN
+  const accessToken = req.cookies.get(
+    isAdminRoute ? 'adminAccessToken' : 'accessToken',
   )?.value;
 
-  if (!refreshToken) {
+  if (!accessToken) {
     return NextResponse.redirect(
-      new URL(isAdmin ? '/admin/login' : '/login', req.url),
+      new URL(isAdminRoute ? '/admin/login' : '/login', req.url),
     );
   }
 
@@ -26,5 +35,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next|favicon.ico|images).*)'],
+  matcher: ['/admin/:path*', '/account/:path*', '/checkout/:path*'],
 };

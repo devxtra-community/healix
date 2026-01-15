@@ -40,10 +40,9 @@ function tryVerify(token: string, secret: string): CustomJwtPayload | null {
 
 export function verifyToken(req: Request, res: Response, next: NextFunction) {
   const extracted = extractAccessToken(req);
-  console.log(extracted);
   if (!extracted) return res.sendStatus(401);
 
-  // 1️⃣ Try USER token
+  // Try USER token
   const userPayload = tryVerify(
     extracted.token,
     process.env.JWT_USER_ACCESS_SECRET!,
@@ -56,7 +55,7 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
     return next();
   }
 
-  // 2️⃣ Try ADMIN token
+  // Try ADMIN token
   const adminPayload = tryVerify(
     extracted.token,
     process.env.JWT_ADMIN_ACCESS_SECRET!,
@@ -69,7 +68,7 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
     return next();
   }
 
-  // ❌ Token invalid for both
+  // Token invalid for both
   return res.sendStatus(401);
 }
 
@@ -78,7 +77,9 @@ export function setAdminRefreshToken(
   res: Response,
   next: NextFunction,
 ) {
-  if (!req.cookies.adminRefreshToken || !req.cookies.refreshToken) {
+  const token = req.cookies?.refreshToken;
+
+  if (!token) {
     return res
       .status(400)
       .json({ status: false, message: 'Must need refresh token' });

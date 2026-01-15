@@ -18,25 +18,39 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    console.log('🚨 interceptor triggered');
+    console.log('status:', error.response?.status);
+    console.log('url:', originalRequest?.url);
+    console.log('_retry:', originalRequest?._retry);
+    console.log('authType:', originalRequest?.authType);
+
+    const isRefreshEndpoint =
+      originalRequest?.url?.includes('/auth/user/refresh') ||
+      originalRequest?.url?.includes('/auth/admin/refresh');
+
     if (
       error.response?.status === 401 &&
       !originalRequest?._retry &&
-      !originalRequest?.url?.includes('/auth')
+      !isRefreshEndpoint
     ) {
       originalRequest._retry = true;
 
+      const authType = originalRequest.authType;
+      if (!authType) {
+        console.log('authType missing');
+        return Promise.reject(error);
+      }
+
       try {
-        const authType = originalRequest.authType;
+        console.log('🔄 calling refresh...');
+        const res = await api.post(`/auth/${authType}/refresh`);
+        console.log(res);
+        console.log('refresh success');
 
-        if (!authType) {
-          return Promise.reject(error);
-        }
-
-        await api.post(`/auth/${authType}/refresh`);
         return api(originalRequest);
-      } catch {
-        window.location.href =
-          originalRequest.authType === 'admin' ? '/admin/login' : '/login';
+      } catch (e) {
+        console.log('refresh failed', e);
+        window.location.href = authType === 'admin' ? '/admin/login' : '/login';
       }
     }
 

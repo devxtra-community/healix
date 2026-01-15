@@ -12,31 +12,22 @@ export default function AdminLayout({
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
-  const { adminMe } = authService;
-
-  const getUser = async () => {
-    const user = await adminMe()
-      .then(() => setLoading(false))
-      .catch(() => {
-        router.replace('/admin/login');
-        setLoading(false);
-      });
-
-    console.log(user);
-  };
-
   useEffect(() => {
-    getUser();
-  }, []);
+    const checkAdminAuth = async () => {
+      try {
+        await authService.adminMe();
+        setLoading(false);
+      } catch {
+        router.replace('/admin/login');
+      }
+    };
+
+    checkAdminAuth();
+  }, [router]);
 
   if (loading) {
     return <div>Loading admin...</div>;
   }
 
-  return (
-    <div className="flex">
-      <aside className="w-64">Admin Sidebar</aside>
-      <main className="flex-1">{children}</main>
-    </div>
-  );
+  return <>{children}</>;
 }
