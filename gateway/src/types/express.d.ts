@@ -13,7 +13,12 @@ export interface CustomJwtPayload extends JwtPayload {
 declare global {
   namespace Express {
     interface Request {
-      user?: CustomJwtPayload; // Now it's typed more specifically
+      user?: CustomJwtPayload;
+      clientType?: 'web' | 'mobile';
+      authType?: 'user' | 'admin';
+      token?: string;
     }
   }
 }
+
+export {};

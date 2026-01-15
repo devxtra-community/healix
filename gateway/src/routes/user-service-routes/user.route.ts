@@ -1,6 +1,9 @@
 import { Router, Request } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import { verifyToken } from '../../middleware/auth.middleware.js';
+import {
+  setUserRefreshToken,
+  verifyToken,
+} from '../../middleware/auth.middleware.js';
 const router = Router();
 const userServiceProxy = createProxyMiddleware({
   target: process.env.USER_SERVICE_URL!,
@@ -20,6 +23,10 @@ const userServiceProxy = createProxyMiddleware({
         proxyReq.setHeader('x-user-role', req.user.role);
         proxyReq.setHeader('x-user-type', req.user.type);
       }
+
+      if (req.token) {
+        proxyReq.setHeader('token', req.token);
+      }
     },
   },
 });
@@ -28,8 +35,8 @@ router.post('/login', userServiceProxy);
 router.post('/register', userServiceProxy);
 router.put('/change_password', verifyToken, userServiceProxy);
 router.post('/logout', verifyToken, userServiceProxy);
-router.post('/refresh', userServiceProxy);
-router.get('/me', verifyToken, userServiceProxy);
+router.post('/refresh', setUserRefreshToken, userServiceProxy);
+router.post('/me', verifyToken, userServiceProxy);
 router.post('/review', verifyToken, userServiceProxy);
 router.put('/review/:id', verifyToken, userServiceProxy);
 router.delete('/review/:id', verifyToken, userServiceProxy);

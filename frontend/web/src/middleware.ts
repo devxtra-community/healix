@@ -13,7 +13,7 @@ export function middleware(req: NextRequest) {
   const isAdmin = pathname.startsWith('/admin');
 
   const refreshToken = req.cookies.get(
-    isAdmin ? 'adminRefreshToken' : '`refreshToken`',
+    isAdmin ? 'adminRefreshToken' : 'refreshToken',
   )?.value;
 
   if (!refreshToken) {

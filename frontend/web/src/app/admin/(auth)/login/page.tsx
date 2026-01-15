@@ -30,7 +30,7 @@ export default function AdminLogin() {
       console.log(data);
       setIsLoading(false);
       if (data.success && data.accessToken) {
-        router.push('/admin');
+        router.push('/admin/dashboard');
       }
     } catch (err) {
       console.error('Full Error Object:', err);

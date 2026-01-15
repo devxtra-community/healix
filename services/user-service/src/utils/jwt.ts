@@ -11,14 +11,14 @@ export function signUserAccessToken(payload: JwtPayload) {
   return jwt.sign(payload, process.env.JWT_USER_ACCESS_SECRET!, {
     expiresIn: '15m',
     audience: 'user',
-    issuer: 'auth-service',
+    issuer: 'user-service',
   });
 }
 
 export function verifyUserAccessToken(token: string) {
   return jwt.verify(token, process.env.JWT_USER_ACCESS_SECRET!, {
     audience: 'user',
-    issuer: 'auth-service',
+    issuer: 'user-service',
   }) as JwtPayload;
 }
 
@@ -26,14 +26,14 @@ export function signUserRefreshToken(payload: JwtPayload) {
   return jwt.sign(payload, process.env.JWT_USER_REFRESH_SECRET!, {
     expiresIn: '7d',
     audience: 'user',
-    issuer: 'auth-service',
+    issuer: 'user-service',
   });
 }
 
 export function verifyUserRefreshToken(token: string) {
   return jwt.verify(token, process.env.JWT_USER_REFRESH_SECRET!, {
     audience: 'user',
-    issuer: 'auth-service',
+    issuer: 'user-service',
   }) as JwtPayload;
 }
 
@@ -41,14 +41,14 @@ export function signAdminAccessToken(payload: JwtPayload) {
   return jwt.sign(payload, process.env.JWT_ADMIN_ACCESS_SECRET!, {
     expiresIn: '10m',
     audience: 'admin',
-    issuer: 'auth-service',
+    issuer: 'user-service',
   });
 }
 
 export function verifyAdminAccessToken(token: string) {
   return jwt.verify(token, process.env.JWT_ADMIN_ACCESS_SECRET!, {
     audience: 'admin',
-    issuer: 'auth-service',
+    issuer: 'user-service',
   }) as JwtPayload;
 }
 
@@ -56,14 +56,14 @@ export function signAdminRefreshToken(payload: JwtPayload) {
   return jwt.sign(payload, process.env.JWT_ADMIN_REFRESH_SECRET!, {
     expiresIn: '3d',
     audience: 'admin',
-    issuer: 'auth-service',
+    issuer: 'user-service',
   });
 }
 
 export function verifyAdminRefreshToken(token: string) {
   return jwt.verify(token, process.env.JWT_ADMIN_REFRESH_SECRET!, {
     audience: 'admin',
-    issuer: 'auth-service',
+    issuer: 'user-service',
   }) as JwtPayload;
 }
 

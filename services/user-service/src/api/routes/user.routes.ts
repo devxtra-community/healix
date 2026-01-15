@@ -15,7 +15,7 @@ const authController = new AuthController(authService);
 router.post('/register', validate(RegisterSchema), authController.register);
 router.post('/login', validate(LoginSchema), authController.loginUser);
 
-router.post('/refresh', authMiddleware, authController.refreshUser);
+router.post('/refresh', authController.refreshUser);
 router.delete('/logout', authController.logoutUser);
 
 router.get('/me', authMiddleware, authController.me);

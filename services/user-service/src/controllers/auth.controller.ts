@@ -42,13 +42,20 @@ export class AuthController {
         password,
       );
 
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 min
+      });
+
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       });
 
-      res.status(200).json({ success: true, accessToken });
+      res.status(200).json({ success: true });
     } catch (error) {
       next(error);
     }
@@ -63,11 +70,17 @@ export class AuthController {
         password,
       );
 
+      res.cookie('adminAccessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
       res.cookie('adminRefreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        path: '/admin',
+        path: '/',
       });
 
       res.status(200).json({ success: true, accessToken });
@@ -79,8 +92,8 @@ export class AuthController {
   // POST /refresh
   refreshUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken = req.cookies.refreshToken;
-      console.log(refreshToken);
+      const refreshToken = req.header('token');
+
       if (!refreshToken) {
         return res
           .status(401)
@@ -88,7 +101,15 @@ export class AuthController {
       }
 
       const { accessToken } = await this.authService.refreshUser(refreshToken);
-      res.status(200).json({ success: true, accessToken });
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 min
+      });
+
+      res.status(200).json({ success: true });
     } catch (error) {
       next(error);
     }
@@ -96,8 +117,7 @@ export class AuthController {
 
   refreshAdmin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const adminRefreshToken = req.cookies.adminRefreshToken;
-      console.log(adminRefreshToken);
+      const adminRefreshToken = req.header('token');
       if (!adminRefreshToken) {
         return res
           .status(401)
@@ -106,7 +126,14 @@ export class AuthController {
 
       const { accessToken } =
         await this.authService.refreshAdmin(adminRefreshToken);
-      res.status(200).json({ success: true, accessToken });
+
+      res.cookie('adminAccessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      res.status(200).json({ success: true });
     } catch (error) {
       next(error);
     }

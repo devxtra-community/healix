@@ -10,7 +10,7 @@ const authService = new AuthService();
 const authController = new AuthController(authService);
 
 router.post('/login', validate(LoginSchema), authController.loginAdmin);
-router.post('/refresh', authMiddleware, authController.refreshAdmin);
+router.post('/refresh', authController.refreshAdmin);
 router.delete('/logout', authController.logoutAdmin);
 router.get('/me', authMiddleware, authController.me);
 

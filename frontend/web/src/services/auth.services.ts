@@ -1,25 +1,24 @@
-import api from '../lib/axios';
-import { tokenStore } from '../lib/token';
+import adminApi from '../lib/axios.admin';
+import userApi from '../lib/axios.user';
 
 export const authService = {
   login: async (data: { email: string; password: string }) => {
-    const res = await api.post('/auth/user/login', data);
-    if (res.data.accessToken) {
-      tokenStore.set(res.data.accessToken);
-    }
+    const res = await userApi.post('/auth/user/login', data);
     return res.data;
   },
 
   adminLogin: async (data: { email: string; password: string }) => {
-    const res = await api.post('/auth/admin/login', data);
-    if (res.data.accessToken) {
-      tokenStore.set(res.data.accessToken);
-    }
+    const res = await adminApi.post('/auth/admin/login', data);
+
     return res.data;
   },
 
-  logoutUser: async () => {
-    await api.post('/auth/user/logout');
-    tokenStore.clear();
+  adminMe: async () => {
+    return await adminApi.get('/auth/admin/me', { authType: 'admin' });
   },
+
+  // logoutUser: async () => {
+  //   await api.post('/auth/user/logout');
+  //   tokenStore.clear();
+  // },
 };
