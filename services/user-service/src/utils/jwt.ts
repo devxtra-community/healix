@@ -39,7 +39,7 @@ export function verifyUserRefreshToken(token: string) {
 
 export function signAdminAccessToken(payload: JwtPayload) {
   return jwt.sign(payload, process.env.JWT_ADMIN_ACCESS_SECRET!, {
-    expiresIn: '10s',
+    expiresIn: '10m',
     audience: 'admin',
     issuer: 'user-service',
   });

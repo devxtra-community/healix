@@ -29,6 +29,12 @@ const adminServiceProxy = createProxyMiddleware({
 });
 
 router.post('/login', adminServiceProxy);
+router.delete(
+  '/logout',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  adminServiceProxy,
+);
 router.post('/refresh', setAdminRefreshToken, adminServiceProxy);
 router.get('/me', verifyToken, requireRole([ROLES.ADMIN]), adminServiceProxy);
 

@@ -18,8 +18,11 @@ export const authService = {
     return await adminApi.get('/auth/admin/me');
   },
 
-  // logoutUser: async () => {
-  //   await api.post('/auth/user/logout');
-  //   tokenStore.clear();
-  // },
+  logoutUser: async () => {
+    await userApi.post('/auth/user/logout');
+  },
+
+  logoutAdmin: async () => {
+    await userApi.delete('/auth/admin/logout');
+  },
 };

@@ -29,5 +29,5 @@ export default function AdminLayout({
     return <div>Loading admin...</div>;
   }
 
-  return <>{children}</>;
+  return <main>{children}</main>;
 }

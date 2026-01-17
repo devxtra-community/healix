@@ -184,6 +184,7 @@ export class AuthController {
       }
 
       await this.authService.logout(adminRefreshToken);
+      res.clearCookie('adminAccessToken');
       res.clearCookie('adminRefreshToken');
       res.sendStatus(204);
     } catch (error) {
