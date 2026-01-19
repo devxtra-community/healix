@@ -81,6 +81,7 @@ export class AuthService {
 
     const accessToken = signUserAccessToken(payload);
     const refreshToken = signUserRefreshToken(payload);
+    console.log('ACCESS TOKEN:', accessToken);
 
     await this.refreshRepo.create({
       userId: user._id,

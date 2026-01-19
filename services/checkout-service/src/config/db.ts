@@ -1,28 +1,32 @@
-import mongoose from 'mongoose';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { env } from './env.js';
+console.log('DYNAMO REGION:', env.awsRegion);
 
+const client = new DynamoDBClient({
+  region: env.awsRegion,
+  ...(env.dynamoEndpoint && {
+    endpoint: env.dynamoEndpoint,
+    credentials: {
+      accessKeyId: env.accessKeyId!,
+      secretAccessKey: env.secretAccessKey!,
+    },
+  }),
+});
 export const connectDB = async () => {
   try {
-    await mongoose.connect(env.mongoUri, {
-      serverSelectionTimeoutMS: 500,
-    });
-    console.log('MongoDB connected!');
-  } catch (err) {
-    console.error('Initial MongoDB connection Failed', err);
+    console.log(' DynamoDB client initialized');
+  } catch (error) {
+    console.error('DynamoDB connection failed', error);
     process.exit(1);
   }
 };
 export const checkoutDBEvents = () => {
-  mongoose.connection.on('connected', () => {
-    console.log('MongoDB connection extablished');
-  });
-  mongoose.connection.on('reconnected', () => {
-    console.log('MongoDB Reconnected');
-  });
-  mongoose.connection.on('disconnected', () => {
-    console.log('MongoDB Disconnected... Retry...');
-  });
-  mongoose.connection.on('error', (err) => {
-    console.error('MongoDB Error', err);
-  });
+  console.log('Checkout DB events registered');
 };
+export const dynamoDB = DynamoDBDocumentClient.from(client, {
+  marshallOptions: {
+    removeUndefinedValues: true,
+    convertClassInstanceToMap: true,
+  },
+});

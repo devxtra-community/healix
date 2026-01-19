@@ -8,6 +8,9 @@ import {
   IProductVersion,
   ProductVersionModel,
 } from '../models/product-version.models.js';
+type ProductWithCurrentVersion = Omit<IProduct, 'current_version_id'> & {
+  current_version_id: IProductVersion;
+};
 
 export class ProductRepository {
   //CREATE PRODUCT
@@ -103,12 +106,14 @@ export class ProductRepository {
   }
 
   //GET SINGLE PRODUCT
-  async getProduct(productId: string) {
-    const product = await ProductModel.findById(productId)
-      .populate({
-        path: 'current_version_id',
-        model: 'ProductVersion',
+  async getProduct(productId: string): Promise<
+    | (ProductWithCurrentVersion & {
+        details?: IProductDetails | null;
       })
+    | null
+  > {
+    const product = await ProductModel.findById(productId)
+      .populate('current_version_id')
       .lean();
 
     if (!product) return null;

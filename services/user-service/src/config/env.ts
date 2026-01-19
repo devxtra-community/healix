@@ -10,7 +10,7 @@ export const env = {
   jwt: {
     user: {
       access: {
-        secret: process.env.USER_JWT_SECRET!,
+        secret: process.env.JWT_USER_ACCESS_SECRET!,
         expiresIn:
           (process.env.USER_JWT_EXPIRES_IN as SignOptions['expiresIn']) ||
           '15m',
