@@ -41,7 +41,7 @@ export class DynamoCartRepository implements CartRepository {
 
     return {
       userId,
-      items: itemRows.map((i) => this.mapItem(i as any)),
+      items: itemRows.map((i) => this.mapItem(i as CartItemDynamo)),
       itemCount: meta.itemCount,
       cartTotal: meta.cartTotal,
       expiresAt: meta.ttl
@@ -101,7 +101,6 @@ export class DynamoCartRepository implements CartRepository {
       expiresAt: number;
     },
   ): Promise<void> {
-    const now = new Date().toISOString();
     await dynamoDB.send(
       new UpdateCommand({
         TableName: TABLE_NAME,
