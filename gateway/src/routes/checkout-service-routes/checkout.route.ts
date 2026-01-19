@@ -11,4 +11,3 @@ const checkoutServiceProxy = createProxyMiddleware({
 });
 route.use('/', checkoutServiceProxy);
 export default route;
-  

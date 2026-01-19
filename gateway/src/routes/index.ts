@@ -7,6 +7,7 @@ import categoryRoute from './product-service-routes/category.route.js';
 import productRoute from './product-service-routes/product.route.js';
 import stockRoute from './product-service-routes/stock.route.js';
 import priceRoute from './product-service-routes/pricing.route.js';
+import cartRoute from './checkout-service-routes/cart.route.js';
 
 const route = Router();
 
@@ -22,4 +23,6 @@ route.use('/category', categoryRoute);
 route.use('/product/stocks', stockRoute);
 route.use('/product/price', priceRoute);
 
+//CHECKOUT SERVICE
+route.use('/cart', cartRoute);
 export default route;

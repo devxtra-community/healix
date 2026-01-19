@@ -1,8 +1,8 @@
-import { Router, Request } from "express";
-import { createProxyMiddleware } from "http-proxy-middleware";
-import { verifyToken } from "../../middleware/auth.middleware.js";
-import { requireRole } from "../../middleware/requireRole.middleware.js";
-import { ROLES } from "../../auth/roles.js";
+import { Router, Request } from 'express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import { verifyToken } from '../../middleware/auth.middleware.js';
+import { requireRole } from '../../middleware/requireRole.middleware.js';
+import { ROLES } from '../../auth/roles.js';
 
 const route = Router();
 
@@ -11,7 +11,7 @@ const cartProxy = createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: {
     '^/': '/api/v1/cart/',
-    '^/:productId/:varitentId':'/api/v1/cart/'
+    '^/:productId/:varitentId': '/api/v1/cart/',
   },
   on: {
     proxyReq(proxyReq, req: Request) {
@@ -26,10 +26,14 @@ const cartProxy = createProxyMiddleware({
   },
 });
 
+route.get('/', verifyToken, requireRole([ROLES.USER]), cartProxy);
+route.post('/', verifyToken, requireRole([ROLES.USER]), cartProxy);
+route.delete(
+  '/:productId/:variantId',
+  verifyToken,
+  requireRole([ROLES.USER]),
+  cartProxy,
+);
+route.delete('/', verifyToken, requireRole([ROLES.USER]), cartProxy);
 
-route.get('/', verifyToken,requireRole([ROLES.USER]),cartProxy);
-route.post('/', verifyToken,requireRole([ROLES.USER]),cartProxy);
-route.delete('/:productId/:variantId', verifyToken, requireRole([ROLES.USER]),cartProxy);
-route.delete('/', verifyToken, requireRole([ROLES.USER]),cartProxy);
-
-export default route
+export default route;
