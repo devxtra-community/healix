@@ -79,6 +79,25 @@
   --sidebar-ring: oklch(0.708 0 0);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+
+  --background: #fff;
+  --background-secondary: #f8f9fc;
+
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --heading-color: #1f2937;
+
+  --button-bg: #000;
+
+  --sidebar-active-bg: #000;
+  --sidebar-active-text: #fff;
+  --shadow-color: rgba(0, 0, 0, 0.15);
+
+  --accent-orange: #f59e0b;
+  --accent-green: #10b981;
+  --accent-blue: #3b82f6;
+
+  --hover-color: #f3f4f6;
 }
 
 .dark {
