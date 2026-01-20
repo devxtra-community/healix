@@ -12,7 +12,7 @@ export default function Home() {
           Welcome back! Here&apos;s what&apos;s happening with your store today.
         </p>
         <button className="bg-black text-white border-none py-3 px-6 rounded-3xl font-semibold cursor-pointer text-sm transition-transform hover:-translate-y-0.5 hover:shadow-lg max-md:w-full md:w-auto flex justify-center">
-          + New Order
+          + New Product
         </button>
       </div>
 

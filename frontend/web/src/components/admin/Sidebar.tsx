@@ -13,6 +13,7 @@ import {
   X,
   LogOut,
 } from 'lucide-react';
+import { useAdminAuth } from '@/src/hooks/useAdminAuth';
 
 const menuItems = [
   {
@@ -43,6 +44,12 @@ export default function Sidebar({
   onClose,
   pathname,
 }: SidebarProps) {
+  const { admin, logout, loading } = useAdminAuth();
+
+  if (loading) {
+    return null;
+  }
+
   return (
     <aside
       className={`
@@ -90,16 +97,19 @@ export default function Sidebar({
       <div className="mt-8 pt-6 border-t border-gray-100">
         <div className="flex items-center gap-3 p-3 rounded-[20px] bg-gray-50 border border-gray-100 mb-3">
           <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm">
-            JD
+            AD
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-900 truncate">
-              John Doe
+             {admin?.name}
             </p>
-            <p className="text-xs text-gray-500 truncate">admin@mycogen.com</p>
+            <p className="text-xs text-gray-500 truncate">{admin?.email}</p>
           </div>
         </div>
-        <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-600 hover:bg-red-50 transition-colors duration-200 font-medium text-[0.95rem]">
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-600 hover:bg-red-50 transition-colors duration-200 font-medium text-[0.95rem]"
+        >
           <LogOut size={20} />
           Logout
         </button>

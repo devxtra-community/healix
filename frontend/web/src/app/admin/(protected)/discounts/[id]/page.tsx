@@ -51,7 +51,7 @@ export default function EditDiscountPage() {
           >
             Cancel
           </Link>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:translate-y-[-1px] shadow-lg shadow-black/5 transition-all">
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:-translate-y-px shadow-lg shadow-black/5 transition-all">
             <Save size={18} />
             Save Changes
           </button>

@@ -78,7 +78,7 @@ export default function CategoriesTable() {
   }, []);
 
   return (
-    <div className="bg-white rounded-[20px] shadow-sm border border-gray-100">
+    <div className="bg-white rounded-4xl shadow-sm border border-gray-100">
       {/* Header Controls */}
       <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative max-w-sm w-full">

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { authService } from '@/src/services/auth.services';
 import Sidebar from '@/src/components/admin/Sidebar';
 import Header from '@/src/components/admin/Header';
+import { AdminAuthProvider } from '@/src/context/AdminAuthContext';
 
 export default function AdminLayout({
   children,
@@ -53,29 +54,31 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-background-secondary relative">
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={closeSidebar}
-        pathname={pathname}
-      />
+    <AdminAuthProvider>
+      <div className="flex min-h-screen bg-background-secondary relative">
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={closeSidebar}
+          pathname={pathname}
+        />
 
-      <div
-        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 md:hidden ${
-          isSidebarOpen
-            ? 'opacity-100 pointer-events-auto'
-            : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={closeSidebar}
-      />
+        <div
+          className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 md:hidden ${
+            isSidebarOpen
+              ? 'opacity-100 pointer-events-auto'
+              : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={closeSidebar}
+        />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300">
-        <Header onMenuClick={toggleSidebar} />
-        <main className="flex-1 overflow-y-auto px-4 pb-4 md:px-8 md:pb-8">
-          {children}
-        </main>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300">
+          <Header onMenuClick={toggleSidebar} />
+          <main className="flex-1 overflow-y-auto px-4 pb-4 md:px-8 md:pb-8">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </AdminAuthProvider>
   );
 }
