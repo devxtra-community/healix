@@ -4,6 +4,7 @@ import { IProductVersion } from '../models/product-version.models.js';
 import { IProduct } from '../models/product.models.js';
 import { ProductRepository } from '../repositories/product.repositories.js';
 import { StockRepository } from '../repositories/stock.repositories.js';
+import { IProductStock } from '../models/product-stock.models.js';
 type ProductWithCurrentVersion = Omit<IProduct, 'current_version_id'> & {
   current_version_id: IProductVersion;
 };
@@ -114,6 +115,7 @@ export class ProductService {
   async getProduct(productId: string): Promise<
     | (ProductWithCurrentVersion & {
         details?: IProductDetails | null;
+        stock?: IProductStock | null;
       })
     | null
   > {

@@ -8,6 +8,10 @@ import {
   IProductVersion,
   ProductVersionModel,
 } from '../models/product-version.models.js';
+import {
+  IProductStock,
+  ProductStockModel,
+} from '../models/product-stock.models.js';
 type ProductWithCurrentVersion = Omit<IProduct, 'current_version_id'> & {
   current_version_id: IProductVersion;
 };
@@ -109,6 +113,7 @@ export class ProductRepository {
   async getProduct(productId: string): Promise<
     | (ProductWithCurrentVersion & {
         details?: IProductDetails | null;
+        stock?: IProductStock | null;
       })
     | null
   > {
@@ -122,11 +127,16 @@ export class ProductRepository {
       product_version_id: product.current_version_id,
     }).lean();
 
+    const stock = await ProductStockModel.findOne({
+      product_version_id: product.current_version_id,
+    }).lean();
+
     return {
       ...product,
       current_version_id:
         product.current_version_id as unknown as IProductVersion,
       details,
+      stock,
     };
   }
 

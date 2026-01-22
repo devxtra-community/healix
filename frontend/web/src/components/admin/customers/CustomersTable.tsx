@@ -102,10 +102,9 @@ export default function CustomersTable() {
     }
   };
 
-    useEffect(() => {
-      setCustomers(initialCustomers)
-    }, []);
-  
+  useEffect(() => {
+    setCustomers(initialCustomers);
+  }, []);
 
   return (
     <div className="bg-white rounded-[20px] shadow-sm border border-gray-100">

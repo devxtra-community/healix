@@ -2,14 +2,19 @@
 
 import Link from 'next/link';
 import { ArrowLeft, Save } from 'lucide-react';
+import { use, useEffect, useState } from 'react';
 import ProductForm, {
   ProductData,
 } from '@/src/components/admin/products/ProductForm';
-import { useState } from 'react';
 import { productService } from '@/src/services/product.service';
+import { UpdateProductVersionDTO } from '@/src/dtos/product.dtos';
+import { mapProductDetailsToCreateDTO } from '@/src/mappers/product-details.mapper';
+import { mapProductVersionToUpdateDTO } from '@/src/mappers/product-version.mapper';
+
+// Mock data based on the provided schema for verification
 
 const initialProductState: ProductData = {
-  categoryId: '66c9f8c12c9b1f0012abcd12',
+  categoryId: 'sss',
 
   versionData: {
     name: 'Plant Protein Blend',
@@ -66,16 +71,46 @@ const initialProductState: ProductData = {
   initialStock: 150,
 };
 
-export default function AddProductPage() {
+export default function EditProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+
   const [formData, setFormData] = useState<ProductData>(initialProductState);
 
-  const { createProduct } = productService;
+  useEffect(() => {
+    (async () => {
+      const res = await productService.getProduct('697206f7ce094f654104b696');
+
+      const mappedData: ProductData = {
+        categoryId: res.category_id,
+        versionData: res.current_version_id,
+        detailsData: res.details,
+        initialStock: res.stock.available,
+      };
+
+      setFormData(mappedData);
+
+      console.log(res);
+    })();
+  }, []);
 
   const handleSubmit = async () => {
-    const res = await createProduct(formData);
+    const payload: UpdateProductVersionDTO = {
+      updateData: mapProductVersionToUpdateDTO(formData.versionData),
+      detailsData: mapProductDetailsToCreateDTO(formData.detailsData),
+      initialStock: formData.initialStock,
+    };
+
+    console.log(payload);
+    const res = await productService.createNewVersion(
+      '697206f7ce094f654104b696',
+      payload,
+    );
     console.log(res);
   };
-
   return (
     <div className="flex flex-col gap-6 pt-2 pb-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -87,17 +122,15 @@ export default function AddProductPage() {
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Add New Product
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">Edit Product</h1>
             <p className="text-gray-500 text-sm mt-0.5">
-              Create a new product in your store
+              Update product details for #{id}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/admin/products"
+            href="/products"
             className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Cancel
@@ -107,12 +140,16 @@ export default function AddProductPage() {
             className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:translate-y-[-1px] shadow-lg shadow-black/5 transition-all"
           >
             <Save size={18} />
-            Save Product
+            Save Changes
           </button>
         </div>
       </div>
 
-      <ProductForm formData={formData} setFormData={setFormData} />
+      <ProductForm
+        initialData={formData}
+        formData={formData}
+        setFormData={setFormData}
+      />
     </div>
   );
 }

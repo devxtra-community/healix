@@ -1,11 +1,13 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useEffect, useState } from 'react';
 import { Search, Filter, Edit, Trash2 } from 'lucide-react';
 
 const initialProducts = [
   {
-    id: '#PRD-4920',
+    id: 'PRD-4920',
     name: 'Wireless Headphones',
     category: 'Electronics',
     price: '$142.00',
@@ -14,7 +16,7 @@ const initialProducts = [
     image: '🎧',
   },
   {
-    id: '#PRD-4921',
+    id: 'PRD-4921',
     name: 'Smart Watch Series 7',
     category: 'Electronics',
     price: '$340.50',
@@ -23,7 +25,7 @@ const initialProducts = [
     image: '⌚',
   },
   {
-    id: '#PRD-4922',
+    id: 'PRD-4922',
     name: 'Coffee Maker Standard',
     category: 'Home',
     price: '$85.00',
@@ -32,7 +34,7 @@ const initialProducts = [
     image: '☕',
   },
   {
-    id: '#PRD-4923',
+    id: 'PRD-4923',
     name: 'Ergonomic Office Chair',
     category: 'Furniture',
     price: '$250.00',
@@ -41,7 +43,7 @@ const initialProducts = [
     image: '🪑',
   },
   {
-    id: '#PRD-4924',
+    id: 'PRD-4924',
     name: 'Running Sneakers',
     category: 'Clothing',
     price: '$65.00',
@@ -50,7 +52,7 @@ const initialProducts = [
     image: '👟',
   },
   {
-    id: '#PRD-4925',
+    id: 'PRD-4925',
     name: 'Gaming Keyboard',
     category: 'Electronics',
     price: '$120.25',
@@ -59,7 +61,7 @@ const initialProducts = [
     image: '⌨️',
   },
   {
-    id: '#PRD-4926',
+    id: 'PRD-4926',
     name: 'Cotton T-Shirt',
     category: 'Clothing',
     price: '$25.00',
@@ -68,7 +70,7 @@ const initialProducts = [
     image: '👕',
   },
   {
-    id: '#PRD-4927',
+    id: 'PRD-4927',
     name: 'Stainless Steel Water Bottle',
     category: 'Accessories',
     price: '$30.00',
@@ -92,6 +94,10 @@ export default function ProductsTable() {
     return matchesSearch && matchesCategory;
   });
 
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, []);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'In Stock':
@@ -104,10 +110,6 @@ export default function ProductsTable() {
         return 'bg-gray-100 text-gray-600';
     }
   };
-
-  useEffect(() => {
-    setProducts(initialProducts);
-  }, []);
 
   const categories = [
     'All',
@@ -193,7 +195,7 @@ export default function ProductsTable() {
                       <div className="text-sm font-medium text-gray-900">
                         {product.name}
                       </div>
-                      <div className="text-xs text-gray-500">{product.id}</div>
+                      <div className="text-xs text-gray-500">#{product.id}</div>
                     </div>
                   </div>
                 </td>
@@ -215,9 +217,12 @@ export default function ProductsTable() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-lg transition-colors">
+                    <Link
+                      href={`/admin/products/${product.id}/edit`}
+                      className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                    >
                       <Edit size={18} />
-                    </button>
+                    </Link>
                     <button className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                       <Trash2 size={18} />
                     </button>

@@ -101,7 +101,7 @@ export default function Sidebar({
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-900 truncate">
-             {admin?.name}
+              {admin?.name}
             </p>
             <p className="text-xs text-gray-500 truncate">{admin?.email}</p>
           </div>
