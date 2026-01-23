@@ -1,7 +1,5 @@
 import { ProductVersion } from '../components/admin/products/ProductForm';
-import {
-  CreateProductVersionDTO,
-} from '../dtos/product.dtos';
+import { CreateProductVersionDTO } from '../dtos/product.dtos';
 
 export function mapProductVersionToUpdateDTO(
   version: ProductVersion,

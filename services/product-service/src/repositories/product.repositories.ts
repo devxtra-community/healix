@@ -12,6 +12,8 @@ import {
   IProductStock,
   ProductStockModel,
 } from '../models/product-stock.models.js';
+import { PaginatedResponse } from '../types/api/pagination.js';
+import { ProductApiResponse } from '../types/api/product.api.js';
 type ProductWithCurrentVersion = Omit<IProduct, 'current_version_id'> & {
   current_version_id: IProductVersion;
 };
@@ -147,17 +149,51 @@ export class ProductRepository {
   }: {
     page: number;
     limit: number;
-  }) {
+  }): Promise<PaginatedResponse<ProductApiResponse>> {
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
-      ProductModel.find()
-        .populate('current_version_id')
-        .sort({ updated_at: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      ProductModel.countDocuments(),
+      ProductModel.aggregate([
+        { $sort: { updated_at: -1 } }, // sort first
+        { $skip: skip }, // then skip for page
+        { $limit: limit }, // then limit
+        // Category join
+        {
+          $lookup: {
+            from: 'categories',
+            localField: 'category_id',
+            foreignField: '_id',
+            as: 'category',
+          },
+        },
+        { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
+        // Current version join
+        {
+          $lookup: {
+            from: 'productversions',
+            localField: 'current_version_id',
+            foreignField: '_id',
+            as: 'current_version',
+          },
+        },
+        {
+          $unwind: {
+            path: '$current_version',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        // Stock join
+        {
+          $lookup: {
+            from: 'productstocks',
+            localField: 'current_version._id',
+            foreignField: 'product_version_id',
+            as: 'stock',
+          },
+        },
+        { $unwind: { path: '$stock', preserveNullAndEmptyArrays: true } },
+      ]).exec(),
+      ProductModel.countDocuments(), // total count for pagination
     ]);
 
     return {
@@ -172,6 +208,15 @@ export class ProductRepository {
   async getProductsForUser() {
     return ProductModel.aggregate([
       { $match: { is_delete: false } },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'category_id',
+          foreignField: '_id',
+          as: 'category',
+        },
+      },
+      { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
           from: 'productversions',
@@ -191,6 +236,15 @@ export class ProductRepository {
         },
       },
       { $unwind: { path: '$details', preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: 'productstocks',
+          localField: 'current_version._id',
+          foreignField: 'product_version_id',
+          as: 'stock',
+        },
+      },
+      { $unwind: { path: '$stock', preserveNullAndEmptyArrays: true } },
     ]);
   }
 

@@ -1,8 +1,27 @@
+'use client';
+
 import Link from 'next/link';
 import { Download, Plus } from 'lucide-react';
 import ProductsTable from '@/src/components/admin/products/ProductsTable';
+import { useEffect, useState } from 'react';
+import { productService } from '@/src/services/product.service';
+import { PaginatedResponse } from '@/src/types/api/pagination';
+import { ProductApiResponse } from '@/src/types/api/product.api';
 
 export default function ProductsPage() {
+  const [products, setProducts] =
+    useState<PaginatedResponse<ProductApiResponse> | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const res = await productService.getAllProductsAdmin();
+      console.log(res);
+      setProducts(res);
+    })();
+  }, []);
+
+  console.log(products);
+
   return (
     <div className="flex flex-col gap-8 pt-2">
       <div className="flex justify-between items-center max-sm:flex-col max-sm:items-start max-sm:gap-4">
@@ -27,7 +46,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <ProductsTable />
+      {products && <ProductsTable products={products.data} />}
     </div>
   );
 }

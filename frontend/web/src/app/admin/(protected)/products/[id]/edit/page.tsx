@@ -10,6 +10,7 @@ import { productService } from '@/src/services/product.service';
 import { UpdateProductVersionDTO } from '@/src/dtos/product.dtos';
 import { mapProductDetailsToCreateDTO } from '@/src/mappers/product-details.mapper';
 import { mapProductVersionToUpdateDTO } from '@/src/mappers/product-version.mapper';
+import { useRouter } from 'next/navigation';
 
 // Mock data based on the provided schema for verification
 
@@ -77,12 +78,13 @@ export default function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
 
   const [formData, setFormData] = useState<ProductData>(initialProductState);
 
   useEffect(() => {
     (async () => {
-      const res = await productService.getProduct('697206f7ce094f654104b696');
+      const res = await productService.getProduct(id);
 
       const mappedData: ProductData = {
         categoryId: res.category_id,
@@ -92,8 +94,6 @@ export default function EditProductPage({
       };
 
       setFormData(mappedData);
-
-      console.log(res);
     })();
   }, []);
 
@@ -103,20 +103,16 @@ export default function EditProductPage({
       detailsData: mapProductDetailsToCreateDTO(formData.detailsData),
       initialStock: formData.initialStock,
     };
+    await productService.createNewVersion(id, payload);
 
-    console.log(payload);
-    const res = await productService.createNewVersion(
-      '697206f7ce094f654104b696',
-      payload,
-    );
-    console.log(res);
+    router.push('/admin/products');
   };
   return (
     <div className="flex flex-col gap-6 pt-2 pb-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link
-            href="/products"
+            href="/admin/products"
             className="p-2 -ml-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <ArrowLeft size={20} />

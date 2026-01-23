@@ -6,6 +6,8 @@ import {
 } from '../dtos/product.dtos';
 import adminApi from '../lib/axios.admin';
 import userApi from '../lib/axios.user';
+import { PaginatedResponse } from '../types/api/pagination';
+import { ProductApiResponse } from '../types/api/product.api';
 
 export const productService = {
   createProduct: async (data: CreateProductDTO) => {
@@ -24,7 +26,10 @@ export const productService = {
     return res.data;
   },
 
-  getAllProductsAdmin: async (params?: { page?: number; limit?: number }) => {
+  getAllProductsAdmin: async (params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedResponse<ProductApiResponse>> => {
     const res = await adminApi.get('/product/admin/all', { params });
     return res.data;
   },

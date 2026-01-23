@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Search, Filter, Edit, Trash2 } from 'lucide-react';
+import { ProductApiResponse } from '@/src/types/api/product.api';
 
 const initialProducts = [
   {
@@ -80,23 +81,28 @@ const initialProducts = [
   },
 ];
 
-export default function ProductsTable() {
-  const [products, setProducts] = useState(initialProducts);
+type ProductsTableProps = {
+  products: ProductApiResponse[];
+};
+
+export default function ProductsTable({ products }: ProductsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      categoryFilter === 'All' || product.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
+  products.map((product) => console.log(product));
 
-  useEffect(() => {
-    setProducts(initialProducts);
-  }, []);
+  // const filteredProducts = products.filter((product) => {
+  //   const matchesSearch =
+  //     product.current_version_id.name
+  //       .toLowerCase()
+  //       .includes(searchTerm.toLowerCase()) ||
+  //     product._id.toLowerCase().includes(searchTerm.toLowerCase());
+  //   const matchesCategory =
+  //     categoryFilter === 'All' || product.category?.name === categoryFilter;
+  //   return matchesSearch && matchesCategory;
+  // });
+
+  // console.log(filteredProducts);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -181,44 +187,46 @@ export default function ProductsTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filteredProducts.map((product) => (
+            {products.map((product) => (
               <tr
-                key={product.id}
+                key={product._id}
                 className="hover:bg-gray-50/50 transition-colors"
               >
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-lg">
-                      {product.image}
+                      {/* {product.image} */}
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-900">
-                        {product.name}
+                        {product.current_version.name}
                       </div>
-                      <div className="text-xs text-gray-500">#{product.id}</div>
+                      <div className="text-xs text-gray-500">
+                        #{product._id}
+                      </div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                  {product.category}
+                  {product.category?.name}
                 </td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
-                  {product.price}
+                  {product.current_version.price}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                  {product.stock} units
+                  {product.stock?.available} units
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(product.current_version.status)}`}
                   >
-                    {product.status}
+                    {product.current_version.status}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-2">
                     <Link
-                      href={`/admin/products/${product.id}/edit`}
+                      href={`/admin/products/${product._id}/edit`}
                       className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
                     >
                       <Edit size={18} />
