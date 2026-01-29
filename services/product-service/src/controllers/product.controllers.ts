@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { ProductService } from '../services/product.services.js';
 import { ProductRepository } from '../repositories/product.repositories.js';
 import { StockRepository } from '../repositories/stock.repositories.js';
-
+import { ProductVersionModel } from '../models/product-version.models.js';
+import { Types } from 'mongoose';
 // ===== Dependency wiring =====
 const productRepository = new ProductRepository();
 const stockRepository = new StockRepository();
@@ -164,4 +165,30 @@ export class ProductController {
       next(error);
     }
   }
+  async getProductVersion(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { versionId } = req.params;
+
+    if (!Types.ObjectId.isValid(versionId)) {
+      res.status(400).json({ message: 'Invalid version ID' });
+      return;
+    }
+
+    const version = await ProductVersionModel.findById(versionId).lean();
+
+    if (!version) {
+      res.status(404).json({ message: 'Product version not found' });
+      return;
+    }
+
+    res.status(200).json(version);
+  } catch (error) {
+    next(error);
+  }
+}
+
 }

@@ -69,6 +69,13 @@ export class StockRepository {
   }
 
   // RELEASE RESERVED STOCK
+  //add ttl for stock release -> todo
+  //user closes browser
+  //user goes idle
+  //user never pays
+  //network dies
+  //Stripe webhook never arrives
+
   async releaseStock(
     productVersionId: Types.ObjectId,
     quantity: number,

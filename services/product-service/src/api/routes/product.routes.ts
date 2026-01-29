@@ -4,6 +4,8 @@ import { adminOnly } from '../middlewares/auth.middleware.js';
 const router = Router();
 const productcontroller = new ProductController();
 router.get('/admin/all', adminOnly, productcontroller.getAllProductsForAdmin);
+router.get('/version/:versionId', productcontroller.getProductVersion);
+
 router.get('/:productId', productcontroller.getProduct);
 router.post('/', adminOnly, productcontroller.createProduct);
 router.post(

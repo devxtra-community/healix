@@ -8,6 +8,8 @@ import productRoute from './product-service-routes/product.route.js';
 import stockRoute from './product-service-routes/stock.route.js';
 import priceRoute from './product-service-routes/pricing.route.js';
 import cartRoute from './checkout-service-routes/cart.route.js';
+import checkoutRoute from './checkout-service-routes/checkout.route.js';
+import orderRoute from './checkout-service-routes/order.route.js';
 
 const route = Router();
 
@@ -25,4 +27,6 @@ route.use('/product/price', priceRoute);
 
 //CHECKOUT SERVICE
 route.use('/cart', cartRoute);
+route.use('/checkout',checkoutRoute)
+route.use('/order',orderRoute)
 export default route;

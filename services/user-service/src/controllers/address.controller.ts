@@ -50,16 +50,17 @@ export class AddressController {
   getAddressById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.headers['x-user-id'] as string;
+      console.log("hi")
       if (!userId) {
         return res
           .status(401)
           .json({ success: false, message: 'Unauthorized' });
       }
 
-      const { addressId } = req.body;
+      const { id } = req.params;
       const address = await this.addressService.getAddressById(
         userId,
-        addressId,
+        id,
       );
       res.status(200).json({ success: true, data: address });
     } catch (error) {

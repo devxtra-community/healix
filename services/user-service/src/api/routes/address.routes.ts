@@ -11,8 +11,9 @@ const addressController = new AddressController(addressService);
 
 router.post('/', addressController.createAddress);
 router.get('/', addressController.getAddress);
-router.get('/:id', addressController.createAddress);
+router.get('/:id', addressController.getAddressById);
 router.put('/', addressController.updateAddress);
 router.delete('/', addressController.deleteAddress);
 
 export default router;
+

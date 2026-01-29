@@ -1,7 +1,7 @@
 import { ConflictError } from '../errors/ConflictError.js';
 import { IAddress } from '../models/address.model.js';
 import { AddressRepository } from '../repositories/address.repository.js';
-
+import { Types } from 'mongoose';
 export class AddressService {
   private addressRepo: AddressRepository;
 
@@ -11,16 +11,20 @@ export class AddressService {
 
   //creating address
   async createAddress(userId: string, data: IAddress): Promise<IAddress> {
-    const existing = await this.addressRepo.findByUserIdAndType(
-      userId,
-      data.addressType,
-    );
+  const existing = await this.addressRepo.findByUserIdAndType(
+    userId,
+    data.addressType,
+  );
 
-    if (existing) {
-      throw new ConflictError(`${data.addressType} is already exist`);
-    }
-    return this.addressRepo.create(data);
+  if (existing) {
+    throw new ConflictError(`${data.addressType} already exists`);
   }
+
+  return this.addressRepo.create({
+    ...data,
+    userId: new Types.ObjectId(userId),
+  });
+}
 
   //fetching all addresses
   async getAddress(userId: string): Promise<IAddress[]> {
