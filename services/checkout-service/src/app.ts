@@ -9,19 +9,22 @@ import { releaseExpiredReservations } from './utils/releaseExpiredReservations.j
 const app = express();
 //stripe webhook
 app.use(
-  "/webhooks/stripe",
-  express.raw({ type: "application/json" }),
+  '/webhooks/stripe',
+  express.raw({ type: 'application/json' }),
   webhookRoutes,
 );
 // background job
 
-setInterval(async () => {
-  try {
-    await releaseExpiredReservations();
-  } catch (err) {
-    console.error("Reservation cleanup failed", err);
-  }
-}, 5 * 60 * 1000);
+setInterval(
+  async () => {
+    try {
+      await releaseExpiredReservations();
+    } catch (err) {
+      console.error('Reservation cleanup failed', err);
+    }
+  },
+  5 * 60 * 1000,
+);
 
 app.use(express.json());
 app.use(express.urlencoded());
@@ -36,8 +39,8 @@ app.use((req, _res, next) => {
 //route
 
 app.use('/api/v1/cart', cartRoute);
-app.use('/api/v1/checkout', checkoutRoute)
-app.use('/api/v1/order', orderRoute)
+app.use('/api/v1/checkout', checkoutRoute);
+app.use('/api/v1/order', orderRoute);
 
 //error handler
 

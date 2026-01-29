@@ -1,8 +1,4 @@
-export type PaymentStatus =
-  | "PENDING"
-  | "SUCCESS"
-  | "FAILED"
-  | "REFUNDED";
+export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';
 
 export interface Payment {
   paymentId: string;
@@ -13,7 +9,7 @@ export interface Payment {
 
   amount: number;
   currency: string;
-  method: "STRIPE";
+  method: 'STRIPE';
 
   status: PaymentStatus;
 

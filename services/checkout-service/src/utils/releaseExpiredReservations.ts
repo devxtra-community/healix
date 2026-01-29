@@ -1,7 +1,6 @@
-import axios from "axios";
-import { OrderRespository } from "../repositories/order.repository.js";
-import { DynamoOrderRepository } from "../repositories/order.repository.dynamo.js";
-const orderRepo= new DynamoOrderRepository()
+import axios from 'axios';
+import { DynamoOrderRepository } from '../repositories/order.repository.dynamo.js';
+const orderRepo = new DynamoOrderRepository();
 export async function releaseExpiredReservations() {
   const expiredOrders = await orderRepo.getExpiredPendingOrders();
 
@@ -12,10 +11,10 @@ export async function releaseExpiredReservations() {
         {
           versionId: item.variantId,
           quantity: item.quantity,
-        }
+        },
       );
     }
 
-    await orderRepo.updatePaymentStatus(order.orderId, "FAILED");
+    await orderRepo.updatePaymentStatus(order.orderId, 'FAILED');
   }
 }

@@ -1,6 +1,6 @@
-import { v4 as uuid } from "uuid";
-import { PaymentRepository } from "../repositories/payment.repository.js";
-import { Payment } from "../domain/payment.types.js";
+import { v4 as uuid } from 'uuid';
+import { PaymentRepository } from '../repositories/payment.repository.js';
+import { Payment } from '../domain/payment.types.js';
 
 export class PaymentService {
   constructor(private paymentRepo: PaymentRepository) {}
@@ -21,8 +21,8 @@ export class PaymentService {
       stripePaymentIntentId,
       amount,
       currency,
-      method: "STRIPE",
-      status: "PENDING",
+      method: 'STRIPE',
+      status: 'PENDING',
       createdAt: now,
       updatedAt: now,
     };
@@ -35,7 +35,7 @@ export class PaymentService {
     const payment = await this.paymentRepo.getByPaymentIntent(paymentIntentId);
     if (!payment) return null;
 
-    await this.paymentRepo.updateStatus(payment.paymentId, "SUCCESS");
+    await this.paymentRepo.updateStatus(payment.paymentId, 'SUCCESS');
     return payment;
   }
 
@@ -43,7 +43,7 @@ export class PaymentService {
     const payment = await this.paymentRepo.getByPaymentIntent(paymentIntentId);
     if (!payment) return null;
 
-    await this.paymentRepo.updateStatus(payment.paymentId, "FAILED");
+    await this.paymentRepo.updateStatus(payment.paymentId, 'FAILED');
     return payment;
   }
 }

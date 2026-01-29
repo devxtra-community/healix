@@ -3,40 +3,38 @@ import { Cart, CartItem } from '../domain/cart.types.js';
 import axios from 'axios';
 
 export class CartService {
-  constructor(private cartRepository: CartRepository) { }
+  constructor(private cartRepository: CartRepository) {}
   async getCart(userId: string): Promise<Cart | null> {
     return this.cartRepository.getCart(userId);
   }
   async addItem(userId: string, item: CartItem): Promise<void> {
     //  Check product exists & active
     const productRes = await axios.get(
-  `${process.env.PRODUCT_SERVICE_URL}/product/version/${item.variantId}`
-);
+      `${process.env.PRODUCT_SERVICE_URL}/product/version/${item.variantId}`,
+    );
 
-if (!productRes.data || productRes.data.status !== "active") {
-  throw new Error("Product is no longer available");
-}
+    if (!productRes.data || productRes.data.status !== 'active') {
+      throw new Error('Product is no longer available');
+    }
 
     //  Check stock
     const stockRes = await axios.get(
-      `${process.env.PRODUCT_SERVICE_URL}/product/stocks/${item.variantId}`
+      `${process.env.PRODUCT_SERVICE_URL}/product/stocks/${item.variantId}`,
     );
 
     if (!stockRes.data) {
-      throw new Error("Stock not found");
+      throw new Error('Stock not found');
     }
 
     if (stockRes.data.available < item.quantity) {
-      throw new Error(
-        `Only ${stockRes.data.available} items available`
-      );
+      throw new Error(`Only ${stockRes.data.available} items available`);
     }
 
     const priceRes = await axios.get(
-      `${process.env.PRODUCT_SERVICE_URL}/product/price/${item.productId}`
+      `${process.env.PRODUCT_SERVICE_URL}/product/price/${item.productId}`,
     );
     if (!priceRes.data?.finalPrice) {
-      throw new Error("Price not available");
+      throw new Error('Price not available');
     }
 
     const price = Number(priceRes.data.finalPrice);
@@ -63,14 +61,14 @@ if (!productRes.data || productRes.data.status !== "active") {
 
     const items = existingCart
       ? [
-        ...existingCart.items.filter(
-          (i) =>
-            !(
-              i.productId === item.productId && i.variantId === item.variantId
-            ),
-        ),
-        normalizedItem,
-      ]
+          ...existingCart.items.filter(
+            (i) =>
+              !(
+                i.productId === item.productId && i.variantId === item.variantId
+              ),
+          ),
+          normalizedItem,
+        ]
       : [normalizedItem];
 
     const itemCount = items.reduce((s, i) => s + i.quantity, 0);

@@ -166,29 +166,28 @@ export class ProductController {
     }
   }
   async getProductVersion(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  try {
-    const { versionId } = req.params;
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { versionId } = req.params;
 
-    if (!Types.ObjectId.isValid(versionId)) {
-      res.status(400).json({ message: 'Invalid version ID' });
-      return;
+      if (!Types.ObjectId.isValid(versionId)) {
+        res.status(400).json({ message: 'Invalid version ID' });
+        return;
+      }
+
+      const version = await ProductVersionModel.findById(versionId).lean();
+
+      if (!version) {
+        res.status(404).json({ message: 'Product version not found' });
+        return;
+      }
+
+      res.status(200).json(version);
+    } catch (error) {
+      next(error);
     }
-
-    const version = await ProductVersionModel.findById(versionId).lean();
-
-    if (!version) {
-      res.status(404).json({ message: 'Product version not found' });
-      return;
-    }
-
-    res.status(200).json(version);
-  } catch (error) {
-    next(error);
   }
-}
-
 }

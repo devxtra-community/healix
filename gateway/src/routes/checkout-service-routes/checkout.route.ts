@@ -8,7 +8,7 @@ const route = Router();
 const checkoutServiceProxy = createProxyMiddleware({
   target: process.env.CHECKOUT_SERVICE_URL,
   changeOrigin: true,
-  pathRewrite:{
+  pathRewrite: {
     '^/': '/api/v1/checkout/',
   },
   on: {
@@ -23,8 +23,5 @@ const checkoutServiceProxy = createProxyMiddleware({
     },
   },
 });
-route.post('/',verifyToken,requireRole([ROLES.USER]),checkoutServiceProxy);
+route.post('/', verifyToken, requireRole([ROLES.USER]), checkoutServiceProxy);
 export default route;
-
-
-

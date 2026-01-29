@@ -16,4 +16,3 @@ router.put('/', addressController.updateAddress);
 router.delete('/', addressController.deleteAddress);
 
 export default router;
-

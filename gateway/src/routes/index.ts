@@ -27,6 +27,6 @@ route.use('/product/price', priceRoute);
 
 //CHECKOUT SERVICE
 route.use('/cart', cartRoute);
-route.use('/checkout',checkoutRoute)
-route.use('/order',orderRoute)
+route.use('/checkout', checkoutRoute);
+route.use('/order', orderRoute);
 export default route;

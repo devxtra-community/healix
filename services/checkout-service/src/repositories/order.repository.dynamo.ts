@@ -1,11 +1,16 @@
-import { PutCommand, GetCommand, UpdateCommand, QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { dynamoDB } from "../config/db.js";
-import { OrderRespository } from "./order.repository.js";
-import { Order } from "../domain/order.type.js";
+import {
+  PutCommand,
+  GetCommand,
+  UpdateCommand,
+  QueryCommand,
+  ScanCommand,
+} from '@aws-sdk/lib-dynamodb';
+import { dynamoDB } from '../config/db.js';
+import { OrderRespository } from './order.repository.js';
+import { Order } from '../domain/order.type.js';
 
 const TABLE_NAME = 'OrderTable';
 export class DynamoOrderRepository implements OrderRespository {
-
   async createOrder(order: Order): Promise<void> {
     await dynamoDB.send(
       new PutCommand({
@@ -38,10 +43,10 @@ export class DynamoOrderRepository implements OrderRespository {
     const res = await dynamoDB.send(
       new QueryCommand({
         TableName: TABLE_NAME,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :pk",
+        IndexName: 'GSI1',
+        KeyConditionExpression: 'GSI1PK = :pk',
         ExpressionAttributeValues: {
-          ":pk": `USER#${userId}`,
+          ':pk': `USER#${userId}`,
         },
       }),
     );
@@ -73,8 +78,8 @@ export class DynamoOrderRepository implements OrderRespository {
               updatedAt = :now
         `,
         ExpressionAttributeValues: {
-          ":status": status,
-          ":now": new Date().toISOString(),
+          ':status': status,
+          ':now': new Date().toISOString(),
         },
       }),
     );
@@ -92,8 +97,8 @@ export class DynamoOrderRepository implements OrderRespository {
             updatedAt = :now
       `,
         ExpressionAttributeValues: {
-          ":pid": paymentId,
-          ":now": new Date().toISOString(),
+          ':pid': paymentId,
+          ':now': new Date().toISOString(),
         },
       }),
     );
@@ -101,12 +106,7 @@ export class DynamoOrderRepository implements OrderRespository {
 
   async updateFulfillmentStatus(
     orderId: string,
-    status:
-      | "PLACED"
-      | "PACKED"
-      | "SHIPPED"
-      | "DELIVERED"
-      | "CANCELLED",
+    status: 'PLACED' | 'PACKED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
   ): Promise<void> {
     await dynamoDB.send(
       new UpdateCommand({
@@ -115,11 +115,10 @@ export class DynamoOrderRepository implements OrderRespository {
           PK: `ORDER#${orderId}`,
           SK: `ORDER#${orderId}`,
         },
-        UpdateExpression:
-          "SET fulfillmentStatus = :status, updatedAt = :now",
+        UpdateExpression: 'SET fulfillmentStatus = :status, updatedAt = :now',
         ExpressionAttributeValues: {
-          ":status": status,
-          ":now": new Date().toISOString(),
+          ':status': status,
+          ':now': new Date().toISOString(),
         },
       }),
     );
@@ -136,7 +135,7 @@ export class DynamoOrderRepository implements OrderRespository {
         SET reservationExpiresAt = :exp
       `,
         ExpressionAttributeValues: {
-          ":exp": expiresAt,
+          ':exp': expiresAt,
         },
       }),
     );
@@ -149,10 +148,10 @@ export class DynamoOrderRepository implements OrderRespository {
       new ScanCommand({
         TableName: TABLE_NAME,
         FilterExpression:
-          "paymentStatus = :pending AND reservationExpiresAt < :now",
+          'paymentStatus = :pending AND reservationExpiresAt < :now',
         ExpressionAttributeValues: {
-          ":pending": "PENDING",
-          ":now": now,
+          ':pending': 'PENDING',
+          ':now': now,
         },
       }),
     );
@@ -160,21 +159,19 @@ export class DynamoOrderRepository implements OrderRespository {
     return (res.Items as Order[]) ?? [];
   }
 
-
   async getPendingOrderByUser(userId: string): Promise<Order | null> {
     const res = await dynamoDB.send(
       new QueryCommand({
         TableName: TABLE_NAME,
-        KeyConditionExpression: "PK = :pk",
-        FilterExpression: "paymentStatus = :status",
+        KeyConditionExpression: 'PK = :pk',
+        FilterExpression: 'paymentStatus = :status',
         ExpressionAttributeValues: {
-          ":pk": `USER#${userId}`,
-          ":status": "PENDING",
+          ':pk': `USER#${userId}`,
+          ':status': 'PENDING',
         },
-      })
+      }),
     );
 
     return (res.Items?.[0] as Order) ?? null;
   }
-
 }

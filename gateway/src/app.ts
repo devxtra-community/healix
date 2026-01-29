@@ -33,8 +33,8 @@ app.get('/health', (_req, res) => {
   });
 });
 app.use(
-  "/checkout/webhooks/stripe",
-  express.raw({ type: "application/json" }),
+  '/checkout/webhooks/stripe',
+  express.raw({ type: 'application/json' }),
   createProxyMiddleware({
     target: process.env.CHECKOUT_SERVICE_URL,
     changeOrigin: true,
