@@ -10,6 +10,7 @@ const orderServiceProxy = createProxyMiddleware({
   pathRewrite: {
     '^/': '/api/v1/order/',
     '^/:orderId': '/api/v1/order/',
+    '^/:orderId/cancel':'/api/v1/order/cancel',
     '^/admin/all': '/api/v1/order/',
     '^/:orderId/status': '/api/v1/order/status',
   },
@@ -30,6 +31,11 @@ route.get(
   requireRole([ROLES.USER]),
   orderServiceProxy,
 );
+route.post(
+  '/:orderId/cancel',
+  verifyToken,
+  requireRole([ROLES.USER]),
+  orderServiceProxy)
 
 route.get(
   '/admin/all',
@@ -43,5 +49,4 @@ route.patch(
   requireRole([ROLES.ADMIN]),
   orderServiceProxy,
 );
-
 export default route;

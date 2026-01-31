@@ -174,4 +174,30 @@ export class DynamoOrderRepository implements OrderRespository {
 
     return (res.Items?.[0] as Order) ?? null;
   }
+  async cancelOrder(orderId: string): Promise<void> {
+  await dynamoDB.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        PK: `ORDER#${orderId}`,
+        SK: `ORDER#${orderId}`,
+      },
+      ConditionExpression: `
+        fulfillmentStatus <> :cancelled
+        AND fulfillmentStatus <> :shipped
+        AND fulfillmentStatus <> :delivered
+      `,
+      UpdateExpression: `
+        SET fulfillmentStatus = :cancelled,
+            updatedAt = :now
+      `,
+      ExpressionAttributeValues: {
+        ':cancelled': 'CANCELLED',
+        ':shipped': 'SHIPPED',
+        ':delivered': 'DELIVERED',
+        ':now': new Date().toISOString(),
+      },
+    }),
+  );
+}
 }

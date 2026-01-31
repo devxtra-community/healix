@@ -22,4 +22,6 @@ export interface OrderRespository {
   getExpiredPendingOrders(): Promise<Order[]>;
 
   getPendingOrderByUser(userId: string): Promise<Order | null>;
+  cancelOrder(orderId: string): Promise<void>;
+
 }

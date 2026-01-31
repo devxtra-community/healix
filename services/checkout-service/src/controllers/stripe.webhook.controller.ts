@@ -7,14 +7,15 @@ import { PaymentService } from '../services/payment.service.js';
 import { OrderService } from '../services/order.service.js';
 import { CartRepository } from '../repositories/cart.repository.js';
 import { webhookIdempotency } from '../utils/webhook-idempotency.js';
-
+import { DynamoRefundRepository } from '../repositories/refund.repository.dynamo.js';
 export class StripeWebHookController {
   constructor(
     private paymentService: PaymentService,
     private orderService: OrderService,
     private cartRepo: CartRepository,
     private webhookIdempotancy: webhookIdempotency,
-  ) {}
+    private refundRepo: DynamoRefundRepository
+  ) { }
   handle = async (req: Request, res: Response) => {
     const sig = req.headers['stripe-signature'];
     let event: Stripe.Event;
@@ -70,6 +71,30 @@ export class StripeWebHookController {
           item,
         );
       }
+    }
+    if (event.type === 'charge.refunded') {
+      const charge = event.data.object as Stripe.Charge;
+
+      if (!charge.refunds || charge.refunds.data.length === 0) {
+        return res.sendStatus(200);
+      }
+
+      const refund = charge.refunds.data[0];
+
+      if (
+        !refund.metadata ||
+        !refund.metadata.orderId ||
+        !refund.metadata.refundId
+      ) {
+        return res.sendStatus(200);
+      }
+
+      await this.refundRepo.updateStatus(
+        refund.metadata.orderId,
+        refund.metadata.refundId,
+        'SUCCESS',
+        refund.id,
+      );
     }
 
     await this.webhookIdempotancy.markProcessed(event.id);

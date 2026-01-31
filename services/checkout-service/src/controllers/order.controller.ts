@@ -1,8 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { OrderService } from '../services/order.service.js';
+import { DynamoOrderRepository } from '../repositories/order.repository.dynamo.js';
+import { RefundService } from '../services/refund.service.js';
 
 export class OrderController {
-  constructor(private orderService: OrderService) {}
+  constructor(
+    private orderService: OrderService,
+  ) { }
   getMyOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.headers['x-user-id'] as string;
@@ -43,32 +47,35 @@ export class OrderController {
       next(error);
     }
   };
-  updateStatus = async (req: Request, res: Response, next: NextFunction) => {
+   updateStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { orderId } = req.params;
       const { status } = req.body;
 
-      const allowedStatuses = [
-        'PLACED',
-        'PACKED',
-        'SHIPPED',
-        'DELIVERED',
-        'CANCELLED',
-      ];
-
-      if (!allowedStatuses.includes(status)) {
+      const allowed = ['PLACED', 'PACKED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+      if (!allowed.includes(status)) {
         return res.status(400).json({ message: 'Invalid status' });
       }
 
       await this.orderService.updateFullfillmentStatus(orderId, status);
+      res.status(200).json({ message: 'Order status updated' });
+    } catch (e) {
+      next(e);
+    }
+  };
 
-      return res.status(200).json({
-        message: 'Order status updated',
-        orderId,
-        status,
-      });
-    } catch (error) {
-      next(error);
+  cancelOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.headers['x-user-id'] as string;
+      const { orderId } = req.params;
+
+      if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+      await this.orderService.cancelOrder(orderId, userId);
+
+      res.status(200).json({ message: 'Order cancelled successfully' });
+    } catch (e) {
+      next(e);
     }
   };
 }

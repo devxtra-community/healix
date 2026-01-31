@@ -1,4 +1,4 @@
-export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';
+export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
 
 export interface Payment {
   paymentId: string;
@@ -12,6 +12,23 @@ export interface Payment {
   method: 'STRIPE';
 
   status: PaymentStatus;
+
+  createdAt: string;
+  updatedAt: string;
+}
+export type RefundStatus = 'REQUESTED' | 'PROCESSING' | 'SUCCESS' | 'FAILED';
+
+export interface Refund {
+  refundId: string;
+  orderId: string;
+  paymentId: string;
+
+  stripeRefundId?: string;
+
+  amount: number;
+  currency: string;
+
+  status: RefundStatus;
 
   createdAt: string;
   updatedAt: string;
