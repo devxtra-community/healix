@@ -23,5 +23,4 @@ export interface OrderRespository {
 
   getPendingOrderByUser(userId: string): Promise<Order | null>;
   cancelOrder(orderId: string): Promise<void>;
-
 }

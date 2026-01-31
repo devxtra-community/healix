@@ -1,8 +1,4 @@
-import {
-  PutCommand,
-  UpdateCommand,
-  QueryCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { PutCommand, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoDB } from '../config/db.js';
 import { RefundRepository } from './refund.repository.js';
 import { Refund } from '../domain/payment.types.js';
@@ -24,35 +20,34 @@ export class DynamoRefundRepository implements RefundRepository {
   }
 
   async updateStatus(
-  orderId: string,
-  refundId: string,
-  status: Refund['status'],
-  stripeRefundId?: string,
-): Promise<void> {
-  await dynamoDB.send(
-    new UpdateCommand({
-      TableName: TABLE_NAME,
-      Key: {
-        PK: `ORDER#${orderId}`,
-        SK: `REFUND#${refundId}`,
-      },
-      UpdateExpression: `
+    orderId: string,
+    refundId: string,
+    status: Refund['status'],
+    stripeRefundId?: string,
+  ): Promise<void> {
+    await dynamoDB.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `ORDER#${orderId}`,
+          SK: `REFUND#${refundId}`,
+        },
+        UpdateExpression: `
         SET #status = :status,
             stripeRefundId = :stripeId,
             updatedAt = :now
       `,
-      ExpressionAttributeNames: {
-        '#status': 'status',
-      },
-      ExpressionAttributeValues: {
-        ':status': status,
-        ':stripeId': stripeRefundId ?? null,
-        ':now': new Date().toISOString(),
-      },
-    }),
-  );
-}
-
+        ExpressionAttributeNames: {
+          '#status': 'status',
+        },
+        ExpressionAttributeValues: {
+          ':status': status,
+          ':stripeId': stripeRefundId ?? null,
+          ':now': new Date().toISOString(),
+        },
+      }),
+    );
+  }
 
   async getByOrder(orderId: string): Promise<Refund[]> {
     const res = await dynamoDB.send(

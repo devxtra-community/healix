@@ -14,8 +14,8 @@ export class StripeWebHookController {
     private orderService: OrderService,
     private cartRepo: CartRepository,
     private webhookIdempotancy: webhookIdempotency,
-    private refundRepo: DynamoRefundRepository
-  ) { }
+    private refundRepo: DynamoRefundRepository,
+  ) {}
   handle = async (req: Request, res: Response) => {
     const sig = req.headers['stripe-signature'];
     let event: Stripe.Event;

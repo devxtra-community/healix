@@ -35,7 +35,11 @@ export class PaymentService {
     const payment = await this.paymentRepo.getByPaymentIntent(paymentIntentId);
     if (!payment) return null;
 
-    await this.paymentRepo.updateStatus(payment.orderId,payment.paymentId, 'SUCCESS');
+    await this.paymentRepo.updateStatus(
+      payment.orderId,
+      payment.paymentId,
+      'SUCCESS',
+    );
     return payment;
   }
 
@@ -43,7 +47,11 @@ export class PaymentService {
     const payment = await this.paymentRepo.getByPaymentIntent(paymentIntentId);
     if (!payment) return null;
 
-    await this.paymentRepo.updateStatus(payment.orderId,payment.paymentId, 'FAILED');
+    await this.paymentRepo.updateStatus(
+      payment.orderId,
+      payment.paymentId,
+      'FAILED',
+    );
     return payment;
   }
 }

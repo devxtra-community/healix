@@ -1,12 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { OrderService } from '../services/order.service.js';
-import { DynamoOrderRepository } from '../repositories/order.repository.dynamo.js';
-import { RefundService } from '../services/refund.service.js';
 
 export class OrderController {
-  constructor(
-    private orderService: OrderService,
-  ) { }
+  constructor(private orderService: OrderService) {}
   getMyOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.headers['x-user-id'] as string;
@@ -47,7 +43,7 @@ export class OrderController {
       next(error);
     }
   };
-   updateStatus = async (req: Request, res: Response, next: NextFunction) => {
+  updateStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { orderId } = req.params;
       const { status } = req.body;

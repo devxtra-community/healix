@@ -10,10 +10,10 @@ import { DynamoPaymentRepository } from '../../repositories/payment.repository.d
 const router = Router();
 
 const orderRepo = new DynamoOrderRepository();
-const refundRepo=new DynamoRefundRepository();
-const paymentRepo=new DynamoPaymentRepository()
-const refundService=new RefundService(refundRepo,paymentRepo)
-const orderService = new OrderService(orderRepo,refundService);
+const refundRepo = new DynamoRefundRepository();
+const paymentRepo = new DynamoPaymentRepository();
+const refundService = new RefundService(refundRepo, paymentRepo);
+const orderService = new OrderService(orderRepo, refundService);
 const orderController = new OrderController(orderService);
 
 router.get('/', orderController.getMyOrder);

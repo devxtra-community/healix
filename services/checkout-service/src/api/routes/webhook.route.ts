@@ -17,10 +17,10 @@ const router = Router();
 const paymentRepo = new DynamoPaymentRepository();
 const orderRepo = new DynamoOrderRepository();
 const cartRepo = new DynamoCartRepository();
-const refundRepo=new DynamoRefundRepository()
+const refundRepo = new DynamoRefundRepository();
 const paymentService = new PaymentService(paymentRepo);
-const refundService=new RefundService(refundRepo,paymentRepo)
-const orderService = new OrderService(orderRepo,refundService);
+const refundService = new RefundService(refundRepo, paymentRepo);
+const orderService = new OrderService(orderRepo, refundService);
 
 const webhookidempotency = new webhookIdempotency(redis);
 
@@ -29,7 +29,7 @@ const webhookcontroller = new StripeWebHookController(
   orderService,
   cartRepo,
   webhookidempotency,
-  refundRepo
+  refundRepo,
 );
 router.post('/', webhookcontroller.handle);
 
