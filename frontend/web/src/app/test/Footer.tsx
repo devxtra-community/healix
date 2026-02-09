@@ -16,10 +16,26 @@ export default function Footer() {
         <div>
           <h3 className="font-bold mb-6 text-xl">Quick Links</h3>
           <ul className="space-y-3 opacity-90">
-            <li><a href="#" className="hover:underline">Home</a></li>
-            <li><a href="#" className="hover:underline">Health Goals</a></li>
-            <li><a href="#" className="hover:underline">Blog</a></li>
-            <li><a href="#" className="hover:underline">About</a></li>
+            <li>
+              <a href="#" className="hover:underline">
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Health Goals
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Blog
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                About
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -27,10 +43,26 @@ export default function Footer() {
         <div>
           <h3 className="font-bold mb-6 text-xl">Customer support</h3>
           <ul className="space-y-3 opacity-90">
-            <li><a href="#" className="hover:underline">Shipping Policy</a></li>
-            <li><a href="#" className="hover:underline">Return & Refund</a></li>
-            <li><a href="#" className="hover:underline">Privacy Policy</a></li>
-            <li><a href="#" className="hover:underline">Terms & Conditions</a></li>
+            <li>
+              <a href="#" className="hover:underline">
+                Shipping Policy
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Return & Refund
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Privacy Policy
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Terms & Conditions
+              </a>
+            </li>
           </ul>
         </div>
 
