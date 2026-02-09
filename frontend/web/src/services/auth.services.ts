@@ -9,6 +9,11 @@ export const authService = {
     return res.data;
   },
 
+  register: async (data: { email: string; password: string }) => {
+    const res = await userApi.post('/auth/user/register', data);
+    return res.data;
+  },
+
   adminLogin: async (data: { email: string; password: string }) => {
     const res = await adminApi.post('/auth/admin/login', data);
     return res.data;

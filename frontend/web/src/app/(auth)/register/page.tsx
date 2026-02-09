@@ -4,10 +4,10 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { FcGoogle } from 'react-icons/fc';
 import { useRouter } from 'next/navigation';
-import api from '@/src/lib/axios';
 // Optional: Import a spinner icon if you have one, or use CSS
 import { CgSpinner } from 'react-icons/cg';
 import { AxiosError } from 'axios';
+import { authService } from '@/src/services/auth.services';
 
 interface ErrorResponse {
   message: string;
@@ -38,7 +38,7 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      await api.post('/auth/register', formData);
+      await authService.register(formData)
       router.push('/login');
     } catch (err) {
       console.error('Register Error:', err);
