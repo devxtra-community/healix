@@ -1,10 +1,10 @@
 'use client';
 
 import Image from 'next/image'; // Import Next.js Image component
-import Test from '../app/test/test';
-import Personalization from '../app/test/Personalization';
-import Testimonials from '../app/test/Testimonials';
-import Footer from '../app/test/Footer';
+import Hero from '../components/landingpage/Hero';
+import Personalization from '../components/landingpage/Personalization';
+import Testimonials from '../components/landingpage/Testimonials';
+import Footer from '../components/landingpage/Footer';
 
 import { User, Heart, ShoppingBag, ArrowUpRight } from 'lucide-react';
 
@@ -195,7 +195,7 @@ export default function Home() {
       <Navbar />
       <HeroText />
       <MasonryGrid />
-      <Test />
+      <Hero />
       <Personalization />
       <Testimonials />
       <Footer />
