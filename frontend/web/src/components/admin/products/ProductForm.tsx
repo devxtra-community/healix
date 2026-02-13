@@ -93,9 +93,79 @@ export default function ProductForm({
     }));
   };
 
-  const handleImageUpload = () => {
-    const newImage = 'https://placehold.co/400x400';
-    updateVersion('images', [...formData.versionData.images, newImage]);
+  //  const handleImageUpload = async (
+  //   e: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   if (!e.target.files) return;
+
+  //   const file = e.target.files[0];
+
+  //   // Optional size check (2MB)
+  //   if (file.size > 2 * 1024 * 1024) {
+  //     alert("Image must be under 2MB");
+  //     return;
+  //   }
+
+  //   const imageUrl = await uploadImageToS3(file);
+
+  //   if (imageUrl) {
+  //     updateVersion("images", [
+  //       ...formData.versionData.images,
+  //       imageUrl,
+  //     ]);
+  //   }
+  // };
+
+  type SignedUrlResponse = {
+    uploadUrl: string;
+    viewUrl: string;
+    key: string;
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const file = e.target.files[0];
+
+    try {
+      // 1️⃣ Get signed URLs from backend
+      const response = await fetch(
+        'http://localhost:4000/api/v1/products/generate-upload-url',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fileType: file.type,
+          }),
+        },
+      );
+
+      const data: SignedUrlResponse = await response.json();
+
+      // 2️⃣ Upload file directly to S3
+      await fetch(data.uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      });
+
+      // 3️⃣ Save signed GET URL into state
+      setFormData((prev) => ({
+        ...prev,
+        versionData: {
+          ...prev.versionData,
+          images: [...prev.versionData.images, data.viewUrl],
+        },
+      }));
+
+      console.log('Upload success ✅');
+    } catch (error) {
+      console.error('Upload failed ❌', error);
+    }
   };
 
   const removeImage = (index: number) => {
@@ -223,6 +293,40 @@ export default function ProductForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
+  };
+
+  const uploadImageToS3 = async (file: File) => {
+    try {
+      // 1️⃣ Ask backend for signed URL
+      const res = await fetch(
+        'http://localhost:4000/api/v1/products/generate-upload-url',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fileType: file.type,
+          }),
+        },
+      );
+
+      const { signedUrl, fileUrl } = await res.json();
+
+      // 2️⃣ Upload directly to S3
+      await fetch(signedUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      });
+
+      return fileUrl;
+    } catch (error) {
+      console.error('Upload failed', error);
+      return null;
+    }
   };
 
   return (
@@ -534,14 +638,17 @@ export default function ProductForm({
                 </button>
               </div>
             ))}
-            <button
-              type="button"
-              onClick={handleImageUpload}
-              className="aspect-square border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-gray-400 hover:bg-gray-50 transition-all text-gray-500"
-            >
+            <label className="aspect-square border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-gray-400 hover:bg-gray-50 transition-all text-gray-500 cursor-pointer">
               <Upload size={24} />
               <span className="text-xs font-medium">Add Image</span>
-            </button>
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </label>
           </div>
         </div>
 

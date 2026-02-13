@@ -17,10 +17,7 @@ const initialProductState: ProductData = {
     brand: 'Healix Nutrition',
     tags: ['plant-protein', 'vegan', 'fitness'],
     price: 1899,
-    images: [
-      'https://cdn.healix.com/products/plant-protein-front.jpg',
-      'https://cdn.healix.com/products/plant-protein-back.jpg',
-    ],
+    images: [],
     status: 'active',
     attributes: {
       flavor: 'Vanilla',

@@ -10,6 +10,7 @@ import priceRoute from './product-service-routes/pricing.route.js';
 import cartRoute from './checkout-service-routes/cart.route.js';
 import checkoutRoute from './checkout-service-routes/checkout.route.js';
 import orderRoute from './checkout-service-routes/order.route.js';
+import uploadRoutes from './product-service-routes/upload.route.js';
 
 const route = Router();
 
@@ -24,6 +25,7 @@ route.use('/product', productRoute);
 route.use('/category', categoryRoute);
 route.use('/product/stocks', stockRoute);
 route.use('/product/price', priceRoute);
+route.use('/products', uploadRoutes);
 
 //CHECKOUT SERVICE
 route.use('/cart', cartRoute);

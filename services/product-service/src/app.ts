@@ -5,6 +5,7 @@ import healthRoute from './api/routes/health.routes.js';
 import productRoute from './api/routes/product.routes.js';
 import stockRoutes from './api/routes/stock.routes.js';
 import priceRoutes from './api/routes/pricing.routes.js';
+import uploadRoutes from './api/routes/upload.routes.js';
 const app = express();
 
 app.use(express.json());
@@ -15,5 +16,7 @@ app.use('/health', healthRoute);
 app.use('/api/v1/product', productRoute);
 app.use('/api/v1/product/stocks', stockRoutes);
 app.use('/api/v1/product/price', priceRoutes);
+app.use('/api/v1/products', uploadRoutes);
 app.use(globalErrorHandler);
+
 export default app;

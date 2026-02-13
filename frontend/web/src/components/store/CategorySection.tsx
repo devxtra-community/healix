@@ -34,7 +34,7 @@ const CategorySection = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-        {categories.map(cat => (
+        {categories.map((cat) => (
           <div
             key={cat.id}
             className="bg-gray-50 hover:bg-white rounded-2xl p-6 flex flex-col items-center hover:shadow-lg transition"

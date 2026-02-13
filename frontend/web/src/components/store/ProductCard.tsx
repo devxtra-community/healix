@@ -19,17 +19,15 @@ const ProductCard = ({ product }: { product: Product }) => {
 
       <h3 className="font-semibold">{product.name}</h3>
       <p className="text-lg font-bold">₹{product.price}</p>
-      <p className="text-xs text-gray-500 mb-4">
-        Stock: {product.stock}
-      </p>
+      <p className="text-xs text-gray-500 mb-4">Stock: {product.stock}</p>
 
       <div className="flex justify-between items-center">
         <div className="flex items-center bg-gray-100 rounded-full px-2">
-          <button onClick={() => setQty(q => Math.max(1, q - 1))}>
+          <button onClick={() => setQty((q) => Math.max(1, q - 1))}>
             <Minus className="w-4 h-4" />
           </button>
           <span className="px-3">{qty}</span>
-          <button onClick={() => setQty(q => q + 1)}>
+          <button onClick={() => setQty((q) => q + 1)}>
             <Plus className="w-4 h-4" />
           </button>
         </div>
