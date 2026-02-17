@@ -22,12 +22,19 @@ export const authService = {
   adminMe: async () => {
     return await adminApi.get('/auth/admin/me');
   },
+  
+ userMe: async () => {
+    return await userApi.get('/auth/user/me');
+  },
+  
+
+
 
   logoutUser: async () => {
-    await userApi.post('/auth/user/logout');
+    await userApi.delete('/auth/user/logout');
   },
 
   logoutAdmin: async () => {
-    await userApi.delete('/auth/admin/logout');
+    await adminApi.delete('/auth/admin/logout');
   },
 };

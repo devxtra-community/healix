@@ -1,5 +1,5 @@
 'use client';
-
+import Link from 'next/link';
 import { User, Heart, ShoppingBag, Leaf } from 'lucide-react';
 
 const Navbar = () => {
@@ -18,9 +18,14 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-6">
-        <User className="w-5 h-5" />
-        <Heart className="w-5 h-5" />
+<Link href="/profile">
+  <User className="w-5 h-5 cursor-pointer" />
+</Link>  
+      <Heart className="w-5 h-5" />
+<Link href='/cart'>
         <ShoppingBag className="w-5 h-5" />
+        </Link>
+
       </div>
     </nav>
   );

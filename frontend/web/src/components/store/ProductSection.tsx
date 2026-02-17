@@ -26,6 +26,7 @@ const ProductSection = () => {
         setProducts(mapped);
       } catch (err) {
         setError('Failed to load products');
+        console.error(err);
       } finally {
         setLoading(false);
       }

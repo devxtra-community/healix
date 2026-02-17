@@ -93,29 +93,6 @@ export default function ProductForm({
     }));
   };
 
-  //  const handleImageUpload = async (
-  //   e: React.ChangeEvent<HTMLInputElement>
-  // ) => {
-  //   if (!e.target.files) return;
-
-  //   const file = e.target.files[0];
-
-  //   // Optional size check (2MB)
-  //   if (file.size > 2 * 1024 * 1024) {
-  //     alert("Image must be under 2MB");
-  //     return;
-  //   }
-
-  //   const imageUrl = await uploadImageToS3(file);
-
-  //   if (imageUrl) {
-  //     updateVersion("images", [
-  //       ...formData.versionData.images,
-  //       imageUrl,
-  //     ]);
-  //   }
-  // };
-
   type SignedUrlResponse = {
     uploadUrl: string;
     viewUrl: string;
@@ -293,40 +270,6 @@ export default function ProductForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
-  };
-
-  const uploadImageToS3 = async (file: File) => {
-    try {
-      // 1️⃣ Ask backend for signed URL
-      const res = await fetch(
-        'http://localhost:4000/api/v1/products/generate-upload-url',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            fileType: file.type,
-          }),
-        },
-      );
-
-      const { signedUrl, fileUrl } = await res.json();
-
-      // 2️⃣ Upload directly to S3
-      await fetch(signedUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type,
-        },
-        body: file,
-      });
-
-      return fileUrl;
-    } catch (error) {
-      console.error('Upload failed', error);
-      return null;
-    }
   };
 
   return (

@@ -43,7 +43,7 @@ export default function LoginPage() {
       const data = await login(formData);
 
       if (data.success && data.accessToken) {
-        router.push('/');
+        router.push('/store');
       }
     } catch (err) {
       console.error('Full Error Object:', err);

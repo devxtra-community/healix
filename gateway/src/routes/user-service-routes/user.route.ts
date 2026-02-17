@@ -8,13 +8,8 @@ const router = Router();
 const userServiceProxy = createProxyMiddleware({
   target: process.env.USER_SERVICE_URL!,
   changeOrigin: true,
-  pathRewrite: {
-    '^/login': '/api/v1/auth/user/login',
-    '^/register': '/api/v1/auth/user/register',
-    '^/logout': '/api/v1/auth/user/logout',
-    '^/profile': '/api/v1/auth/user/profile',
-    '^/refresh': '/api/v1/auth/user/refresh',
-    '^/me': '/api/v1/auth/user/me',
+  pathRewrite: (path) => {
+    return `/api/v1/auth/user${path}`;
   },
   on: {
     proxyReq(proxyReq, req: Request) {
@@ -34,7 +29,7 @@ const userServiceProxy = createProxyMiddleware({
 router.post('/login', userServiceProxy);
 router.post('/register', userServiceProxy);
 router.put('/change_password', verifyToken, userServiceProxy);
-router.post('/logout', verifyToken, userServiceProxy);
+router.delete('/logout', verifyToken, userServiceProxy);
 router.post('/refresh', setUserRefreshToken, userServiceProxy);
 router.get('/me', verifyToken, userServiceProxy);
 router.post('/review', verifyToken, userServiceProxy);

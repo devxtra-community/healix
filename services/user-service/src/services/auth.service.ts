@@ -54,7 +54,9 @@ export class AuthService {
   //USER LOGIN
 
   async loginUser(email: string, password: string) {
+    
     const user = await this.userRepo.findByEmail(email);
+
 
     if (!user || !user.isActive) {
       throw new UnauthorizedError('Invalid credentials');

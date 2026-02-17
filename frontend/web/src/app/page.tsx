@@ -5,6 +5,7 @@ import Hero from '../components/landingpage/Hero';
 import Personalization from '../components/landingpage/Personalization';
 import Testimonials from '../components/landingpage/Testimonials';
 import Footer from '../components/landingpage/Footer';
+import Link from 'next/link'
 
 import { User, Heart, ShoppingBag, ArrowUpRight } from 'lucide-react';
 
@@ -29,7 +30,7 @@ const Navbar = () => (
 
     {/* Links */}
     <div className="hidden md:flex items-center gap-10 text-xl font-medium text-gray-800">
-      <a href="#" className="hover:text-green-600 transition">
+      <a href="/store" className="hover:text-green-600 transition">
         Shop
       </a>
       <a href="#" className="hover:text-green-600 transition">
@@ -45,15 +46,26 @@ const Navbar = () => (
 
     {/* Icons */}
     <div className="flex items-center  gap-6">
-      <button className="text-gray-900 hover:text-green-600">
+      <Link
+        href="/profile"
+        className="text-gray-900 hover:text-green-600 transition"
+      >
         <User className="w-7 h-7" />
-      </button>
-      <button className="text-gray-900 hover:text-green-600">
+      </Link>
+
+
+      <Link
+        href="/"
+        className="text-gray-900 hover:text-green-600 transition"
+      >
         <Heart className="w-7 h-7" />
-      </button>
-      <button className="text-gray-900 hover:text-green-600">
+      </Link>
+      <Link
+        href="/cart"
+        className="text-gray-900 hover:text-green-600 transition"
+      >
         <ShoppingBag className="w-7 h-7" />
-      </button>
+      </Link>
     </div>
   </nav>
 );
