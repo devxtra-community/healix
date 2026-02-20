@@ -32,7 +32,7 @@ export default function ProductsPage() {
               ...prev,
               data: prev.data.filter((p) => p._id !== productId),
             }
-          : prev
+          : prev,
       );
     } catch (err) {
       console.error(err);
@@ -69,10 +69,7 @@ export default function ProductsPage() {
 
       {/* Table */}
       {products && (
-        <ProductsTable
-          products={products.data}
-          onDelete={handleDelete}
-        />
+        <ProductsTable products={products.data} onDelete={handleDelete} />
       )}
     </div>
   );

@@ -19,13 +19,13 @@ type CartItem = {
   quantity: number;
   subtotal: number;
   name: string;
-  image: string;   }
-
+  image: string;
+};
 
 const CartPage = () => {
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-console.log(cartItems);
+  console.log(cartItems);
 
   useEffect(() => {
     const loadCart = async () => {
@@ -48,28 +48,18 @@ console.log(cartItems);
       prev.map((item) =>
         item.variantId === variantId
           ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
+  const S3_BASE = 'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
 
-
-
-const S3_BASE =
-  'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
-
-function resolveImage(src?: string | null) {
-  if (!src) return '/placeholder.png';
-  if (src.startsWith('http')) return src;
-  return `${S3_BASE}${src}`;
-}
-
-
-
-
-
-
+  function resolveImage(src?: string | null) {
+    if (!src) return '/placeholder.png';
+    if (src.startsWith('http')) return src;
+    return `${S3_BASE}${src}`;
+  }
 
   // Decrease quantity
   const decreaseQty = (variantId: string) => {
@@ -77,16 +67,14 @@ function resolveImage(src?: string | null) {
       prev.map((item) =>
         item.variantId === variantId && item.quantity > 1
           ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
   // Remove item
   const removeItem = (variantId: string) => {
-    setCartItems((prev) =>
-      prev.filter((item) => item.variantId !== variantId)
-    );
+    setCartItems((prev) => prev.filter((item) => item.variantId !== variantId));
   };
 
   if (loading) {
@@ -110,9 +98,15 @@ function resolveImage(src?: string | null) {
         </div>
 
         <div className="hidden md:flex items-center gap-10 font-medium text-sm">
-          <a href="#" className="hover:text-[#2EB150]">Category</a>
-          <a href="#" className="hover:text-[#2EB150]">Products</a>
-          <a href="#" className="hover:text-[#2EB150]">About</a>
+          <a href="#" className="hover:text-[#2EB150]">
+            Category
+          </a>
+          <a href="#" className="hover:text-[#2EB150]">
+            Products
+          </a>
+          <a href="#" className="hover:text-[#2EB150]">
+            About
+          </a>
         </div>
 
         <div className="flex items-center gap-6">
@@ -138,33 +132,28 @@ function resolveImage(src?: string | null) {
                 key={item.variantId}
                 className="pb-8 border-b border-gray-100 last:border-0 flex items-center gap-6"
               >
-            <div className="bg-[#f3f3f3] rounded-xl p-4 w-32 h-36 flex items-center justify-center">
-  {item.image ? (
-    <img
-      src={resolveImage(item.image)}
-      alt={item.name}
-      className="h-full object-contain mix-blend-multiply"
-    />
-  ) : (
-    <ShoppingBag size={40} />
-  )}
-</div>
-
+                <div className="bg-[#f3f3f3] rounded-xl p-4 w-32 h-36 flex items-center justify-center">
+                  {item.image ? (
+                    <img
+                      src={resolveImage(item.image)}
+                      alt={item.name}
+                      className="h-full object-contain mix-blend-multiply"
+                    />
+                  ) : (
+                    <ShoppingBag size={40} />
+                  )}
+                </div>
 
                 {/* Details */}
                 <div className="flex-grow">
-                  <h3 className="font-bold text-lg">
-                    Product {item.name}
-                  </h3>
+                  <h3 className="font-bold text-lg">Product {item.name}</h3>
 
                   <div className="flex items-center gap-4 border border-gray-200 rounded-full w-fit px-3 py-1 mt-3">
                     <button onClick={() => decreaseQty(item.variantId)}>
                       <Minus size={14} />
                     </button>
 
-                    <span className="font-bold text-sm">
-                      {item.quantity}
-                    </span>
+                    <span className="font-bold text-sm">{item.quantity}</span>
 
                     <button onClick={() => increaseQty(item.variantId)}>
                       <Plus size={14} />
@@ -181,9 +170,7 @@ function resolveImage(src?: string | null) {
                     <Trash2 size={20} />
                   </button>
 
-                  <p className="font-bold text-xl">
-                    ${item.price.toFixed(2)}
-                  </p>
+                  <p className="font-bold text-xl">${item.price.toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -202,10 +189,7 @@ function resolveImage(src?: string | null) {
               <div className="flex justify-between py-4 text-xl font-bold">
                 <span>Total</span>
                 <span>
-                  $
-                  {cartItems
-                    .reduce((s, i) => s + i.subtotal, 0)
-                    .toFixed(2)}
+                  ${cartItems.reduce((s, i) => s + i.subtotal, 0).toFixed(2)}
                 </span>
               </div>
 

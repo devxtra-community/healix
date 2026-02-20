@@ -1,5 +1,5 @@
 import express from 'express';
-import { PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3 } from '../../config/s3.js';
 import { env } from '../../config/env.js';
@@ -29,11 +29,10 @@ router.post('/generate-upload-url', async (req, res) => {
     });
 
     // 🔹 3. Send both URLs
-   res.json({
-  uploadUrl,
-  key: fileName,
-});
-
+    res.json({
+      uploadUrl,
+      key: fileName,
+    });
   } catch (error) {
     console.error('🔥 S3 ERROR:', error);
     res.status(500).json({ message: 'Failed to generate URL' });

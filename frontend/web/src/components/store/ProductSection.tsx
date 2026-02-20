@@ -41,23 +41,23 @@ const ProductSection = () => {
           (await productService.getProducts()) as ProductApiResponse[];
 
         const mapped: Product[] = data.map((item) => {
-  const version = pickCurrentVersion(item);
-console.log("API ITEM", item);
-  const variantId =
-    (typeof item.current_version_id === 'string' && item.current_version_id) ||
-    version._id ||
-    '';
-  return {
-    id: item._id,
-    name: version.name ?? 'Product',
-    variantId,
-    price: version.price ?? 0,
-    image: version.images?.[0] ?? null,
-    stock: item.stock?.available ?? 0,
-  };
-
-});
-  console.log("MAPPED", mapped);
+          const version = pickCurrentVersion(item);
+          console.log('API ITEM', item);
+          const variantId =
+            (typeof item.current_version_id === 'string' &&
+              item.current_version_id) ||
+            version._id ||
+            '';
+          return {
+            id: item._id,
+            name: version.name ?? 'Product',
+            variantId,
+            price: version.price ?? 0,
+            image: version.images?.[0] ?? null,
+            stock: item.stock?.available ?? 0,
+          };
+        });
+        console.log('MAPPED', mapped);
 
         setProducts(mapped);
       } catch (err) {

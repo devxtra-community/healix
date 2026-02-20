@@ -22,18 +22,17 @@ passport.use(
         }
 
         // Check if email exists with different provider
-   user = await User.findOne({ email: profile.emails?.[0].value });
+        user = await User.findOne({ email: profile.emails?.[0].value });
 
-if (user) {
-  user.google_id = profile.id;
-  user.provider = "google";
-  user.email_verified = true;
-  user.last_login = new Date();
-  await user.save();
+        if (user) {
+          user.google_id = profile.id;
+          user.provider = 'google';
+          user.email_verified = true;
+          user.last_login = new Date();
+          await user.save();
 
-  return done(null, user);
-}
-
+          return done(null, user);
+        }
 
         // Create new user
         user = await User.create({

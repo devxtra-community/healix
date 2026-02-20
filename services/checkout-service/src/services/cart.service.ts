@@ -45,23 +45,22 @@ export class CartService {
     }
 
     const now = new Date().toISOString();
-const product = productRes.data;   
-  const normalizedItem: CartItem = {
-    productId: item.productId,
-    variantId: item.variantId,
+    const product = productRes.data;
+    const normalizedItem: CartItem = {
+      productId: item.productId,
+      variantId: item.variantId,
 
-    name: product.name,
-    image: product.images?.[0] ?? '',
+      name: product.name,
+      image: product.images?.[0] ?? '',
 
-    price,
-    quantity,
-    subtotal: price * quantity,
+      price,
+      quantity,
+      subtotal: price * quantity,
 
-    attributes: item.attributes ?? {},
-    addedAt: item.addedAt ?? now,
-    updatedAt: now,
-  };
-
+      attributes: item.attributes ?? {},
+      addedAt: item.addedAt ?? now,
+      updatedAt: now,
+    };
 
     const existingCart = await this.cartRepository.getCart(userId);
 

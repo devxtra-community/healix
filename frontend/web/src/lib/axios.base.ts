@@ -42,7 +42,8 @@ export function createApiClient(authType: 'user' | 'admin') {
           return api(originalRequest);
         } catch {
           if (typeof window !== 'undefined') {
-            window.location.href = authType === 'admin' ? '/admin/login' : '/login';
+            window.location.href =
+              authType === 'admin' ? '/admin/login' : '/login';
           }
         }
       }

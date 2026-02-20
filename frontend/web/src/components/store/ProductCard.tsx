@@ -46,7 +46,6 @@ const ProductCard = ({ product }: { product: Product }) => {
       <div className="h-40 flex justify-center mb-4">
         <img
           src={resolveImage(product.image)}
-
           alt={product.id}
           className="h-full object-contain"
         />

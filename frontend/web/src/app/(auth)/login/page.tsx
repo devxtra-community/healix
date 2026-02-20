@@ -42,7 +42,6 @@ export default function LoginPage() {
     try {
       const data = await login(formData);
 
-
       if (data?.success) {
         router.push('/store');
       }

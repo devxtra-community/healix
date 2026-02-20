@@ -72,8 +72,8 @@ export default function UserLayout({
         />
 
         {/* Main Content */}
-<div className="flex-1 flex flex-col min-h-screen">
-            <UserHeader onMenuClick={toggleSidebar} />
+        <div className="flex-1 flex flex-col min-h-screen">
+          <UserHeader onMenuClick={toggleSidebar} />
           <main className="flex-1 overflow-y-auto px-4 pb-4 md:px-8 md:pb-8">
             {children}
           </main>
@@ -81,9 +81,4 @@ export default function UserLayout({
       </div>
     </UserAuthProvider>
   );
-
-
-
 }
-
-

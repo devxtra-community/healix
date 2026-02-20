@@ -28,13 +28,12 @@ const userServiceProxy = createProxyMiddleware({
 
 // GOOGLE OAUTH ROUTES (no path rewrite)
 router.use(
-  "/google",
+  '/google',
   createProxyMiddleware({
     target: process.env.USER_SERVICE_URL!,
     changeOrigin: true,
-  })
+  }),
 );
-
 
 router.post('/login', userServiceProxy);
 router.post('/register', userServiceProxy);

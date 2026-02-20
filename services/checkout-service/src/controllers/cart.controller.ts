@@ -12,7 +12,7 @@ export class CartController {
         return res.status(401).json({ message: 'HELLO Unauthorized' });
       }
       const cart = await this.cartService.getCart(userId);
-console.log(cart);
+      console.log(cart);
 
       if (!cart) {
         return res.status(200).json({

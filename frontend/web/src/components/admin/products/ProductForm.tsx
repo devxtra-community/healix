@@ -134,7 +134,7 @@ export default function ProductForm({
         ...prev,
         versionData: {
           ...prev.versionData,
-images: [...prev.versionData.images, data.key],
+          images: [...prev.versionData.images, data.key],
         },
       }));
 
