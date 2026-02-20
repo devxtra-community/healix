@@ -28,22 +28,12 @@ router.post('/generate-upload-url', async (req, res) => {
       expiresIn: 60, // upload valid for 1 min
     });
 
-    // 🔹 2. Create GET command (view image)
-    const getCommand = new GetObjectCommand({
-      Bucket: env.AWS_BUCKET_NAME,
-      Key: fileName,
-    });
-
-    const viewUrl = await getSignedUrl(s3, getCommand, {
-      expiresIn: 60 * 60, // view valid for 1 hour
-    });
-
     // 🔹 3. Send both URLs
-    res.json({
-      uploadUrl,
-      viewUrl,
-      key: fileName,
-    });
+   res.json({
+  uploadUrl,
+  key: fileName,
+});
+
   } catch (error) {
     console.error('🔥 S3 ERROR:', error);
     res.status(500).json({ message: 'Failed to generate URL' });

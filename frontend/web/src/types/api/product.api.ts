@@ -1,7 +1,25 @@
 export interface ProductApiResponse {
   _id: string;
   category_id: string;
-  current_version_id: string;
+  current_version_id:
+    | string
+    | {
+        _id: string;
+        product_id: string;
+        version: number;
+        name: string;
+        description?: string;
+        brand?: string;
+        tags?: string[];
+        price: number;
+        images: string[];
+        status: string;
+        attributes: {
+          flavor?: string;
+          pack_size?: string;
+          form?: string;
+        };
+      };
 
   category?: {
     _id: string;
@@ -16,7 +34,7 @@ export interface ProductApiResponse {
     __v: number;
   };
 
-  current_version: {
+  current_version?: {
     _id: string;
     product_id: string;
     version: number;

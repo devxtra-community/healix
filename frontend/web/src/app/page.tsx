@@ -5,7 +5,7 @@ import Hero from '../components/landingpage/Hero';
 import Personalization from '../components/landingpage/Personalization';
 import Testimonials from '../components/landingpage/Testimonials';
 import Footer from '../components/landingpage/Footer';
-import Link from 'next/link'
+import Link from 'next/link';
 
 import { User, Heart, ShoppingBag, ArrowUpRight } from 'lucide-react';
 
@@ -53,11 +53,7 @@ const Navbar = () => (
         <User className="w-7 h-7" />
       </Link>
 
-
-      <Link
-        href="/"
-        className="text-gray-900 hover:text-green-600 transition"
-      >
+      <Link href="/" className="text-gray-900 hover:text-green-600 transition">
         <Heart className="w-7 h-7" />
       </Link>
       <Link

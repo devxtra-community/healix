@@ -7,55 +7,49 @@ declare module 'axios' {
   }
 }
 
-const api = axios.create({
+const BASE_CONFIG = {
   baseURL: 'http://localhost:4000/api/v1',
   withCredentials: true,
   timeout: 30000,
-});
+} as const;
 
-api.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    const originalRequest = error.config;
+export function createApiClient(authType: 'user' | 'admin') {
+  const api = axios.create(BASE_CONFIG);
 
-    console.log('🚨 interceptor triggered');
-    console.log('status:', error.response?.status);
-    console.log('url:', originalRequest?.url);
-    console.log('_retry:', originalRequest?._retry);
-    console.log('authType:', originalRequest?.authType);
+  api.interceptors.request.use((config) => {
+    config.authType = authType;
+    return config;
+  });
 
-    const isRefreshEndpoint =
-      originalRequest?.url?.includes('/auth/user/refresh') ||
-      originalRequest?.url?.includes('/auth/admin/refresh');
+  api.interceptors.response.use(
+    (res) => res,
+    async (error) => {
+      const originalRequest = error.config;
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest?._retry &&
-      !isRefreshEndpoint
-    ) {
-      originalRequest._retry = true;
+      const isRefreshEndpoint =
+        originalRequest?.url?.includes('/auth/user/refresh') ||
+        originalRequest?.url?.includes('/auth/admin/refresh');
 
-      const authType = originalRequest.authType;
-      if (!authType) {
-        console.log('authType missing');
-        return Promise.reject(error);
+      if (
+        error.response?.status === 401 &&
+        !originalRequest?._retry &&
+        !isRefreshEndpoint
+      ) {
+        originalRequest._retry = true;
+
+        try {
+          await api.post(`/auth/${authType}/refresh`);
+          return api(originalRequest);
+        } catch {
+          if (typeof window !== 'undefined') {
+            window.location.href = authType === 'admin' ? '/admin/login' : '/login';
+          }
+        }
       }
 
-      try {
-        console.log('🔄 calling refresh...');
-        const res = await api.post(`/auth/${authType}/refresh`);
-        console.log(res);
-        console.log('refresh success');
+      return Promise.reject(error);
+    },
+  );
 
-        return api(originalRequest);
-      } catch (e) {
-        console.log('refresh failed', e);
-        window.location.href = authType === 'admin' ? '/admin/login' : '/login';
-      }
-    }
-
-    return Promise.reject(error);
-  },
-);
-
-export default api;
+  return api;
+}

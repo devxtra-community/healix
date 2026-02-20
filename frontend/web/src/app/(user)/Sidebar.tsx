@@ -29,12 +29,15 @@ interface SidebarProps {
 }
 
 export default function UserSidebar({
-  
   isOpen = false,
   onClose,
   pathname,
 }: SidebarProps) {
-    const { user, logout, loading } = useUserAuth();
+  const { user, logout, loading } = useUserAuth();
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <aside
@@ -82,12 +85,8 @@ export default function UserSidebar({
             U
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate">
-              {user?.name}  
-            </p>
-            <p className="text-xs text-gray-500 truncate">
-              {user?.email}
-            </p>
+            <p className="text-sm font-semibold truncate">{user?.name}</p>
+            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
           </div>
         </div>
 

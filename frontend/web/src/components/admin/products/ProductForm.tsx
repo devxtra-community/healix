@@ -95,7 +95,6 @@ export default function ProductForm({
 
   type SignedUrlResponse = {
     uploadUrl: string;
-    viewUrl: string;
     key: string;
   };
 
@@ -135,7 +134,7 @@ export default function ProductForm({
         ...prev,
         versionData: {
           ...prev.versionData,
-          images: [...prev.versionData.images, data.viewUrl],
+images: [...prev.versionData.images, data.key],
         },
       }));
 

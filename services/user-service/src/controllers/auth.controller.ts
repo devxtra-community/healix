@@ -168,6 +168,7 @@ export class AuthController {
 
       await this.authService.logout(refreshToken);
       res.clearCookie('refreshToken');
+      res.clearCookie('accessToken');
       res.sendStatus(204);
     } catch (error) {
       next(error);

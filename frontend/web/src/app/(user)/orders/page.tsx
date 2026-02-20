@@ -1,7 +1,7 @@
 export default function OrdersPage() {
   const orders = [
-    { id: "#1234", date: "12 Feb 2026", total: "₹1200", status: "Delivered" },
-    { id: "#1235", date: "10 Feb 2026", total: "₹800", status: "Shipped" },
+    { id: '#1234', date: '12 Feb 2026', total: '₹1200', status: 'Delivered' },
+    { id: '#1235', date: '10 Feb 2026', total: '₹800', status: 'Shipped' },
   ];
 
   return (

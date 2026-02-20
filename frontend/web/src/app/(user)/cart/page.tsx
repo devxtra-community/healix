@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Trash2,
   Plus,
@@ -10,81 +10,88 @@ import {
   ShoppingBag,
   ArrowRight,
 } from 'lucide-react';
+import { cartService } from '@/src/services/cart.service';
 
 type CartItem = {
-  id: number;
-  name: string;
-  category: string;
+  productId: string;
+  variantId: string;
   price: number;
   quantity: number;
-  image: string;
-  selected: boolean;
-};
+  subtotal: number;
+  name: string;
+  image: string;   }
+
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      name: 'Healix',
-      category: 'Gut Health',
-      price: 99.29,
-      quantity: 1,
-      image: '/api/placeholder/100/120',
-      selected: true,
-    },
-    {
-      id: 2,
-      name: 'Healix',
-      category: 'Gut Health',
-      price: 99.29,
-      quantity: 1,
-      image: '/api/placeholder/100/120',
-      selected: true,
-    },
-    {
-      id: 3,
-      name: 'Healix',
-      category: 'Gut Health',
-      price: 99.29,
-      quantity: 1,
-      image: '/api/placeholder/100/120',
-      selected: false,
-    },
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+console.log(cartItems);
 
-  // Increase quantity
-  const increaseQty = (id: number) => {
+  useEffect(() => {
+    const loadCart = async () => {
+      try {
+        const cart = await cartService.getCart();
+        setCartItems(cart.items || []);
+      } catch (err) {
+        console.error('Failed to load cart', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCart();
+  }, []);
+
+  // Increase quantity (local only for now)
+  const increaseQty = (variantId: string) => {
     setCartItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
-      ),
+        item.variantId === variantId
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      )
     );
   };
 
+
+
+
+const S3_BASE =
+  'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
+
+function resolveImage(src?: string | null) {
+  if (!src) return '/placeholder.png';
+  if (src.startsWith('http')) return src;
+  return `${S3_BASE}${src}`;
+}
+
+
+
+
+
+
+
   // Decrease quantity
-  const decreaseQty = (id: number) => {
+  const decreaseQty = (variantId: string) => {
     setCartItems((prev) =>
       prev.map((item) =>
-        item.id === id && item.quantity > 1
+        item.variantId === variantId && item.quantity > 1
           ? { ...item, quantity: item.quantity - 1 }
-          : item,
-      ),
+          : item
+      )
     );
   };
 
   // Remove item
-  const removeItem = (id: number) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  // Toggle select
-  const toggleSelect = (id: number) => {
+  const removeItem = (variantId: string) => {
     setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, selected: !item.selected } : item,
-      ),
+      prev.filter((item) => item.variantId !== variantId)
     );
   };
+
+  if (loading) {
+    return <div className="p-10">Loading cart...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900">
@@ -103,15 +110,9 @@ const CartPage = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-10 font-medium text-sm">
-          <a href="#" className="hover:text-[#2EB150]">
-            Category
-          </a>
-          <a href="#" className="hover:text-[#2EB150]">
-            Products
-          </a>
-          <a href="#" className="hover:text-[#2EB150]">
-            About
-          </a>
+          <a href="#" className="hover:text-[#2EB150]">Category</a>
+          <a href="#" className="hover:text-[#2EB150]">Products</a>
+          <a href="#" className="hover:text-[#2EB150]">About</a>
         </div>
 
         <div className="flex items-center gap-6">
@@ -121,55 +122,51 @@ const CartPage = () => {
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* Main */}
       <main className="max-w-7xl mx-auto px-10 py-12">
         <h1 className="text-3xl font-bold mb-10">Shopping Cart</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Cart Items */}
+          {/* Items */}
           <div className="lg:col-span-2 space-y-8">
+            {cartItems.length === 0 && (
+              <div className="text-gray-500">Your cart is empty</div>
+            )}
+
             {cartItems.map((item) => (
               <div
-                key={item.id}
+                key={item.variantId}
                 className="pb-8 border-b border-gray-100 last:border-0 flex items-center gap-6"
               >
-                {/* Checkbox */}
-                <div
-                  onClick={() => toggleSelect(item.id)}
-                  className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer ${
-                    item.selected
-                      ? 'bg-[#2EB150] border-[#2EB150]'
-                      : 'border-gray-300'
-                  }`}
-                >
-                  {item.selected && (
-                    <div className="w-2 h-2 bg-white rounded-full" />
-                  )}
-                </div>
+            <div className="bg-[#f3f3f3] rounded-xl p-4 w-32 h-36 flex items-center justify-center">
+  {item.image ? (
+    <img
+      src={resolveImage(item.image)}
+      alt={item.name}
+      className="h-full object-contain mix-blend-multiply"
+    />
+  ) : (
+    <ShoppingBag size={40} />
+  )}
+</div>
 
-                {/* Image */}
-                <div className="bg-[#f3f3f3] rounded-xl p-4 w-32 h-36 flex items-center justify-center">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="mix-blend-multiply h-full object-contain"
-                  />
-                </div>
 
                 {/* Details */}
                 <div className="flex-grow">
-                  <h3 className="font-bold text-lg">{item.name}</h3>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Category:{' '}
-                    <span className="text-gray-700">{item.category}</span>
-                  </p>
+                  <h3 className="font-bold text-lg">
+                    Product {item.name}
+                  </h3>
 
-                  <div className="flex items-center gap-4 border border-gray-200 rounded-full w-fit px-3 py-1">
-                    <button onClick={() => decreaseQty(item.id)}>
+                  <div className="flex items-center gap-4 border border-gray-200 rounded-full w-fit px-3 py-1 mt-3">
+                    <button onClick={() => decreaseQty(item.variantId)}>
                       <Minus size={14} />
                     </button>
-                    <span className="font-bold text-sm">{item.quantity}</span>
-                    <button onClick={() => increaseQty(item.id)}>
+
+                    <span className="font-bold text-sm">
+                      {item.quantity}
+                    </span>
+
+                    <button onClick={() => increaseQty(item.variantId)}>
                       <Plus size={14} />
                     </button>
                   </div>
@@ -178,12 +175,15 @@ const CartPage = () => {
                 {/* Price */}
                 <div className="text-right flex flex-col justify-between items-end h-36 py-2">
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item.variantId)}
                     className="text-gray-400 hover:text-red-500 bg-gray-50 p-2 rounded-full"
                   >
                     <Trash2 size={20} />
                   </button>
-                  <p className="font-bold text-xl">${item.price}</p>
+
+                  <p className="font-bold text-xl">
+                    ${item.price.toFixed(2)}
+                  </p>
                 </div>
               </div>
             ))}
@@ -194,12 +194,22 @@ const CartPage = () => {
             <div className="border border-gray-100 rounded-3xl p-8 sticky top-8">
               <h2 className="text-2xl font-bold mb-8">Order Summary</h2>
 
-              <div className="flex justify-between py-8 text-xl font-bold">
+              <div className="flex justify-between py-4 text-lg">
                 <span>Total Items</span>
                 <span>{cartItems.length}</span>
               </div>
 
-              <button className="w-full bg-[#00e676] hover:bg-[#00c853] text-white py-4 rounded-full font-bold flex items-center justify-center gap-2">
+              <div className="flex justify-between py-4 text-xl font-bold">
+                <span>Total</span>
+                <span>
+                  $
+                  {cartItems
+                    .reduce((s, i) => s + i.subtotal, 0)
+                    .toFixed(2)}
+                </span>
+              </div>
+
+              <button className="w-full bg-[#00e676] hover:bg-[#00c853] text-white py-4 rounded-full font-bold flex items-center justify-center gap-2 mt-6">
                 Checkout <ArrowRight size={20} />
               </button>
             </div>

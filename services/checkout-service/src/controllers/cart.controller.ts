@@ -5,7 +5,6 @@ export class CartController {
   constructor(private cartService: CartService) {}
   getCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log('hi');
       const userId = req.headers['x-user-id'] as string;
       console.log(userId);
 
@@ -13,6 +12,7 @@ export class CartController {
         return res.status(401).json({ message: 'HELLO Unauthorized' });
       }
       const cart = await this.cartService.getCart(userId);
+console.log(cart);
 
       if (!cart) {
         return res.status(200).json({

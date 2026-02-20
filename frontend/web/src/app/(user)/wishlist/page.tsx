@@ -1,7 +1,7 @@
 export default function WishlistPage() {
   const items = [
-    { id: 1, name: "Wireless Headphones", price: "₹2999" },
-    { id: 2, name: "Smart Watch", price: "₹1999" },
+    { id: 1, name: 'Wireless Headphones', price: '₹2999' },
+    { id: 2, name: 'Smart Watch', price: '₹1999' },
   ];
 
   return (
@@ -10,10 +10,7 @@ export default function WishlistPage() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => (
-          <div
-            key={item.id}
-            className="bg-white p-4 rounded-xl shadow"
-          >
+          <div key={item.id} className="bg-white p-4 rounded-xl shadow">
             <div className="h-32 bg-gray-100 rounded-lg mb-3" />
 
             <p className="font-medium">{item.name}</p>

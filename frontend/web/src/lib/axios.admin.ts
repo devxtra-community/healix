@@ -1,8 +1,5 @@
-import api from './axios.base';
+import { createApiClient } from './axios.base';
 
-api.interceptors.request.use((config) => {
-  config.authType = 'admin';
-  return config;
-});
+const adminApi = createApiClient('admin');
 
-export default api;
+export default adminApi;

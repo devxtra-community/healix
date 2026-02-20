@@ -44,11 +44,7 @@ export default function Sidebar({
   onClose,
   pathname,
 }: SidebarProps) {
-  const { admin, logout, loading } = useAdminAuth();
-
-  if (loading) {
-    return null;
-  }
+  const { admin, logout } = useAdminAuth();
 
   return (
     <aside

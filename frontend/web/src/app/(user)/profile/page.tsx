@@ -1,19 +1,13 @@
 'use client';
 
+import { useUserAuth } from '@/src/hooks/useUserAuth';
 
-import { useUserAuth } from "@/src/hooks/useUserAuth";
-import { log } from "console";
-
-
-
-const ProfilePage = () => {  
+const ProfilePage = () => {
   const { user } = useUserAuth();
   console.log(user);
-  
+
   return (
     <div className="flex h-screen bg-gray-50">
-     
-
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-8">
         {/* Header */}
@@ -42,7 +36,9 @@ const ProfilePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Account Information */}
           <div className="bg-white p-6 rounded-xl border">
-            <h4 className="font-bold mb-4 text-gray-700 border-b pb-2">Account Information</h4>
+            <h4 className="font-bold mb-4 text-gray-700 border-b pb-2">
+              Account Information
+            </h4>
             <div className="space-y-4">
               <div>
                 <label className="text-sm text-gray-400">Email Address</label>
@@ -57,7 +53,9 @@ const ProfilePage = () => {
 
           {/* Stats Card (Matches your Dashboard style) */}
           <div className="bg-white p-6 rounded-xl border">
-            <h4 className="font-bold mb-4 text-gray-700 border-b pb-2">Activity Overview</h4>
+            <h4 className="font-bold mb-4 text-gray-700 border-b pb-2">
+              Activity Overview
+            </h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-500">Total Orders</p>

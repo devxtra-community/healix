@@ -1,9 +1,33 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import api from '@/src/lib/axios.user';
+import { productService } from '@/src/services/product.service';
 import ProductCard from './ProductCard';
-import { ApiProduct, Product } from '@/src/types/product';
+import { Product } from '@/src/types/product';
+import { ProductApiResponse } from '@/src/types/api/product.api';
+
+type ProductVersionLike = {
+  _id?: string;
+  name?: string;
+  price?: number;
+  images?: string[];
+};
+
+function pickCurrentVersion(item: ProductApiResponse): ProductVersionLike {
+  if (item.current_version && typeof item.current_version === 'object') {
+    return item.current_version;
+  }
+
+  if (
+    item.current_version_id &&
+    typeof item.current_version_id === 'object' &&
+    !Array.isArray(item.current_version_id)
+  ) {
+    return item.current_version_id;
+  }
+
+  return {};
+}
 
 const ProductSection = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -13,15 +37,27 @@ const ProductSection = () => {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const { data } = await api.get<ApiProduct[]>('/product');
+        const data =
+          (await productService.getProducts()) as ProductApiResponse[];
 
-        const mapped = data.map((item) => ({
-          id: item._id,
-          name: item.current_version.name,
-          price: item.current_version.price,
-          image: item.current_version.images?.[0] || '/placeholder.png',
-          stock: item.stock?.available ?? 0,
-        }));
+        const mapped: Product[] = data.map((item) => {
+  const version = pickCurrentVersion(item);
+console.log("API ITEM", item);
+  const variantId =
+    (typeof item.current_version_id === 'string' && item.current_version_id) ||
+    version._id ||
+    '';
+  return {
+    id: item._id,
+    name: version.name ?? 'Product',
+    variantId,
+    price: version.price ?? 0,
+    image: version.images?.[0] ?? null,
+    stock: item.stock?.available ?? 0,
+  };
+
+});
+  console.log("MAPPED", mapped);
 
         setProducts(mapped);
       } catch (err) {

@@ -18,14 +18,13 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-6">
-<Link href="/profile">
-  <User className="w-5 h-5 cursor-pointer" />
-</Link>  
-      <Heart className="w-5 h-5" />
-<Link href='/cart'>
-        <ShoppingBag className="w-5 h-5" />
+        <Link href="/profile">
+          <User className="w-5 h-5 cursor-pointer" />
         </Link>
-
+        <Heart className="w-5 h-5" />
+        <Link href="/cart">
+          <ShoppingBag className="w-5 h-5" />
+        </Link>
       </div>
     </nav>
   );

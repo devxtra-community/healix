@@ -7,7 +7,7 @@ import profileRoutes from './api/routes/profile.routes.js';
 import addressRoutes from './api/routes/address.routes.js';
 import healthRouter from './api/routes/health.routes.js';
 import { globalErrorHandler } from './api/middlewares/error.middleware.js';
-
+import authRoutes from './api/routes/auth.routes.js';
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -22,7 +22,10 @@ app.use(
   }),
 );
 
+
+
 //routes
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/auth/user', userRoutes);
 app.use('/api/v1/auth/admin', adminRoutes);
 app.use('/api/v1/profile', profileRoutes);
