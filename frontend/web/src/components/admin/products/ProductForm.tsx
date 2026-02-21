@@ -9,7 +9,6 @@ interface Ingredient {
   organic: boolean;
 }
 
-
 const S3_BASE = 'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
 
 function resolveImage(src?: string | null) {
@@ -17,9 +16,6 @@ function resolveImage(src?: string | null) {
   if (src.startsWith('http')) return src;
   return `${S3_BASE}${src}`;
 }
-
-
-
 
 interface NutritionFacts {
   serving_size: string;
@@ -579,8 +575,7 @@ export default function ProductForm({
                 className="aspect-square bg-gray-100 rounded-xl relative group overflow-hidden"
               >
                 <img
-                          src={resolveImage(img)}
-
+                  src={resolveImage(img)}
                   alt={`Product ${index}`}
                   className="w-full h-full object-cover"
                 />

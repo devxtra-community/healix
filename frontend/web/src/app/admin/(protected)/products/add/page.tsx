@@ -15,7 +15,7 @@ const initialProductState: ProductData = {
     name: '',
     description: 'fitness',
     brand: 'Healix Nutrition',
-        tags: ['plant-protein', 'vegan', 'fitness'],
+    tags: ['plant-protein', 'vegan', 'fitness'],
 
     price: 1899,
     images: [],

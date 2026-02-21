@@ -13,7 +13,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint frontend gateway services --ext .js,.ts,.jsx,.tsx",
     "format": "prettier --write frontend gateway services",
-    "prepare": "husky"
+    "prepare": "husky",
+   "dev": "concurrently \"pnpm -r --parallel dev\""
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "@commitlint/config-conventional": "^20.2.0",
     "@typescript-eslint/eslint-plugin": "^8.51.0",
     "@typescript-eslint/parser": "^8.51.0",
+    "concurrently": "^9.2.1",
     "eslint": "^8.57.1",
     "eslint-config-next": "^16.1.1",
     "eslint-config-prettier": "^10.1.8",
