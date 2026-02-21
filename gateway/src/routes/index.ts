@@ -11,6 +11,7 @@ import cartRoute from './checkout-service-routes/cart.route.js';
 import checkoutRoute from './checkout-service-routes/checkout.route.js';
 import orderRoute from './checkout-service-routes/order.route.js';
 import uploadRoutes from './product-service-routes/upload.route.js';
+import searchRoutes from './product-service-routes/search.routes.js';
 
 const route = Router();
 
@@ -26,6 +27,7 @@ route.use('/category', categoryRoute);
 route.use('/product/stocks', stockRoute);
 route.use('/product/price', priceRoute);
 route.use('/products', uploadRoutes);
+route.use('/search', searchRoutes);
 
 //CHECKOUT SERVICE
 route.use('/cart', cartRoute);

@@ -51,7 +51,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         />
       </div>
 
-      <h3 className="font-semibold">{product.id}</h3>
+      <h3 className="font-semibold">{product.name}</h3>
       <p className="text-lg font-bold">₹{product.price}</p>
       <p className="text-xs text-gray-500 mb-4">Stock: {product.stock}</p>
 

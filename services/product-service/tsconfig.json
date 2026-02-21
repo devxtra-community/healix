@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "rootDir": "src",
+    "target": "ES2022",
+    "rootDir": ".",
     "outDir": "dist",
-    "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
-  }
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src", "scripts"]
 }
