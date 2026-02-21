@@ -9,16 +9,11 @@ import Navbar from '../components/landingpage/Navbar';
 import MasonryGrid from '../components/landingpage/MasonrtGrid';
 import HeroText from '../components/landingpage/HeroText';
 
-
-
-
-
-
 export default function Home() {
   return (
     <main className="min-h-screen bg-white font-sans text-gray-900 selection:bg-green-100">
       <Navbar />
-      <HeroText/>
+      <HeroText />
       <MasonryGrid />
       <Hero />
       <Personalization />

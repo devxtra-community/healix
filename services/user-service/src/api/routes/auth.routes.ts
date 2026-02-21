@@ -19,7 +19,7 @@ router.get(
     failureRedirect: 'http://localhost:3000/login',
   }),
   (req, res) => {
-const user = req.user as { _id: string };
+    const user = req.user as { _id: string };
     const payload = {
       sub: user._id.toString(),
       role: 'user',

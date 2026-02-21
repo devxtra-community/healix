@@ -1,7 +1,7 @@
-import Link from "next/link";
-import Image from "next/image";
-import { User, Heart, ShoppingBag } from "lucide-react";
-import Container from "./ Container";
+import Link from 'next/link';
+import Image from 'next/image';
+import { User, Heart, ShoppingBag } from 'lucide-react';
+import Container from './ Container';
 
 const Navbar = () => {
   return (
@@ -23,7 +23,9 @@ const Navbar = () => {
 
           {/* Links */}
           <div className="hidden md:flex items-center gap-10 text-lg font-medium text-gray-800">
-            <a href="/store" className="hover:text-green-600">Shop</a>
+            <a href="/store" className="hover:text-green-600">
+              Shop
+            </a>
             <a href="#">Health Goals</a>
             <a href="#">Blog</a>
             <a href="#">About</a>

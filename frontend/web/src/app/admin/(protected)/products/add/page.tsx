@@ -12,10 +12,11 @@ const initialProductState: ProductData = {
   categoryId: '66c9f8c12c9b1f0012abcd12',
 
   versionData: {
-    name: 'Plant Protein Blend',
-    description: 'Clean plant-based protein for daily nutrition',
+    name: '',
+    description: 'fitness',
     brand: 'Healix Nutrition',
-    tags: ['plant-protein', 'vegan', 'fitness'],
+        tags: ['plant-protein', 'vegan', 'fitness'],
+
     price: 1899,
     images: [],
     status: 'active',

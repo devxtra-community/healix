@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from 'next/image';
 
 type Props = {
   imageSrc: string;
@@ -11,7 +11,7 @@ const ProductCard = ({
   imageSrc,
   heightClass,
   title,
-  bgColor = "bg-white",
+  bgColor = 'bg-white',
 }: Props) => {
   return (
     <div
