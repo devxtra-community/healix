@@ -29,6 +29,15 @@ export class AuthController {
   // POST /login
   loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (req.cookies?.adminAccessToken && req.cookies?.adminRefreshToken) {
+        const adminRefreshToken = req.cookies.adminRefreshToken;
+        const logoutResult = await this.authService.logout(adminRefreshToken);
+        console.log(logoutResult);
+
+        res.clearCookie('adminAccessToken');
+        res.clearCookie('adminRefreshToken');
+      }
+
       const { email, password } = req.body;
 
       if (!email || !password) {
@@ -63,8 +72,16 @@ export class AuthController {
 
   loginAdmin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, password } = req.body;
+      if (req.cookies?.accessToken && req.cookies?.refreshToken) {
+        const refreshToken = req.cookies.refreshToken;
+        const logoutResult = await this.authService.logout(refreshToken);
+        console.log(logoutResult);
 
+        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
+      }
+
+      const { email, password } = req.body;
       const { accessToken, refreshToken } = await this.authService.loginAdmin(
         email,
         password,
@@ -83,12 +100,11 @@ export class AuthController {
         path: '/',
       });
 
-      res.status(200).json({ success: true, accessToken });
+      return res.status(200).json({ success: true, accessToken });
     } catch (error) {
       next(error);
     }
   };
-
   // POST /refresh
   refreshUser = async (req: Request, res: Response, next: NextFunction) => {
     try {

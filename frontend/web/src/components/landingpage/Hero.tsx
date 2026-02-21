@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { Brain, Zap, Activity, Leaf, ArrowUpRight } from 'lucide-react';
-import CircularGallery from '../animation/CircularGallery';
+import {CircularGallery} from '../animation/CircularGallery';
 import Marquee from 'react-fast-marquee';
+
 
 export default function HealixPage() {
   const categories = [

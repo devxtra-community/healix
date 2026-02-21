@@ -201,7 +201,7 @@ export class AuthService {
   //LOGOUT
 
   async logout(refreshToken: string) {
-    await this.refreshRepo.revoke(refreshToken);
+    return await this.refreshRepo.revoke(refreshToken);
   }
 
   //MAGIC LINK LOGIN
