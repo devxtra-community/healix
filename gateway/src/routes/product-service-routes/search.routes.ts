@@ -7,10 +7,10 @@ const searchProxy = createProxyMiddleware({
   target: process.env.PRODUCT_SERVICE_URL,
   changeOrigin: true,
   pathRewrite: {
-    '^/': '/search',   // /api/v1/search → /search
+    '^/': '/search', // /api/v1/search → /search
   },
 });
 
 router.get('/', searchProxy);
 
-export default router;  
+export default router;

@@ -30,7 +30,7 @@ const Hero = () => {
     const delay = setTimeout(async () => {
       try {
         const res = await fetch(
-          `http://localhost:4000/api/v1/search?q=${encodeURIComponent(query)}`
+          `http://localhost:4000/api/v1/search?q=${encodeURIComponent(query)}`,
         );
         const data = await res.json();
         setResults(data);

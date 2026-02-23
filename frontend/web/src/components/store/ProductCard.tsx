@@ -5,6 +5,7 @@ import { Plus, Minus } from 'lucide-react';
 import { Product } from '@/src/types/product';
 import { cartService } from '@/src/services/cart.service';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const S3_BASE = 'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
 
@@ -16,6 +17,7 @@ function resolveImage(src?: string | null) {
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [qty, setQty] = useState(1);
+  const router = useRouter();
 
   const handleAddToCart = async () => {
     if (qty > product.stock) {
@@ -42,7 +44,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   };
 
   return (
-    <div className="border rounded-3xl p-6 hover:shadow-xl transition">
+    <div  className="border rounded-3xl p-6 hover:shadow-xl transition"   onClick={() => router.push(`/store/${product.id}`)}>
       <div className="h-40 flex justify-center mb-4">
         <img
           src={resolveImage(product.image)}

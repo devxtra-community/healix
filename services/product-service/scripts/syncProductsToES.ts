@@ -6,11 +6,9 @@ import { env } from '../src/config/env.ts';
 
 const MONGO_URI = env.mongoUri;
 
-
-
 async function sync() {
   await mongoose.connect(MONGO_URI);
-  console.log("✅ MongoDB connected");
+  console.log('✅ MongoDB connected');
 
   const products = await ProductModel.find({ is_delete: false });
 
@@ -24,7 +22,7 @@ async function sync() {
     if (!version) continue;
 
     await esClient.index({
-      index: "products",
+      index: 'products',
       id: p._id.toString(),
       document: {
         name: version.name,
@@ -36,23 +34,11 @@ async function sync() {
       },
     });
 
-    console.log("Indexed:", version.name);
+    console.log('Indexed:', version.name);
   }
 
-  console.log("✅ Elasticsearch sync complete");
+  console.log('✅ Elasticsearch sync complete');
   process.exit(0);
 }
 
 sync().catch(console.error);
-
-
-
-
-
-
-
-
-
-
-
-
