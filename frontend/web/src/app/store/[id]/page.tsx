@@ -11,6 +11,8 @@ import {
   Globe,
   Clock,
 } from 'lucide-react';
+import { headers } from 'next/headers';
+import Link from 'next/link';
 
 // ===== TYPES & MAPPERS =====
 type ProductVersionLike = {
@@ -52,6 +54,9 @@ export default async function ProductDetailsPage({
 }) {
   const { id } = await params;
   console.log('Fetching product ID:', id);
+
+  const hdrs = await headers();
+  const referer = hdrs.get('referer') || '/';
 
   // ✅ Your API Call
   const item = (await productService.getProduct(id)) as ProductApiResponse;
@@ -109,9 +114,12 @@ export default async function ProductDetailsPage({
 
         {/* CONTENT SCROLL AREA */}
         <div className="flex-1 overflow-auto p-8">
-          <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium mb-6">
+          <Link
+            href={referer}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium mb-6"
+          >
             <ArrowLeft className="w-4 h-4" /> Product Details
-          </button>
+          </Link>
 
           {/* TWO COLUMN LAYOUT */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

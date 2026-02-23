@@ -5,10 +5,10 @@ import { User, Heart, ShoppingBag, Leaf } from 'lucide-react';
 const Navbar = () => {
   return (
     <nav className="flex items-center justify-between py-6 px-4 max-w-7xl mx-auto">
-      <div className="flex items-center gap-2">
+      <Link href={'/'} className="flex items-center gap-2">
         <Leaf className="w-6 h-6 text-green-500" />
         <span className="text-xl font-bold text-gray-900">Healix</span>
-      </div>
+      </Link>
 
       <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
         <a className="text-gray-900">Home</a>

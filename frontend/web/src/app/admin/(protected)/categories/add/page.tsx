@@ -1,42 +1,229 @@
 'use client';
 
-import Link from 'next/link';
-import { ArrowLeft, Save } from 'lucide-react';
-import CategoryForm from '@/src/components/admin/categories/CategoryForm';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  CategoryFormData,
+  CategoryType,
+  HealthGoal,
+} from '@/src/types/api/category.api';
+import { CategoryService } from '@/src/services/category.service';
 
-export default function AddCategoryPage() {
+interface CategoryFormProps {
+  initialData?: CategoryFormData;
+}
+
+export default function CategoryForm({ initialData }: CategoryFormProps) {
+  const router = useRouter();
+
+  const [formData, setFormData] = useState<CategoryFormData>({
+    name: '',
+    description: '',
+    image: '',
+    category_type: 'nutrition',
+    health_goal: [],
+    is_active: true,
+  });
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
+  const categoryTypes: CategoryType[] = [
+    'nutrition',
+    'supplement',
+    'vitamin',
+    'superfood',
+    'herb',
+  ];
+
+  const healthGoals: HealthGoal[] = [
+    'weight-loss',
+    'muscle-gain',
+    'immunity',
+    'gut-health',
+    'heart-health',
+    'energy',
+  ];
+
+  const toggleHealthGoal = (goal: HealthGoal) => {
+    setFormData((prev) => ({
+      ...prev,
+      health_goal: prev.health_goal.includes(goal)
+        ? prev.health_goal.filter((g) => g !== goal)
+        : [...prev.health_goal, goal],
+    }));
+  };
+
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const isEditMode = Boolean(initialData?._id);
+
+      // const url = isEditMode
+      //   ? `/api/categories/${initialData?._id}`
+      //   : `/api/categories`;
+
+      const method = isEditMode ? 'PUT' : 'POST';
+
+      const response = await CategoryService.createCategory(formData, method);
+
+      if (!response.ok) {
+        throw new Error('Failed to save category');
+      }
+
+      router.refresh();
+
+      if (!isEditMode) {
+        setFormData({
+          name: '',
+          description: '',
+          image: '',
+          category_type: 'nutrition',
+          health_goal: [],
+          is_active: true,
+        });
+      }
+
+      alert(`Category ${isEditMode ? 'updated' : 'created'} successfully`);
+    } catch (error) {
+      console.error(error);
+      alert('Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const buttonText = loading
+    ? 'Saving...'
+    : initialData
+      ? 'Update Category'
+      : 'Create Category';
+
   return (
-    <div className="flex flex-col gap-6 pt-2 pb-8 max-w-3xl mx-auto w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/categories"
-            className="p-2 -ml-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-3xl"
+    >
+      <div className="flex flex-col gap-6">
+        {/* Name */}
+        <div>
+          <label className="text-sm font-medium">Name</label>
+          <input
+            required
+            className="w-full mt-1 px-4 py-2 bg-gray-50 border rounded-xl"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="text-sm font-medium">Description</label>
+          <textarea
+            rows={3}
+            className="w-full mt-1 px-4 py-2 bg-gray-50 border rounded-xl"
+            value={formData.description ?? ''}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                description: e.target.value,
+              })
+            }
+          />
+        </div>
+
+        {/* Image URL */}
+        <div>
+          <label className="text-sm font-medium">Image URL</label>
+          <input
+            className="w-full mt-1 px-4 py-2 bg-gray-50 border rounded-xl"
+            value={formData.image ?? ''}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                image: e.target.value,
+              })
+            }
+          />
+        </div>
+
+        {/* Category Type */}
+        <div>
+          <label className="text-sm font-medium">Category Type</label>
+          <select
+            className="w-full mt-1 px-4 py-2 bg-gray-50 border rounded-xl"
+            value={formData.category_type}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                category_type: e.target.value as CategoryType,
+              })
+            }
           >
-            <ArrowLeft size={20} />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Add Category</h1>
-            <p className="text-gray-500 text-sm mt-0.5">
-              Create a new product category
-            </p>
+            {categoryTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Health Goals */}
+        <div>
+          <label className="text-sm font-medium mb-2 block">Health Goals</label>
+          <div className="flex flex-wrap gap-2">
+            {healthGoals.map((goal) => {
+              const selected = formData.health_goal.includes(goal);
+
+              return (
+                <button
+                  type="button"
+                  key={goal}
+                  onClick={() => toggleHealthGoal(goal)}
+                  className={`px-3 py-1 rounded-full text-sm border transition ${
+                    selected ? 'bg-black text-white' : 'bg-gray-50'
+                  }`}
+                >
+                  {goal}
+                </button>
+              );
+            })}
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin/categories"
-            className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </Link>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:translate-y-[-1px] shadow-lg shadow-black/5 transition-all">
-            <Save size={18} />
-            Save Category
-          </button>
-        </div>
-      </div>
 
-      <CategoryForm />
-    </div>
+        {/* Active Toggle */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={formData.is_active}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                is_active: e.target.checked,
+              })
+            }
+          />
+          <label className="text-sm">Active</label>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-black text-white py-2 rounded-xl mt-4 disabled:opacity-50"
+        >
+          {buttonText}
+        </button>
+      </div>
+    </form>
   );
 }

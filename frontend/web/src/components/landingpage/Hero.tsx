@@ -9,6 +9,7 @@ import {
   ProductApiResponse,
   ProductVersion,
 } from '@/src/types/api/product.api';
+import { useRouter } from 'next/navigation';
 
 export type GalleryItem = {
   id: string;
@@ -26,9 +27,13 @@ export default function HealixPage() {
     { icon: <Brain size={18} />, label: 'Mental Clarity' },
     { icon: <Activity size={18} />, label: 'Daily Vitality' },
     { icon: <Leaf size={18} />, label: 'Gut Support' },
+    { icon: <Brain size={18} />, label: 'Mental Clarity' },
+    { icon: <Activity size={18} />, label: 'Daily Vitality' },
+    { icon: <Leaf size={18} />, label: 'Gut Support' },
   ];
 
   const [products, setProducts] = useState<GalleryItem[]>([]);
+  const router = useRouter();
 
   const S3_BASE = 'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
 
@@ -73,7 +78,7 @@ export default function HealixPage() {
     <div className="min-h-screen bg-white font-sans text-slate-900">
       {/* Top Banner Navigation */}
       <div className="border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className=" mx-auto px-4">
           <p className="text-center py-6 text-sm font-medium text-gray-600">
             Benefits That Support Your Everyday Wellness
           </p>
@@ -135,6 +140,7 @@ export default function HealixPage() {
             scrollSpeed={1.5}
             scrollEase={0.05}
             font="bold 30px 'Inter', sans-serif"
+            onCardClick={(id: string) => router.push(`/store/${id}`)} // <-- Next.js navigation
           />
         </div>
 

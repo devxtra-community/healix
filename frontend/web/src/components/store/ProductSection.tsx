@@ -42,7 +42,6 @@ const ProductSection = () => {
 
         const mapped: Product[] = data.map((item) => {
           const version = pickCurrentVersion(item);
-          console.log('API ITEM', item);
           const variantId =
             (typeof item.current_version_id === 'string' &&
               item.current_version_id) ||
@@ -57,7 +56,6 @@ const ProductSection = () => {
             stock: item.stock?.available ?? 0,
           };
         });
-        console.log('MAPPED', mapped);
 
         setProducts(mapped);
       } catch (err) {
