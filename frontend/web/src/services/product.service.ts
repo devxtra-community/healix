@@ -1,4 +1,3 @@
-
 import {
   CreateProductDTO,
   UpdateProductVersionDTO,

@@ -1,10 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Brain, Zap, Activity, Leaf, ArrowUpRight } from 'lucide-react';
-import {CircularGallery} from '../animation/CircularGallery';
+import { CircularGallery } from '../animation/CircularGallery';
 import Marquee from 'react-fast-marquee';
+import { productService } from '@/src/services/product.service';
+import {
+  ProductApiResponse,
+  ProductVersion,
+} from '@/src/types/api/product.api';
 
+export type GalleryItem = {
+  id: string;
+  text: string;
+  image: string;
+};
 
 export default function HealixPage() {
   const categories = [
@@ -18,14 +28,46 @@ export default function HealixPage() {
     { icon: <Leaf size={18} />, label: 'Gut Support' },
   ];
 
-  // Data formatted specifically for the CircularGallery logic
-  const galleryItems = [
-    { image: '/images/scroll/1.png', text: 'Apple Vitality' },
-    { image: '/images/scroll/2.png', text: 'Blue Vitality' },
-    { image: '/images/scroll/3.png', text: 'Green Boost' },
-    { image: '/images/scroll/4.png', text: 'Orange Vitality' },
-    { image: '/images/scroll/5.png', text: 'Pomegranate Oats' },
-  ];
+  const [products, setProducts] = useState<GalleryItem[]>([]);
+
+  const S3_BASE = 'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
+
+  function resolveImage(src?: string | null) {
+    if (!src) return '/placeholder.png';
+    if (src.startsWith('http')) {
+      return `/api/proxy?url=${encodeURIComponent(src)}`;
+    }
+    return `/api/proxy?url=${encodeURIComponent(S3_BASE + src)}`;
+  }
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res =
+          (await productService.getProducts()) as ProductApiResponse[];
+        console.log('API Response:', res);
+
+        // Map API data to gallery items safely
+        const formatted: GalleryItem[] = res
+          .map((dt) => {
+            const product = dt.current_version as ProductVersion | undefined;
+            if (!product) return null; // skip products without a current version
+            return {
+              id: dt._id,
+              text: product.name ? product.name : `Unnamed Product`,
+              image: resolveImage(product.images?.[0] ?? ''),
+            };
+          })
+          .filter((item): item is GalleryItem => item !== null); // type-safe filter
+
+        setProducts(formatted);
+      } catch (err) {
+        console.error('Failed to fetch products:', err);
+      }
+    }
+
+    fetchProducts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900">
@@ -36,7 +78,7 @@ export default function HealixPage() {
             Benefits That Support Your Everyday Wellness
           </p>
           <div className="flex overflow-x-auto no-scrollbar justify-between items-center py-4 border-t border-gray-100">
-            <Marquee>
+            <Marquee pauseOnClick={false} pauseOnHover={false}>
               {categories.map((cat, idx) => (
                 <div
                   key={idx}
@@ -79,16 +121,14 @@ export default function HealixPage() {
         </button>
       </section>
 
-      {/* WEBGL CIRCULAR GALLERY SECTION */}
-      <section className="">
-        <h2 className="text-center text-xl font-medium ">
+      {/* Circular Gallery */}
+      <section>
+        <h2 className="text-center text-xl font-medium">
           Your Daily Essential for Better Health
         </h2>
-
-        {/* The height here is crucial for the OGL renderer */}
         <div className="h-[500px] w-full relative mb-6">
           <CircularGallery
-            items={galleryItems}
+            items={products}
             bend={2}
             textColor="black"
             borderRadius={0.03}

@@ -7,7 +7,7 @@ const PUBLIC_PATHS = ['/', '/login', '/register', '/admin/login'];
 // Helper to check if a path is public
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`)
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
 }
 
@@ -23,13 +23,13 @@ export function middleware(req: NextRequest) {
 
   // Get the correct cookie based on the route type
   const accessToken = req.cookies.get(
-    isAdminRoute ? 'adminAccessToken' : 'accessToken'
+    isAdminRoute ? 'adminAccessToken' : 'accessToken',
   )?.value;
 
   // If not authenticated, redirect to appropriate login
   if (!accessToken) {
     return NextResponse.redirect(
-      new URL(isAdminRoute ? '/admin/login' : '/login', req.url)
+      new URL(isAdminRoute ? '/admin/login' : '/login', req.url),
     );
   }
 
@@ -59,4 +59,4 @@ export const config = {
     '/wishlist/:path*',
     '/addresses/:path*',
   ],
-};  
+};

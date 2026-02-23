@@ -44,7 +44,10 @@ const ProductCard = ({ product }: { product: Product }) => {
   };
 
   return (
-    <div  className="border rounded-3xl p-6 hover:shadow-xl transition"   onClick={() => router.push(`/store/${product.id}`)}>
+    <div
+      className="border rounded-3xl p-6 hover:shadow-xl transition"
+      onClick={() => router.push(`/store/${product.id}`)}
+    >
       <div className="h-40 flex justify-center mb-4">
         <img
           src={resolveImage(product.image)}
