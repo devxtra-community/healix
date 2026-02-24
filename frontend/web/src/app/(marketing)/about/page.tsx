@@ -1,6 +1,6 @@
-import Link from "next/link";
-import Image from "next/image";
-import { Leaf, Beaker, ShieldCheck } from "lucide-react";
+import Link from 'next/link';
+import Image from 'next/image';
+import { Leaf, Beaker, ShieldCheck } from 'lucide-react';
 
 export default function AboutPage() {
   return (
@@ -9,7 +9,8 @@ export default function AboutPage() {
       <section className="max-w-[1400px] mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
         <div>
           <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 leading-tight">
-            Nutrition Rooted in <span className="text-green-600">Science & Nature</span>
+            Nutrition Rooted in{' '}
+            <span className="text-green-600">Science & Nature</span>
           </h1>
           <p className="mt-6 text-gray-600 text-lg leading-relaxed">
             Healix was created to bring clean, effective, and science-backed
@@ -38,9 +39,7 @@ export default function AboutPage() {
       {/* MISSION */}
       <section className="bg-[#F3F7F4] py-20">
         <div className="max-w-[1200px] mx-auto px-6 text-center">
-          <h2 className="text-3xl font-semibold text-gray-900">
-            Our Mission
-          </h2>
+          <h2 className="text-3xl font-semibold text-gray-900">Our Mission</h2>
           <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
             We believe wellness should be simple, transparent, and accessible.
             Every Healix formula is designed with integrity and purpose.
@@ -78,9 +77,7 @@ export default function AboutPage() {
         </div>
 
         <div>
-          <h2 className="text-3xl font-semibold text-gray-900">
-            Why Healix
-          </h2>
+          <h2 className="text-3xl font-semibold text-gray-900">Why Healix</h2>
           <ul className="mt-6 space-y-4 text-gray-600 text-lg">
             <li>✓ Clinically studied nutrients</li>
             <li>✓ Natural, plant-based sources</li>
@@ -108,9 +105,9 @@ export default function AboutPage() {
 
           <p className="mt-4 text-gray-600 leading-relaxed">
             Healix began with a simple goal: create nutrition people can trust.
-            After years of studying health science and plant-based nutrition,
-            we developed formulas that support gut health, immunity, energy,
-            and overall wellbeing.
+            After years of studying health science and plant-based nutrition, we
+            developed formulas that support gut health, immunity, energy, and
+            overall wellbeing.
           </p>
         </div>
       </section>
@@ -167,7 +164,5 @@ function ValueCard({
 }
 
 function TrustBadge({ text }: { text: string }) {
-  return (
-    <div className="bg-[#F3F7F4] rounded-xl py-6 font-medium">{text}</div>
-  );
+  return <div className="bg-[#F3F7F4] rounded-xl py-6 font-medium">{text}</div>;
 }

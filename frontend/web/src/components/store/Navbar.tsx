@@ -3,10 +3,10 @@ import Link from 'next/link';
 import { User, Heart, ShoppingBag, Leaf } from 'lucide-react';
 
 const Navbar = () => {
-   const scrollToSection = (id: string) => {
+  const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+      el.scrollIntoView({ behavior: 'smooth' });
     }
   };
   return (
@@ -19,10 +19,22 @@ const Navbar = () => {
       <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
         <Link href="/" className="text-gray-900">
           Home
-        </Link>        
-        <a className='text-gray-900' onClick={() => scrollToSection("category")}>Category</a>
-        <a className='text-gray-900' onClick={() => scrollToSection("products")} >Products</a>
-        <Link className='text-gray-900' href="/about">About</Link>
+        </Link>
+        <a
+          className="text-gray-900"
+          onClick={() => scrollToSection('category')}
+        >
+          Category
+        </a>
+        <a
+          className="text-gray-900"
+          onClick={() => scrollToSection('products')}
+        >
+          Products
+        </a>
+        <Link className="text-gray-900" href="/about">
+          About
+        </Link>
       </div>
 
       <div className="flex items-center gap-6">

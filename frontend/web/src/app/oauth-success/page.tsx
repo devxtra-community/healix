@@ -16,7 +16,6 @@ export default function OAuthSuccessPage() {
       document.cookie = `accessToken=${accessToken}; path=/`;
       document.cookie = `refreshToken=${refreshToken}; path=/`;
 
-
       router.replace('/store');
     } else {
       router.replace('/login');

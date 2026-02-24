@@ -59,13 +59,16 @@ const Hero = () => {
               className="flex-grow px-4 outline-none text-sm"
             />
 
-            <button id='category' className="bg-[#00DC58] text-white px-6 py-3 rounded-full text-sm font-semibold">
+            <button
+              id="category"
+              className="bg-[#00DC58] text-white px-6 py-3 rounded-full text-sm font-semibold"
+            >
               Search
             </button>
 
             {/* 🔽 suggestions dropdown */}
             {show && results.length > 0 && (
-              <div  className="absolute top-full left-0 w-full bg-white shadow-lg rounded-xl mt-2 max-h-80 overflow-y-auto z-50">
+              <div className="absolute top-full left-0 w-full bg-white shadow-lg rounded-xl mt-2 max-h-80 overflow-y-auto z-50">
                 {results.map((p) => (
                   <div
                     key={p.id}

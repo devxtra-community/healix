@@ -12,7 +12,7 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         // Check if user exists
-        let user = await User.findOne({ google_id: profile.id }); 
+        let user = await User.findOne({ google_id: profile.id });
         if (user) {
           // Update last login
           user.last_login = new Date();

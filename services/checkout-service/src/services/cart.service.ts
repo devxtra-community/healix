@@ -33,11 +33,14 @@ export class CartService {
     const priceRes = await axios.get(
       `${process.env.PRODUCT_SERVICE_URL}/product/price/${item.productId}`,
     );
-    if (!priceRes.data?.finalPrice) {
+
+    const finalPrice = priceRes.data?.finalPrice ?? priceRes.data?.finalprice;
+
+    if (!finalPrice) {
       throw new Error('Price not available');
     }
 
-    const price = Number(priceRes.data.finalPrice);
+    const price = Number(finalPrice);
     const quantity = Number(item.quantity);
 
     if (!Number.isFinite(price) || !Number.isFinite(quantity)) {

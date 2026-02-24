@@ -53,7 +53,10 @@ const CategorySection = () => {
         </div>
       </div>
 
-      <div id='products'  className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+      <div
+        id="products"
+        className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4"
+      >
         {categories.map((cat) => (
           <div
             key={cat._id}
