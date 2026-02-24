@@ -12,14 +12,11 @@ export default function OAuthSuccessPage() {
     const refreshToken = params.get('refreshToken');
 
     if (accessToken) {
-      // store token (localStorage or cookie)
-      localStorage.setItem('accessToken', accessToken);
+      // save cookie for middleware
+      document.cookie = `accessToken=${accessToken}; path=/`;
+      document.cookie = `refreshToken=${refreshToken}; path=/`;
 
-      if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
-      }
 
-      // redirect to store
       router.replace('/store');
     } else {
       router.replace('/login');
