@@ -3,6 +3,12 @@ import Link from 'next/link';
 import { User, Heart, ShoppingBag, Leaf } from 'lucide-react';
 
 const Navbar = () => {
+   const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   return (
     <nav className="flex items-center justify-between py-6 px-4 max-w-7xl mx-auto">
       <Link href={'/'} className="flex items-center gap-2">
@@ -11,10 +17,12 @@ const Navbar = () => {
       </Link>
 
       <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-        <a className="text-gray-900">Home</a>
-        <a>Category</a>
-        <a>Products</a>
-        <a>About</a>
+        <Link href="/" className="text-gray-900">
+          Home
+        </Link>        
+        <a className='text-gray-900' onClick={() => scrollToSection("category")}>Category</a>
+        <a className='text-gray-900' onClick={() => scrollToSection("products")} >Products</a>
+        <Link className='text-gray-900' href="/about">About</Link>
       </div>
 
       <div className="flex items-center gap-6">
