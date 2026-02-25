@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { cartService } from '@/src/services/cart.service';
 
-type CartItem = {
+export type CartItem = {
   productId: string;
   variantId: string;
   price: number;

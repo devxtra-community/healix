@@ -6,14 +6,8 @@ import { Product } from '@/src/types/product';
 import { cartService } from '@/src/services/cart.service';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-
-const S3_BASE = 'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
-
-function resolveImage(src?: string | null) {
-  if (!src) return '/placeholder.png';
-  if (src.startsWith('http')) return src;
-  return `${S3_BASE}${src}`;
-}
+import { WishlistButton } from '../common/WishlistButton';
+import { resolveImage } from '@/src/lib/resolve.image';
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [qty, setQty] = useState(1);
@@ -44,11 +38,11 @@ const ProductCard = ({ product }: { product: Product }) => {
   };
 
   return (
-    <div
-      className="border rounded-3xl p-6 hover:shadow-xl transition"
-      onClick={() => router.push(`/store/${product.id}`)}
-    >
-      <div className="h-40 flex justify-center mb-4">
+    <div className="border rounded-3xl p-6 hover:shadow-xl transition">
+      <div
+        className="h-40 flex justify-center mb-4"
+        onClick={() => router.push(`/store/${product.id}`)}
+      >
         <img
           src={resolveImage(product.image)}
           alt={product.id}
@@ -56,9 +50,15 @@ const ProductCard = ({ product }: { product: Product }) => {
         />
       </div>
 
-      <h3 className="font-semibold">{product.name}</h3>
-      <p className="text-lg font-bold">₹{product.price}</p>
-      <p className="text-xs text-gray-500 mb-4">Stock: {product.stock}</p>
+      <div className="flex justify-between">
+        <div>
+          <h3 className="font-semibold">{product.name}</h3>
+          <p className="text-lg font-bold">₹{product.price}</p>
+          <p className="text-xs text-gray-500 mb-4">Stock: {product.stock}</p>
+        </div>
+
+        <WishlistButton productId={product.id} />
+      </div>
 
       <div className="flex justify-between items-center">
         <div className="flex items-center bg-gray-100 rounded-full px-2">

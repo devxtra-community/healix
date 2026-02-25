@@ -7,6 +7,7 @@ import stockRoutes from './api/routes/stock.routes.js';
 import priceRoutes from './api/routes/pricing.routes.js';
 import uploadRoutes from './api/routes/upload.routes.js';
 import searchRoutes from './api/routes/search.routes.js';
+import wishlistRoutes from './api/routes/wishlist.routes.ts';
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/v1/product/stocks', stockRoutes);
 app.use('/api/v1/product/price', priceRoutes);
 app.use('/api/v1/products', uploadRoutes);
 app.use('/search', searchRoutes);
+app.use('/api/v1/wishlist', wishlistRoutes);
 app.use(globalErrorHandler);
 
 export default app;

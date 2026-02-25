@@ -10,9 +10,9 @@
 //   Transform,
 // } from 'ogl';
 // import { useEffect, useRef } from 'react';
+// import { useRouter } from 'next/navigation';
 
 // // --- Utilities ---
-
 // function lerp(p1: number, p2: number, t: number): number {
 //   return p1 + (p2 - p1) * t;
 // }
@@ -110,7 +110,7 @@
 //   }
 // }
 
-// // --- Media Class (The Image Planes) ---
+// // --- Media Class ---
 // class Media {
 //   [key: string]: any;
 //   constructor({
@@ -128,6 +128,7 @@
 //     textColor,
 //     borderRadius = 0,
 //     font,
+//     id,
 //   }: any) {
 //     Object.assign(this, {
 //       geometry,
@@ -144,6 +145,7 @@
 //       textColor,
 //       borderRadius,
 //       font,
+//       id,
 //       extra: 0,
 //       speed: 0,
 //     });
@@ -170,6 +172,7 @@
 //       },
 //       transparent: true,
 //     });
+
 //     const img = new Image();
 //     img.crossOrigin = 'anonymous';
 //     img.src = this.image;
@@ -216,6 +219,7 @@
 //     }
 //     this.program.uniforms.uTime.value += 0.04;
 //     this.program.uniforms.uSpeed.value = scroll.current - scroll.last;
+
 //     const planeOffset = this.plane.scale.x / 2;
 //     const viewportOffset = this.viewport.width / 2;
 //     if (
@@ -233,15 +237,18 @@
 //   onResize({ screen, viewport }: any = {}) {
 //     if (screen) this.screen = screen;
 //     if (viewport) this.viewport = viewport;
+
 //     this.scale = this.screen.height / 1500;
 //     this.plane.scale.y =
 //       (this.viewport.height * (900 * this.scale)) / this.screen.height;
 //     this.plane.scale.x =
 //       (this.viewport.width * (700 * this.scale)) / this.screen.width;
+
 //     this.plane.program.uniforms.uPlaneSizes.value = [
 //       this.plane.scale.x,
 //       this.plane.scale.y,
 //     ];
+
 //     this.widthTotal = (this.plane.scale.x + 2) * this.length;
 //     this.x = (this.plane.scale.x + 2) * this.index;
 //   }
@@ -254,13 +261,7 @@
 //   constructor(container: HTMLElement, config: any) {
 //     this.container = container;
 
-//     this.scroll = {
-//       ease: config.scrollEase,
-//       current: 0,
-//       target: 0,
-//       last: 0,
-//     };
-
+//     this.scroll = { ease: config.scrollEase, current: 0, target: 0, last: 0 };
 //     this.scrollSpeed = config.scrollSpeed;
 
 //     this.createRenderer();
@@ -271,6 +272,7 @@
 //     this.createMedias(config);
 //     this.addEventListeners();
 
+//     this.onCardClick = config.onCardClick;
 //     this.update();
 //   }
 
@@ -280,7 +282,6 @@
 //       antialias: true,
 //       dpr: Math.min(window.devicePixelRatio, 2),
 //     });
-
 //     this.gl = this.renderer.gl;
 //     this.container.appendChild(this.gl.canvas);
 //   }
@@ -303,7 +304,6 @@
 
 //   createMedias(config: any) {
 //     const items = config.items || [];
-
 //     this.medias = [...items, ...items].map(
 //       (data, index) =>
 //         new Media({
@@ -321,83 +321,38 @@
 //           textColor: config.textColor,
 //           borderRadius: config.borderRadius,
 //           font: config.font,
+//           id: data.id,
 //         }),
 //     );
 //   }
 
-//   update() {
-//     this.scroll.current = lerp(
-//       this.scroll.current,
-//       this.scroll.target,
-//       this.scroll.ease,
-//     );
-
-//     const dir = this.scroll.current > this.scroll.last ? 'right' : 'left';
-
-//     this.medias?.forEach((m: any) => m.update(this.scroll, dir));
-
-//     this.renderer.render({
-//       scene: this.scene,
-//       camera: this.camera,
-//     });
-
-//     this.scroll.last = this.scroll.current;
-
-//     this.raf = window.requestAnimationFrame(this.update.bind(this));
-//   }
-
-//   onResize() {
-//     this.screen = {
-//       width: this.container.clientWidth,
-//       height: this.container.clientHeight,
-//     };
-
-//     this.renderer.setSize(this.screen.width, this.screen.height);
-
-//     this.camera.perspective({
-//       aspect: this.screen.width / this.screen.height,
-//     });
-
-//     const fov = (this.camera.fov * Math.PI) / 180;
-//     const height = 2 * Math.tan(fov / 2) * this.camera.position.z;
-
-//     this.viewport = {
-//       width: height * this.camera.aspect,
-//       height,
-//     };
-
-//     this.medias?.forEach((m: any) =>
-//       m.onResize({
-//         screen: this.screen,
-//         viewport: this.viewport,
-//       }),
-//     );
+//   checkHover(x: number, y: number) {
+//     const vx = x * (this.viewport.width / 2);
+//     const vy = y * (this.viewport.height / 2);
+//     for (const media of this.medias) {
+//       const mx = media.plane.position.x;
+//       const my = media.plane.position.y;
+//       const w = media.plane.scale.x / 2;
+//       const h = media.plane.scale.y / 2;
+//       if (vx >= mx - w && vx <= mx + w && vy >= my - h && vy <= my + h)
+//         return media;
+//     }
+//     return null;
 //   }
 
 //   addEventListeners() {
 //     window.addEventListener('resize', this.onResize.bind(this));
 
-//     // ---------------------------------
-//     // 1️⃣ Page Scroll Drives Gallery
-//     // ---------------------------------
-
+//     // Scroll
 //     let lastScrollY = window.scrollY;
-
 //     this.handleScroll = () => {
-//       const currentScrollY = window.scrollY;
-//       const delta = currentScrollY - lastScrollY;
-
+//       const delta = window.scrollY - lastScrollY;
 //       this.scroll.target += delta * 0.1 * this.scrollSpeed;
-
-//       lastScrollY = currentScrollY;
+//       lastScrollY = window.scrollY;
 //     };
-
 //     window.addEventListener('scroll', this.handleScroll);
 
-//     // ---------------------------------
-//     // 2️⃣ Drag to Slide (Mouse + Touch)
-//     // ---------------------------------
-
+//     // Drag
 //     let isDown = false;
 //     let startX = 0;
 //     let startTarget = 0;
@@ -405,22 +360,14 @@
 //     const down = (e: any) => {
 //       isDown = true;
 //       this.container.style.cursor = 'grabbing';
-
 //       startX = e.touches ? e.touches[0].clientX : e.clientX;
-
 //       startTarget = this.scroll.target;
 //     };
-
 //     const move = (e: any) => {
 //       if (!isDown) return;
-
 //       const x = e.touches ? e.touches[0].clientX : e.clientX;
-
-//       const delta = startX - x;
-
-//       this.scroll.target = startTarget + delta * 0.05;
+//       this.scroll.target = startTarget + (startX - x) * 0.05;
 //     };
-
 //     const up = () => {
 //       isDown = false;
 //       this.container.style.cursor = 'grab';
@@ -429,16 +376,63 @@
 //     this.container.addEventListener('mousedown', down);
 //     this.container.addEventListener('mousemove', move);
 //     window.addEventListener('mouseup', up);
-
 //     this.container.addEventListener('touchstart', down);
 //     this.container.addEventListener('touchmove', move);
 //     window.addEventListener('touchend', up);
+
+//     // Hover & Click
+//     this.container.addEventListener('mousemove', (e: any) => {
+//       const rect = this.gl.canvas.getBoundingClientRect();
+//       const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+//       const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+//       const hovered = this.checkHover(x, y);
+//       this.container.style.cursor = hovered
+//         ? 'pointer'
+//         : isDown
+//           ? 'grabbing'
+//           : 'grab';
+//     });
+
+//     this.container.addEventListener('click', (e: any) => {
+//       const rect = this.gl.canvas.getBoundingClientRect();
+//       const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+//       const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+//       const clicked = this.checkHover(x, y);
+//       if (clicked && this.onCardClick) this.onCardClick(clicked.id);
+//     });
 //   }
+
+//   update() {
+//     this.scroll.current = lerp(
+//       this.scroll.current,
+//       this.scroll.target,
+//       this.scroll.ease,
+//     );
+//     const dir = this.scroll.current > this.scroll.last ? 'right' : 'left';
+//     this.medias?.forEach((m: any) => m.update(this.scroll, dir));
+//     this.renderer.render({ scene: this.scene, camera: this.camera });
+//     this.scroll.last = this.scroll.current;
+//     this.raf = window.requestAnimationFrame(this.update.bind(this));
+//   }
+
+//   onResize() {
+//     this.screen = {
+//       width: this.container.clientWidth,
+//       height: this.container.clientHeight,
+//     };
+//     this.renderer.setSize(this.screen.width, this.screen.height);
+//     this.camera.perspective({ aspect: this.screen.width / this.screen.height });
+//     const fov = (this.camera.fov * Math.PI) / 180;
+//     const height = 2 * Math.tan(fov / 2) * this.camera.position.z;
+//     this.viewport = { width: height * this.camera.aspect, height };
+//     this.medias?.forEach((m: any) =>
+//       m.onResize({ screen: this.screen, viewport: this.viewport }),
+//     );
+//   }
+
 //   destroy() {
 //     window.cancelAnimationFrame(this.raf);
-
 //     window.removeEventListener('scroll', this.handleScroll);
-
 //     this.gl.canvas.remove();
 //   }
 // }
@@ -452,8 +446,10 @@
 //   font = 'bold 30px Figtree',
 //   scrollSpeed = 2,
 //   scrollEase = 0.05,
+//   onCardClick,
 // }: any) => {
 //   const ref = useRef<HTMLDivElement>(null);
+
 //   useEffect(() => {
 //     if (!ref.current) return;
 //     const app = new App(ref.current, {
@@ -464,15 +460,21 @@
 //       font,
 //       scrollSpeed,
 //       scrollEase,
+//       onCardClick,
 //     });
-
-//     // 👇 Force a frame immediately
-//     requestAnimationFrame(() => {
-//       app.update();
-//     });
-
+//     requestAnimationFrame(() => app.update());
 //     return () => app.destroy();
-//   }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase]);
+//   }, [
+//     items,
+//     bend,
+//     textColor,
+//     borderRadius,
+//     font,
+//     scrollSpeed,
+//     scrollEase,
+//     onCardClick,
+//   ]);
+
 //   return (
 //     <div
 //       className="w-full h-full overflow-hidden cursor-grab active:cursor-grabbing"
