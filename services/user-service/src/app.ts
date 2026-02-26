@@ -8,6 +8,9 @@ import addressRoutes from './api/routes/address.routes.js';
 import healthRouter from './api/routes/health.routes.js';
 import { globalErrorHandler } from './api/middlewares/error.middleware.js';
 import authRoutes from './api/routes/auth.routes.js';
+import adminUserRoutes from './api/routes/admin.user.routes.js';
+import reviewRoutes from './api/routes/review.routes.js';
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -28,6 +31,8 @@ app.use('/api/v1/auth/user', userRoutes);
 app.use('/api/v1/auth/admin', adminRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/address', addressRoutes);
+app.use('/api/v1/admin', adminUserRoutes);
+app.use('/api/v1/reviews', reviewRoutes);
 app.use('/health', healthRouter);
 
 // Add error handler middleware at the end

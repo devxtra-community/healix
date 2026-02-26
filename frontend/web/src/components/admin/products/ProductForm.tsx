@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Upload, X, Plus, Trash2 } from 'lucide-react';
+import { CategoryFormData } from '@/src/types/api/category.api';
+import { CategoryService } from '@/src/services/category.service';
 
 interface Ingredient {
   name: string;
@@ -77,6 +79,25 @@ export default function ProductForm({
   const [tagInput, setTagInput] = useState('');
   const [benefitInput, setBenefitInput] = useState('');
   const [suitableInput, setSuitableInput] = useState('');
+
+  const [categories, setCategories] = useState<CategoryFormData[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const data = await CategoryService.getCategories({ is_active: true });
+        setCategories(data.data); // adjust if your response structure differs
+      } catch (err) {
+        console.error('Failed to fetch categories', err);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const updateVersion = <K extends keyof ProductVersion>(
     field: K,
@@ -610,16 +631,31 @@ export default function ProductForm({
           <div className="flex flex-col gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Category ID
+                Category
               </label>
-              <input
-                type="text"
+
+              <select
                 value={formData.categoryId}
                 onChange={(e) =>
-                  setFormData({ ...formData, categoryId: e.target.value })
+                  setFormData((prev) => ({
+                    ...prev,
+                    categoryId: e.target.value,
+                  }))
                 }
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
-              />
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all appearance-none cursor-pointer"
+              >
+                <option value="">
+                  {loadingCategories
+                    ? 'Loading categories...'
+                    : 'Select Category'}
+                </option>
+
+                {categories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name} ({category.category_type})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">

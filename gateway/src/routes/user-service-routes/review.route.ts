@@ -1,20 +1,21 @@
 import { Router, Request } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import {
-  setAdminRefreshToken,
-  verifyToken,
-} from '../../middleware/auth.middleware.js';
+import { verifyToken } from '../../middleware/auth.middleware.js';
 import { requireRole } from '../../middleware/requireRole.middleware.js';
 import { ROLES } from '../../auth/roles.js';
+
 const router = Router();
-const adminServiceProxy = createProxyMiddleware({
+
+const reviewServiceProxy = createProxyMiddleware({
   target: process.env.USER_SERVICE_URL!,
   changeOrigin: true,
   pathRewrite: (path) => {
-    return `/api/v1/auth/admin${path}`;
+    // Forward to review service base path
+    return `/api/v1/reviews${path}`;
   },
   on: {
     proxyReq(proxyReq, req: Request) {
+      // Forward user info to review service
       if (req.user) {
         proxyReq.setHeader('x-user-id', req.user.sub);
         proxyReq.setHeader('x-user-role', req.user.role);
@@ -28,27 +29,27 @@ const adminServiceProxy = createProxyMiddleware({
   },
 });
 
-router.post('/login', adminServiceProxy);
-router.delete(
-  '/logout',
+router.post(
+  '/',
   verifyToken,
-  requireRole([ROLES.ADMIN]),
-  adminServiceProxy,
-);
-router.post('/refresh', setAdminRefreshToken, adminServiceProxy);
-router.get('/me', verifyToken, requireRole([ROLES.ADMIN]), adminServiceProxy);
-
-router.get(
-  '/users',
-  verifyToken,
-  requireRole([ROLES.ADMIN]),
-  adminServiceProxy,
+  requireRole([ROLES.ADMIN]), //later user
+  reviewServiceProxy,
 );
 router.patch(
-  '/users/:id/toggle',
+  '/:id',
   verifyToken,
   requireRole([ROLES.ADMIN]),
-  adminServiceProxy,
+  reviewServiceProxy,
 );
+router.delete(
+  '/:id',
+  verifyToken,
+  requireRole([ROLES.USER]),
+  reviewServiceProxy,
+);
+router.get('/products/:productId/reviews', reviewServiceProxy);
+router.get('/products/:productId/rating', reviewServiceProxy);
+
+router.get('/', verifyToken, requireRole([ROLES.ADMIN]), reviewServiceProxy);
 
 export default router;

@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Search, Filter, Edit, Trash2 } from 'lucide-react';
+import { Search, Filter, Edit, Trash2, RotateCcw } from 'lucide-react';
 import { ProductApiResponse } from '@/src/types/api/product.api';
 
 type ProductsTableProps = {
   products: ProductApiResponse[];
   onDelete: (id: string) => void;
+  onRestore: (id: string) => void;
 };
 
 const S3_BASE = 'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
@@ -45,22 +46,10 @@ function getCurrentVersion(product: ProductApiResponse): ProductVersionLike {
 export default function ProductsTable({
   products,
   onDelete,
+  onRestore,
 }: ProductsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'In Stock':
-        return 'bg-emerald-100 text-emerald-600';
-      case 'Low Stock':
-        return 'bg-amber-100 text-amber-600';
-      case 'Out of Stock':
-        return 'bg-red-100 text-red-600';
-      default:
-        return 'bg-gray-100 text-gray-600';
-    }
-  };
 
   // Optional filtering
   const filteredProducts = products.filter((product) => {
@@ -81,6 +70,8 @@ export default function ProductsTable({
     'All',
     ...Array.from(new Set(products.map((p) => p.category?.name || 'Unknown'))),
   ];
+
+  console.log(filteredProducts);
 
   return (
     <div className="bg-white rounded-[20px] shadow-sm border border-gray-100">
@@ -152,7 +143,7 @@ export default function ProductsTable({
             {filteredProducts.map((product) => {
               const currentVersion = getCurrentVersion(product);
               const image = currentVersion.images?.[0];
-              const status = currentVersion.status ?? 'Unknown';
+
               const productId =
                 typeof product._id === 'string' ? product._id : '';
 
@@ -201,13 +192,21 @@ export default function ProductsTable({
                   </td>
 
                   {/* Status */}
-                  <td className="px-6 py-4">
+                  {/* <td className="px-6 py-4">
                     <span
                       className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
                         status,
                       )}`}
                     >
                       {status}
+                    </span>
+                  </td> */}
+
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${product.is_delete ? 'text-red-500' : 'text-green-500'}`}
+                    >
+                      {product.is_delete ? 'inactive' : 'active'}
                     </span>
                   </td>
 
@@ -227,6 +226,15 @@ export default function ProductsTable({
                       >
                         <Trash2 size={18} />
                       </button>
+
+                      {product.is_delete && (
+                        <button
+                          onClick={() => productId && onRestore(productId)}
+                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <RotateCcw size={18} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

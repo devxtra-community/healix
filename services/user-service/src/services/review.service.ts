@@ -90,6 +90,23 @@ export class ReviewService {
     };
   }
 
+  async getAllReviews(page = 1, limit = 10) {
+    const [reviews, total] = await this.reviewRepo.findAllPaginated(
+      page,
+      limit,
+    );
+
+    return {
+      data: reviews,
+      meta: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   //Get average rating for a product
   async getProductRating(productId: Types.ObjectId) {
     const result = await this.reviewRepo.getAverageRating(productId);

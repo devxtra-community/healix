@@ -37,6 +37,19 @@ export class ReviewController {
     }
   };
 
+  getAllReviews = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const result = await this.reviewService.getAllReviews(page, limit);
+
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   updateReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const reviewId = new Types.ObjectId(req.params.id);
@@ -77,8 +90,11 @@ export class ReviewController {
   ) => {
     try {
       const productId = new Types.ObjectId(req.params.productId);
+      const { productImage } = req.body;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+
+      console.log(productImage);
 
       const result = await this.reviewService.getProductReviews(
         productId,

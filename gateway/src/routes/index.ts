@@ -13,6 +13,8 @@ import orderRoute from './checkout-service-routes/order.route.js';
 import uploadRoutes from './product-service-routes/upload.route.js';
 import searchRoutes from './product-service-routes/search.routes.js';
 import wishlistRoutes from './product-service-routes/wishlist.route.js';
+import adminUserRoutes from './user-service-routes/admin.user.routes.js';
+import reviewRoutes from './user-service-routes/review.route.js';
 
 const route = Router();
 
@@ -21,6 +23,8 @@ route.use('/auth/user', user);
 route.use('/auth/admin', admin);
 route.use('/profile', profileRoute);
 route.use('/address', addressRoute);
+route.use('/admin', adminUserRoutes);
+route.use('/reviews', reviewRoutes);
 
 //PRODUCT SERVICE
 route.use('/product', productRoute);

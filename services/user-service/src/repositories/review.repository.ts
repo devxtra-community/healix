@@ -8,6 +8,20 @@ export class ReviewRepository {
     return ReviewModel.create(data);
   }
 
+  findAllPaginated(page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+
+    return Promise.all([
+      ReviewModel.find()
+        .populate('productId', 'name')
+        .populate('userId', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      ReviewModel.countDocuments(),
+    ]);
+  }
+
   //find by id
   findById(reviewId: string | Types.ObjectId) {
     return ReviewModel.findById(reviewId);

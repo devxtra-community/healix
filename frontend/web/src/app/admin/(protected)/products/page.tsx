@@ -7,36 +7,58 @@ import { useEffect, useState } from 'react';
 import { productService } from '@/src/services/product.service';
 import { PaginatedResponse } from '@/src/types/api/pagination';
 import { ProductApiResponse } from '@/src/types/api/product.api';
+import { toast, Toaster } from 'sonner';
 
 export default function ProductsPage() {
   const [products, setProducts] =
     useState<PaginatedResponse<ProductApiResponse> | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      const res = await productService.getAllProductsAdmin();
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [loading, setLoading] = useState(false);
+
+  const fetchProducts = async (currentPage: number) => {
+    try {
+      setLoading(true);
+      const res = await productService.getAllProductsAdmin({
+        page: currentPage,
+        limit,
+      });
+
       setProducts(res);
-    })();
-  }, []);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to fetch products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts(page);
+  }, [page]);
 
   const handleDelete = async (productId: string) => {
     if (!window.confirm('Delete this product?')) return;
 
     try {
       await productService.deleteProduct(productId);
-
-      // remove from UI instantly
-      setProducts((prev) =>
-        prev
-          ? {
-              ...prev,
-              data: prev.data.filter((p) => p._id !== productId),
-            }
-          : prev,
-      );
+      toast.success('Product deleted');
+      fetchProducts(page); // refetch current page
     } catch (err) {
       console.error(err);
-      alert('Delete failed');
+      toast.error('Product not deleted');
+    }
+  };
+
+  const handleRestore = async (productId: string) => {
+    try {
+      await productService.restoreProduct(productId);
+      toast.success('Product restored');
+      fetchProducts(page);
+    } catch (err) {
+      console.error(err);
+      toast.error('Product not restored');
     }
   };
 
@@ -69,8 +91,47 @@ export default function ProductsPage() {
 
       {/* Table */}
       {products && (
-        <ProductsTable products={products.data} onDelete={handleDelete} />
+        <>
+          <ProductsTable
+            products={products.data}
+            onDelete={handleDelete}
+            onRestore={handleRestore}
+          />
+
+          {/* Pagination */}
+          <div className="flex justify-between items-center mt-6">
+            <p className="text-sm text-gray-500">
+              Showing page {products.page} of {products.totalPages}
+            </p>
+
+            <div className="flex gap-2">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((prev) => prev - 1)}
+                className="px-4 py-2 text-sm border rounded-lg disabled:opacity-40"
+              >
+                Previous
+              </button>
+
+              <button
+                disabled={page === products.totalPages}
+                onClick={() => setPage((prev) => prev + 1)}
+                className="px-4 py-2 text-sm border rounded-lg disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </>
       )}
+
+      {loading && (
+        <div className="text-center text-gray-400 text-sm">
+          Loading products...
+        </div>
+      )}
+
+      <Toaster />
     </div>
   );
 }

@@ -1,105 +1,177 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import {
+  CategoryFormValues,
+  CategoryType,
+  HealthGoal,
+} from '@/src/types/api/category.api';
+import { useEffect, useState } from 'react';
 
 interface CategoryFormProps {
-  initialData?: {
-    name: string;
-    description: string;
-    status: string;
-    icon: string;
-  };
+  initialData?: (CategoryFormValues & { _id?: string }) | null;
+  onSubmit: (data: CategoryFormValues) => void;
+  loading?: boolean;
 }
 
-export default function CategoryForm({ initialData }: CategoryFormProps) {
-  const [formData, setFormData] = useState({
+export default function CategoryForm({
+  initialData,
+  onSubmit,
+  loading = false,
+}: CategoryFormProps) {
+  const [formData, setFormData] = useState<CategoryFormValues>({
     name: '',
     description: '',
-    status: 'Active',
-    icon: '⚡',
+    category_type: 'nutrition',
+    health_goal: [] as HealthGoal[],
+    is_active: true,
   });
 
+  // ✅ Only update when ID changes (prevents infinite loop)
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        name: initialData.name || '',
+        description: initialData.description || '',
+        category_type: initialData.category_type || 'nutrition',
+        health_goal: initialData.health_goal || [],
+        is_active: initialData.is_active ?? true,
+      });
     }
-  }, [initialData]);
+  }, [initialData?._id]);
 
-  const icons = ['⚡', '👕', '🏡', '📚', '⚽', '💄', '🧸', '🎮', '💍', '🚗'];
+  const categoryTypes = [
+    'nutrition',
+    'supplement',
+    'vitamin',
+    'superfood',
+    'herb',
+  ];
+
+  const healthGoals = [
+    'weight-loss',
+    'muscle-gain',
+    'immunity',
+    'energy',
+    'digestion',
+    'skin-health',
+  ];
+
+  const toggleHealthGoal = (goal: HealthGoal) => {
+    setFormData((prev) => ({
+      ...prev,
+      health_goal: prev.health_goal.includes(goal)
+        ? prev.health_goal.filter((g) => g !== goal)
+        : [...prev.health_goal, goal],
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
 
   return (
-    <form className="bg-white rounded-[20px] shadow-sm border border-gray-100 p-6 sm:p-8 max-w-3xl">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+    >
       <div className="flex flex-col gap-6">
+        {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-sm font-medium mb-1">
             Category Name
           </label>
           <input
             type="text"
-            placeholder="e.g. Electronics"
-            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl"
           />
         </div>
 
+        {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Description
-          </label>
+          <label className="block text-sm font-medium mb-1">Description</label>
           <textarea
             rows={4}
-            placeholder="Describe this category..."
-            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all resize-y"
             value={formData.description}
             onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
+              setFormData({
+                ...formData,
+                description: e.target.value,
+              })
             }
+            className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl"
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Status
-            </label>
-            <select
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all appearance-none cursor-pointer"
-              value={formData.status}
-              onChange={(e) =>
-                setFormData({ ...formData, status: e.target.value })
-              }
-            >
-              <option value="Active">Active</option>
-              <option value="Archived">Archived</option>
-            </select>
-          </div>
+        {/* Category Type */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Category Type
+          </label>
+          <select
+            value={formData.category_type}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                category_type: e.target.value as CategoryType,
+              })
+            }
+            className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl"
+          >
+            {categoryTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Icon
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {icons.map((icon) => (
-                <button
-                  key={icon}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, icon })}
-                  className={`
-                                        w-10 h-10 rounded-lg flex items-center justify-center text-xl transition-all
-                                        ${
-                                          formData.icon === icon
-                                            ? 'bg-black text-white shadow-md'
-                                            : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                                        }
-                                    `}
-                >
-                  {icon}
-                </button>
-              ))}
-            </div>
+        {/* Health Goals */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Health Goals</label>
+          <div className="flex flex-wrap gap-2">
+            {healthGoals.map((goal) => (
+              <button
+                key={goal}
+                type="button"
+                onClick={() => toggleHealthGoal(goal as HealthGoal)}
+                className={`px-3 py-1 rounded-full text-xs transition ${
+                  formData.health_goal.includes(goal as HealthGoal)
+                    ? 'bg-black text-white'
+                    : 'bg-gray-100'
+                }`}
+              >
+                {goal}
+              </button>
+            ))}
           </div>
         </div>
+
+        {/* Active */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={formData.is_active}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                is_active: e.target.checked,
+              })
+            }
+          />
+          <span className="text-sm">Active Category</span>
+        </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-black text-white py-2 rounded-xl disabled:opacity-50"
+        >
+          {loading ? 'Saving...' : 'Save Changes'}
+        </button>
       </div>
     </form>
   );

@@ -8,6 +8,7 @@ import {
   HealthGoal,
 } from '@/src/types/api/category.api';
 import { CategoryService } from '@/src/services/category.service';
+import { toast, Toaster } from 'sonner';
 
 interface CategoryFormProps {
   initialData?: CategoryFormData;
@@ -72,12 +73,14 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
       //   ? `/api/categories/${initialData?._id}`
       //   : `/api/categories`;
 
-      const method = isEditMode ? 'PUT' : 'POST';
+      // const method = isEditMode ? 'PUT' : 'POST';
 
-      const response = await CategoryService.createCategory(formData, method);
+      const response = await CategoryService.createCategory(formData);
 
-      if (!response.ok) {
-        throw new Error('Failed to save category');
+      if (response) {
+        toast.success('Category created!', {
+          description: `Category created successfully.`,
+        });
       }
 
       router.refresh();
@@ -93,7 +96,7 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
         });
       }
 
-      alert(`Category ${isEditMode ? 'updated' : 'created'} successfully`);
+      router.push('/admin/categories');
     } catch (error) {
       console.error(error);
       alert('Something went wrong');
@@ -111,9 +114,9 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-3xl"
+      className="bg-white flex justify-center  w-full p-8 "
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 max-w-3xl border p-8 rounded-2xl border-gray-100">
         {/* Name */}
         <div>
           <label className="text-sm font-medium">Name</label>
@@ -224,6 +227,7 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
           {buttonText}
         </button>
       </div>
+      <Toaster />
     </form>
   );
 }

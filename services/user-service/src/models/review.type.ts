@@ -19,7 +19,11 @@ export interface ReviewAttachment {
 
 export interface ReviewDocument extends Document {
   productId: Types.ObjectId;
+  productName: string;
+  productImage: string;
+
   userId: Types.ObjectId;
+  userName: string;
 
   rating: number;
   title?: string;

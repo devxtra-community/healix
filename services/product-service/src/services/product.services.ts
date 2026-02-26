@@ -144,4 +144,12 @@ export class ProductService {
 
     return this.productRepository.deleteProduct(productId);
   }
+
+  async restoreProduct(productId: string): Promise<IProduct | null> {
+    if (!Types.ObjectId.isValid(productId)) {
+      throw new Error('Invalid product ID');
+    }
+
+    return this.productRepository.restoreProduct(productId);
+  }
 }

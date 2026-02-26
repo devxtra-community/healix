@@ -14,11 +14,38 @@ export class CategoryRepository {
   async findById(id: string | Types.ObjectId): Promise<ICategory | null> {
     return this.categoryModel.findById(id).exec();
   }
+
   async findAll(
     filter: Partial<ICategory> & Record<string, unknown>,
-  ): Promise<ICategory[]> {
-    return this.categoryModel.find(filter).exec();
+    page: number,
+    limit: number,
+  ) {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.categoryModel
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ created_at: -1 })
+        .exec(),
+
+      this.categoryModel.countDocuments(filter),
+    ]);
+
+    console.log(filter);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
+
   async update(
     id: string | Types.ObjectId,
     updateData: UpdateQuery<ICategory>,

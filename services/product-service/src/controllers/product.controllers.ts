@@ -190,4 +190,30 @@ export class ProductController {
       next(error);
     }
   }
+
+  async restoreProduct(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { productId } = req.params;
+
+      if (!Types.ObjectId.isValid(productId)) {
+        res.status(400).json({ message: 'Invalid Product ID' });
+        return;
+      }
+
+      const version = await productService.restoreProduct(productId);
+
+      if (!version) {
+        res.status(404).json({ message: 'Product version not found' });
+        return;
+      }
+
+      res.status(200).json(version);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

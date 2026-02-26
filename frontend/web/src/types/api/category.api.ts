@@ -22,3 +22,19 @@ export interface CategoryFormData {
   health_goal: HealthGoal[];
   is_active: boolean;
 }
+
+export interface UpdateCategoryDto {
+  name: string;
+  description?: string;
+  image?: string;
+  category_type?: CategoryType;
+  health_goal?: HealthGoal[];
+  is_active?: boolean;
+}
+export interface CategoryFormValues {
+  name: string;
+  description?: string;
+  category_type: CategoryType;
+  health_goal: HealthGoal[];
+  is_active: boolean;
+}

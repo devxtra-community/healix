@@ -201,6 +201,7 @@ export class ProductRepository {
       page,
       limit,
       total,
+      totalPages: Math.ceil(total / limit),
     };
   }
 
@@ -268,5 +269,16 @@ export class ProductRepository {
     });
 
     return count > 0;
+  }
+
+  async restoreProduct(productId: string | Types.ObjectId) {
+    return ProductModel.findByIdAndUpdate(
+      productId,
+      {
+        is_delete: false,
+        deleted_at: null,
+      },
+      { new: true },
+    );
   }
 }

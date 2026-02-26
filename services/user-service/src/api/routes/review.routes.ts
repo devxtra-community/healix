@@ -10,9 +10,10 @@ const reviewRepo = new ReviewRepository();
 const reviewService = new ReviewService(reviewRepo);
 const reviewController = new ReviewController(reviewService);
 
-router.post('/reviews', authMiddleware, reviewController.createReview);
-router.patch('/reviews/:id', authMiddleware, reviewController.updateReview);
-router.delete('/reviews/:id', authMiddleware, reviewController.deleteReview);
+router.post('/', authMiddleware, reviewController.createReview);
+router.patch('/:id', authMiddleware, reviewController.updateReview);
+router.delete('/:id', authMiddleware, reviewController.deleteReview);
+router.get('/', authMiddleware, reviewController.getAllReviews);
 
 router.get('/products/:productId/reviews', reviewController.getProductReviews);
 router.get('/products/:productId/rating', reviewController.getProductRating);

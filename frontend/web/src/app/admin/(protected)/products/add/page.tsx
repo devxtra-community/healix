@@ -7,110 +7,91 @@ import ProductForm, {
 } from '@/src/components/admin/products/ProductForm';
 import { useState } from 'react';
 import { productService } from '@/src/services/product.service';
+import { useRouter } from 'next/navigation';
+import { toast, Toaster } from 'sonner';
 
 const initialProductState: ProductData = {
-  categoryId: '66c9f8c12c9b1f0012abcd12',
+  categoryId: '', // 🔥 remove hardcoded ID
 
   versionData: {
     name: '',
-    description: 'fitness',
-    brand: 'Healix Nutrition',
-    tags: ['plant-protein', 'vegan', 'fitness'],
-
-    price: 1899,
+    description: '',
+    brand: '',
+    tags: [],
+    price: 0,
     images: [],
     status: 'active',
     attributes: {
-      flavor: 'Vanilla',
-      pack_size: '1kg',
+      flavor: '',
+      pack_size: '',
       form: 'powder',
     },
   },
 
   detailsData: {
     nutrition_facts: {
-      serving_size: '30g',
-      calories: 110,
+      serving_size: '',
+      calories: 0,
       macros: {
-        protein: 22,
-        carbs: 4,
-        fat: 2,
-        fiber: 3,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        fiber: 0,
       },
-      vitamins: {
-        'Vitamin B12': '2.4mcg',
-      },
-      minerals: {
-        Iron: '5mg',
-        Calcium: '100mg',
-      },
+      vitamins: {},
+      minerals: {},
     },
-    ingredients: [
-      {
-        name: 'Pea Protein Isolate',
-        origin: 'Peas',
-        organic: true,
-      },
-      {
-        name: 'Brown Rice Protein',
-        origin: 'Rice',
-        organic: false,
-      },
-    ],
-    benefits: ['Supports muscle recovery', 'Vegan-friendly', 'Easy digestion'],
-    suitable_for: ['Vegans', 'Athletes', 'Weight management'],
+    ingredients: [],
+    benefits: [],
+    suitable_for: [],
   },
 
-  initialStock: 150,
+  initialStock: 0,
 };
 
 export default function AddProductPage() {
   const [formData, setFormData] = useState<ProductData>(initialProductState);
 
   const { createProduct } = productService;
+  const router = useRouter();
 
   const handleSubmit = async () => {
-    const res = await createProduct(formData);
-    console.log(res);
+    if (!formData.categoryId) {
+      toast.warning('Please select a category');
+      return;
+    }
+    await createProduct(formData);
+    router.push('/admin/products');
   };
 
   return (
     <div className="flex flex-col gap-6 pt-2 pb-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link
-            href="/products"
-            className="p-2 -ml-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            href="/admin/products"
+            className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
           >
             <ArrowLeft size={20} />
           </Link>
+
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Add New Product
-            </h1>
-            <p className="text-gray-500 text-sm mt-0.5">
-              Create a new product in your store
-            </p>
+            <h1 className="text-2xl font-bold">Add New Product</h1>
+            <p className="text-sm text-gray-500">Create a new product</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin/products"
-            className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </Link>
-          <button
-            onClick={handleSubmit}
-            className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:translate-y-[-1px] shadow-lg shadow-black/5 transition-all"
-          >
-            <Save size={18} />
-            Save Product
-          </button>
-        </div>
+
+        <button
+          onClick={handleSubmit}
+          className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl"
+        >
+          <Save size={18} />
+          Save Product
+        </button>
       </div>
 
       <ProductForm formData={formData} setFormData={setFormData} />
+      <Toaster />
     </div>
   );
 }

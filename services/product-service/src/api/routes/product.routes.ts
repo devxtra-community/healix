@@ -14,6 +14,7 @@ router.post(
   productcontroller.createNewVersion,
 );
 router.get('/', productcontroller.getProductsForUser);
+router.patch('/:productId', productcontroller.restoreProduct);
 router.delete('/:productId', adminOnly, productcontroller.deleteProduct);
 
 export default router;

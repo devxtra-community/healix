@@ -44,4 +44,9 @@ export const productService = {
     const res = await adminApi.delete(`/product/${productId}`);
     return res.data;
   },
+
+  restoreProduct: async (productId: string) => {
+    const res = await adminApi.patch(`/product/${productId}`);
+    return res.data;
+  },
 };

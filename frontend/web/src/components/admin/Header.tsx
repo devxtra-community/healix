@@ -1,4 +1,4 @@
-import { Search, Bell, Menu } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -18,7 +18,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           Dashboard
         </h2>
       </div>
-
+      {/* 
       <div className="flex-1 hidden md:flex justify-center px-8 max-w-[600px]">
         <div className="relative w-full max-w-[400px]">
           <input
@@ -31,7 +31,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             size={18}
           />
         </div>
-      </div>
+      </div> */}
 
       <div className="flex items-center gap-4 md:gap-6">
         <button className="relative bg-white p-2.5 rounded-full cursor-pointer text-text-secondary shadow-sm flex items-center justify-center border-none">

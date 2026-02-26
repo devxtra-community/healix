@@ -14,25 +14,38 @@ const attachmentSchema = new Schema(
       trim: true,
     },
   },
-  {
-    _id: false,
-  },
+  { _id: false },
 );
 
 const reviewSchema = new Schema<ReviewDocument>(
   {
+    // Store only ObjectId (no ref, no populate)
     productId: {
       type: Types.ObjectId,
-      ref: 'Product',
       required: true,
       index: true,
     },
 
+    // Snapshot product name (important in microservices)
+    productName: {
+      type: String,
+      required: true,
+    },
+
+    productImage: {
+      type: String,
+    },
+
     userId: {
       type: Types.ObjectId,
-      ref: 'User',
       required: true,
       index: true,
+    },
+
+    // Snapshot user name
+    userName: {
+      type: String,
+      required: true,
     },
 
     rating: {
@@ -86,7 +99,7 @@ const reviewSchema = new Schema<ReviewDocument>(
   },
 );
 
-// Prevent multiple reviews by same user for same product
+// Prevent duplicate reviews
 reviewSchema.index({ productId: 1, userId: 1 }, { unique: true });
 
 export const ReviewModel = model<ReviewDocument>('Review', reviewSchema);

@@ -3,16 +3,12 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import { verifyToken } from '../../middleware/auth.middleware.js';
 import { requireRole } from '../../middleware/requireRole.middleware.js';
 import { ROLES } from '../../auth/roles.js';
-
-const route = Router();
-const productServiceProxy = createProxyMiddleware({
-  target: process.env.PRODUCT_SERVICE_URL!,
+const router = Router();
+const adminServiceProxy = createProxyMiddleware({
+  target: process.env.USER_SERVICE_URL!,
   changeOrigin: true,
-  pathRewrite: {
-    '^/': '/api/v1/product/',
-    '^/:productId': '/api/v1/product/',
-    '^/admin/all': '/api/v1/product/',
-    '^/:productId/versions': '/api/v1/product/versions',
+  pathRewrite: (path) => {
+    return `/api/v1/admin${path}`;
   },
   on: {
     proxyReq(proxyReq, req: Request) {
@@ -21,36 +17,37 @@ const productServiceProxy = createProxyMiddleware({
         proxyReq.setHeader('x-user-role', req.user.role);
         proxyReq.setHeader('x-user-type', req.user.type);
       }
+
+      if (req.token) {
+        proxyReq.setHeader('token', req.token);
+      }
     },
   },
 });
-route.get(
-  '/admin/all',
+
+router.get(
+  '/users/:id',
   verifyToken,
   requireRole([ROLES.ADMIN]),
-  productServiceProxy,
+  adminServiceProxy,
 );
-route.get('/:productId', productServiceProxy);
-route.post('/', verifyToken, requireRole([ROLES.ADMIN]), productServiceProxy);
-route.post(
-  '/:productId/versions',
+router.put(
+  '/users/:id',
   verifyToken,
   requireRole([ROLES.ADMIN]),
-  productServiceProxy,
+  adminServiceProxy,
 );
-route.get('/', productServiceProxy);
-route.delete(
-  '/:productId',
+router.get(
+  '/users',
   verifyToken,
   requireRole([ROLES.ADMIN]),
-  productServiceProxy,
+  adminServiceProxy,
+);
+router.patch(
+  '/users/:id/toggle',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  adminServiceProxy,
 );
 
-route.patch(
-  '/:productId',
-  verifyToken,
-  requireRole([ROLES.ADMIN]),
-  productServiceProxy,
-);
-
-export default route;
+export default router;

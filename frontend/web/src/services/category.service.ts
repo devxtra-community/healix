@@ -1,22 +1,43 @@
 import adminApi from '../lib/axios.admin';
-import userApi from '../lib/axios.user';
 import { CategoryFormData } from '../types/api/category.api';
 
-export const CategoryService = {
-  createCategory: async (data: CategoryFormData, method: string) => {
-    if (method === 'POST') {
-      const res = await adminApi.post('/category', data);
-      console.log(res);
-      return res.data;
-    }
+interface GetCategoriesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  is_active?: boolean;
+}
 
-    const res = await adminApi.put('/category', data);
-    console.log(res);
+export const CategoryService = {
+  createCategory: async (data: CategoryFormData) => {
+    const res = await adminApi.post('/category', data);
     return res.data;
   },
 
-  getCategories: async () => {
-    const res = await userApi.get('/category');
+  updateCategory: async (id: string, data: CategoryFormData) => {
+    const res = await adminApi.patch(`/category/${id}`, data);
+    return res.data;
+  },
+
+  getCategories: async (params?: GetCategoriesParams) => {
+    const res = await adminApi.get(`/category`, {
+      params,
+    });
+    return res.data; // returns { data, meta }
+  },
+
+  getCategoryById: async (id: string) => {
+    const res = await adminApi.get(`/category/${id}`);
+    return res.data;
+  },
+
+  deleteCategory: async (id: string) => {
+    const res = await adminApi.delete(`/category/${id}`);
+    return res.data;
+  },
+
+  restoreCategory: async (id: string) => {
+    const res = await adminApi.patch(`/category/${id}/restore`);
     return res.data;
   },
 };

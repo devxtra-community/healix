@@ -47,26 +47,35 @@ export class CategoryControll {
     res: Response,
   ): Promise<void> => {
     try {
-      const category = await this.categoryService.getAllCategories(req.query);
-      if (category.length === 0) {
-        res.status(200).json([]);
-        return;
-      }
-      res.status(200).json(category);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const search = req.query.search as string | undefined;
+      const is_active = req.query.is_active as string | undefined;
+      const category_type = req.query.category_type as string | undefined;
+
+      const result = await this.categoryService.getAllCategories({
+        page,
+        limit,
+        search,
+        is_active,
+        category_type,
+      });
+
+      res.status(200).json(result);
     } catch (error: unknown) {
       if (error instanceof Error) {
         res.status(500).json({ message: error.message });
       } else {
-        res.status(500).json({ message: 'Sommething went wrong!' });
+        res.status(500).json({ message: 'Something went wrong!' });
       }
     }
   };
   //user
-  getActiveCategoriesHandler = async (req: Request, res: Response) => {
-    const categories = await this.categoryService.getActiveCategories();
+  // getActiveCategoriesHandler = async (req: Request, res: Response) => {
+  //   const categories = await this.categoryService.getActiveCategories();
 
-    res.status(200).json(categories);
-  };
+  //   res.status(200).json(categories);
+  // };
 
   updateHandler = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -97,6 +106,7 @@ export class CategoryControll {
       }
       res.status(200).json({
         message: 'Category disabled successfully',
+        data: category,
       });
     } catch (error: unknown) {
       if (error instanceof Error) {
