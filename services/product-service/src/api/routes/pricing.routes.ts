@@ -18,6 +18,14 @@ const pricingController = new PricingController(pricingService);
 
 router.post('/base', adminOnly, pricingController.setBasePrice);
 router.post('/discount', adminOnly, pricingController.createDiscount);
+router.post('/apply', pricingController.applyDiscount);
+
+router.get('/discounts', adminOnly, pricingController.getAllDiscounts);
+router.get('/discount/:id', adminOnly, pricingController.getDiscountById);
+
+router.put('/discount/:id', adminOnly, pricingController.updateDiscount);
+router.delete('/discount/:id', adminOnly, pricingController.deleteDiscount);
+
 router.get('/:productId', pricingController.getActivePrice);
 
 export default router;

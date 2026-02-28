@@ -37,7 +37,7 @@ const CategorySection = () => {
     const fetchCategories = async () => {
       const res = await CategoryService.getCategories();
 
-      setCategories(res);
+      setCategories(res.data);
     };
 
     fetchCategories();

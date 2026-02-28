@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import './globals.css';
 import SmoothScrollProvider from '../components/common/SmoothScrollProvider';
+import { Toaster } from 'sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,6 +31,7 @@ export default function RootLayout({
         className={` ${geistSans.className} antialiased`}
       >
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        <Toaster />
       </body>
     </html>
   );

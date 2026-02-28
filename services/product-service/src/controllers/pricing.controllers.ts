@@ -28,4 +28,65 @@ export class PricingController {
       next(error);
     }
   };
+
+  applyDiscount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { productId, couponCode, orderAmount } = req.body;
+      const result = await this.pricingservice.applyDiscount(
+        productId,
+        couponCode,
+        orderAmount,
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getAllDiscounts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const discounts = await this.pricingservice.getAllDiscounts();
+
+      res.status(200).json(discounts);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getDiscountById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const discount = await this.pricingservice.getDiscountById(id);
+
+      res.status(200).json(discount);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateDiscount = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const updated = await this.pricingservice.updateDiscount(id, req.body);
+
+      res.status(200).json(updated);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteDiscount = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const deleted = await this.pricingservice.deleteDiscount(id);
+
+      res.status(200).json({
+        message: 'Discount deleted successfully',
+        deleted,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

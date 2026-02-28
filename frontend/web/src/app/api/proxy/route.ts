@@ -27,3 +27,20 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
+  const file = formData.get('file') as File;
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  await fetch('https://s3-url', {
+    method: 'PUT',
+    body: buffer,
+    headers: {
+      'Content-Type': file.type,
+    },
+  });
+
+  return NextResponse.json({ success: true });
+}

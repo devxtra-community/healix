@@ -5,6 +5,7 @@ import { requireRole } from '../../middleware/requireRole.middleware.js';
 import { ROLES } from '../../auth/roles.js';
 
 const route = Router();
+
 const productServiceProxy = createProxyMiddleware({
   target: process.env.PRODUCT_SERVICE_URL!,
   changeOrigin: true,
@@ -28,12 +29,44 @@ route.post(
   requireRole([ROLES.ADMIN]),
   productServiceProxy,
 );
+
 route.post(
   '/discount',
   verifyToken,
   requireRole([ROLES.ADMIN]),
   productServiceProxy,
 );
+
+route.get(
+  '/discounts',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  productServiceProxy,
+);
+
+route.get(
+  '/discount/:id',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  productServiceProxy,
+);
+
+route.put(
+  '/discount/:id',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  productServiceProxy,
+);
+
+route.delete(
+  '/discount/:id',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  productServiceProxy,
+);
+
+route.post('/apply', verifyToken, productServiceProxy);
+
 route.get('/:productId', productServiceProxy);
 
 export default route;
