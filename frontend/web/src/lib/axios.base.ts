@@ -8,7 +8,7 @@ declare module 'axios' {
 }
 
 const BASE_CONFIG = {
-  baseURL: 'http://localhost:4000/api/v1',
+  baseURL: 'http://43.205.231.18:4000/api/v1',
   withCredentials: true,
   timeout: 30000,
 } as const;
