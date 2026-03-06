@@ -7,7 +7,7 @@ import stockRoutes from './api/routes/stock.routes.js';
 import priceRoutes from './api/routes/pricing.routes.js';
 import uploadRoutes from './api/routes/upload.routes.js';
 import searchRoutes from './api/routes/search.routes.js';
-import wishlistRoutes from './api/routes/wishlist.routes.ts';
+import wishlistRoutes from './api/routes/wishlist.routes.js';
 
 const app = express();
 

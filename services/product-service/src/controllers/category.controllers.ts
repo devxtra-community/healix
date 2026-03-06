@@ -1,18 +1,30 @@
 import { Request, Response } from 'express';
 import { CategoryService } from '../services/category.services.js';
+
+type CategoryType =
+  | 'nutrition'
+  | 'supplement'
+  | 'vitamin'
+  | 'superfood'
+  | 'herb';
+
 export class CategoryControll {
   private categoryService: CategoryService;
+
   constructor(categoryService: CategoryService) {
     this.categoryService = categoryService;
   }
+
   createCatrgoryHandler = async (
     req: Request,
     res: Response,
   ): Promise<void> => {
     try {
       const categoryData = req.body;
+
       const newCategory =
         await this.categoryService.createCategory(categoryData);
+
       res.status(201).json(newCategory);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -22,17 +34,21 @@ export class CategoryControll {
       }
     }
   };
+
   getCategoryByIdHandler = async (
     req: Request,
     res: Response,
   ): Promise<void> => {
     try {
       const { id } = req.params;
+
       const category = await this.categoryService.categoryById(id);
+
       if (!category) {
         res.status(404).json({ message: 'Category Not Found!' });
         return;
       }
+
       res.status(200).json(category);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -42,6 +58,7 @@ export class CategoryControll {
       }
     }
   };
+
   getAllCategoryHandler = async (
     req: Request,
     res: Response,
@@ -49,9 +66,11 @@ export class CategoryControll {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+
       const search = req.query.search as string | undefined;
       const is_active = req.query.is_active as string | undefined;
-      const category_type = req.query.category_type as string | undefined;
+
+      const category_type = req.query.category_type as CategoryType | undefined;
 
       const result = await this.categoryService.getAllCategories({
         page,
@@ -70,21 +89,19 @@ export class CategoryControll {
       }
     }
   };
-  //user
-  // getActiveCategoriesHandler = async (req: Request, res: Response) => {
-  //   const categories = await this.categoryService.getActiveCategories();
-
-  //   res.status(200).json(categories);
-  // };
 
   updateHandler = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
       const data = req.body;
+
       const category = await this.categoryService.update(id, data);
+
       if (!category) {
         res.status(404).json({ message: 'Category Not Found!' });
+        return;
       }
+
       res.status(200).json({
         message: 'Category updated successfully',
         data: category,
@@ -97,13 +114,18 @@ export class CategoryControll {
       }
     }
   };
+
   deleteHandler = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
+
       const category = await this.categoryService.disabled(id);
+
       if (!category) {
         res.status(404).json({ message: 'Category Not Found!' });
+        return;
       }
+
       res.status(200).json({
         message: 'Category disabled successfully',
         data: category,
@@ -116,14 +138,18 @@ export class CategoryControll {
       }
     }
   };
+
   restoreHandler = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
+
       const category = await this.categoryService.restore(id);
+
       if (!category) {
         res.status(404).json({ message: 'Category Not Found!' });
         return;
       }
+
       res.json({
         message: 'Category restored successfully',
         data: category,

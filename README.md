@@ -48,18 +48,16 @@ Services communicate through **REST APIs** for synchronous operations and **Rabb
 
 ## Data Stores
 
-| Technology        | Usage |
-|------------------|-------|
-| MongoDB          | Users, health profiles, products, categories, reviews |
-| Redis            | Rate limiting, login attempts, carts, reservations |
-| DynamoDB         | Orders, payments, refunds |
-| Elasticsearch    | Product search and filtering |
+| Technology    | Usage                                                 |
+| ------------- | ----------------------------------------------------- |
+| MongoDB       | Users, health profiles, products, categories, reviews |
+| Redis         | Rate limiting, login attempts, carts, reservations    |
+| DynamoDB      | Orders, payments, refunds                             |
+| Elasticsearch | Product search and filtering                          |
 
 ---
 
 ## Repository Structure
-
-
 
 ## Repository Structure
 
@@ -76,12 +74,12 @@ healix/
 └── README.md
 ```
 
-
 ---
 
 ## Authentication & Authorization
 
 ### Authentication
+
 - JWT-based authentication
 - Access token (short-lived)
 - Refresh token (stored securely)
@@ -105,7 +103,6 @@ Authorization is enforced only at the API Gateway.
 | ----- | ------------------------------------- |
 | USER  | Health profile, cart, orders, reviews |
 | ADMIN | Admin, CMS, configuration endpoints   |
-
 
 Admin cannot access user health profiles or reviews
 
@@ -131,16 +128,20 @@ Product reviews (verified purchase only)
 Refresh token management
 
 ## Local Development Setup
+
 Prerequisites
 
 Node.js 18+
 
 npm / pnpm
+
 ### Enable pnpm (if not already enabled):
+
 ```bash
 corepack enable
 corepack prepare pnpm@latest --activate
 ```
+
 ## Start Infrastructure
 
 Starts:
@@ -158,21 +159,23 @@ DynamoDB Local
 ### Start Services
 
 ## API Gateway
+
 cd gateway
 pnpm install
 pnpm run dev
 
 ## User Service
+
 cd services/user-service
 pnpm install
 pnpm run dev
 
 ### Health Check Endpoints
 
-| Service         | Endpoint      |
-| --------------- | ------------- |
-| API Gateway     | `GET /health` |
-| User Service    | `GET /health` |
+| Service      | Endpoint      |
+| ------------ | ------------- |
+| API Gateway  | `GET /health` |
+| User Service | `GET /health` |
 
 ## Design Notes
 

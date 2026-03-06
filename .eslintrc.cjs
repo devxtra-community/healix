@@ -2,31 +2,31 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
-  ecmaVersion: 2022,
-  sourceType: 'module',
-  project: [
-    './frontend/web/tsconfig.json',
-    './gateway/tsconfig.json',
-    './services/user-service/tsconfig.json',
-    './services/product-service/tsconfig.json',
-    './services/checkout-service/tsconfig.json'
-  ],
-  tsconfigRootDir: __dirname
-},
+    ecmaVersion: 2022,
+    sourceType: 'module',
+    project: [
+      './frontend/web/tsconfig.json',
+      './gateway/tsconfig.json',
+      './services/user-service/tsconfig.json',
+      './services/product-service/tsconfig.json',
+      './services/checkout-service/tsconfig.json',
+    ],
+    tsconfigRootDir: __dirname,
+  },
 
   env: {
     node: true,
     browser: true,
-    es2022: true
+    es2022: true,
   },
   plugins: ['@typescript-eslint', 'prettier'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended'
+    'plugin:prettier/recommended',
   ],
   rules: {
-    'prettier/prettier': 'error'
+    'prettier/prettier': 'error',
   },
-  ignorePatterns: ['node_modules/', 'dist/', '.next/']
+  ignorePatterns: ['node_modules/', 'dist/', '.next/'],
 };

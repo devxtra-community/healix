@@ -14,7 +14,7 @@
     "lint": "eslint frontend gateway services --ext .js,.ts,.jsx,.tsx",
     "format": "prettier --write frontend gateway services",
     "prepare": "husky",
-   "dev": "concurrently \"pnpm -r --parallel dev\""
+    "dev": "concurrently \"pnpm -r --parallel dev\""
   },
   "keywords": [],
   "author": "",

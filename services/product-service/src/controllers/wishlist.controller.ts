@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { WishlistService } from '../services/wishlist.service.ts';
+import { WishlistService } from '../services/wishlist.service.js';
 
 const wishlistService = new WishlistService();
 

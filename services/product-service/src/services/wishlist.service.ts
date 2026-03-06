@@ -1,4 +1,4 @@
-import { WishlistRepository } from '../repositories/wishlist.repositories.ts';
+import { WishlistRepository } from '../repositories/wishlist.repositories.js';
 
 export class WishlistService {
   private wishlistRepo = new WishlistRepository();

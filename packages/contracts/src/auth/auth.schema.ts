@@ -1,15 +1,14 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /**
  * Email + password registration
  */
-export const RegisterSchema = z
-  .object({
-    name: z.string().min(2),
-    email: z.string().email(),
-    password: z.string().min(8),
-    provider: z.literal("email"),
-  });
+export const RegisterSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(8),
+  provider: z.literal('email'),
+});
 
 export type RegisterDTO = z.infer<typeof RegisterSchema>;
 
@@ -21,7 +20,7 @@ export const GoogleAuthSchema = z.object({
   name: z.string(),
   google_id: z.string(),
   avatar: z.string().url().optional(),
-  provider: z.literal("google"),
+  provider: z.literal('google'),
 });
 
 export type GoogleAuthDTO = z.infer<typeof GoogleAuthSchema>;

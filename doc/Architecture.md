@@ -44,6 +44,7 @@ Healix follows a microservices architecture with an **API Gateway pattern**.
             │   Workers   │
             └─────────────┘
 ```
+
 ## Data Stores
 
 | Technology    | Usage                                                 |
@@ -52,7 +53,6 @@ Healix follows a microservices architecture with an **API Gateway pattern**.
 | Redis         | Rate limiting, login attempts, carts, reservations    |
 | DynamoDB      | Orders, payments, refunds                             |
 | Elasticsearch | Product search and filtering                          |
-
 
 ## Key Design Decisions
 

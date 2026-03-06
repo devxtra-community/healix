@@ -4,7 +4,7 @@ import { CategoryRepository } from '../../repositories/category.repositories.js'
 import { CategoryModel } from '../../models/category.models.js';
 import { CategoryService } from '../../services/category.services.js';
 import { adminOnly } from '../middlewares/auth.middleware.js';
-import { ProductRepository } from '../../repositories/product.repositories.ts';
+import { ProductRepository } from '../../repositories/product.repositories.js';
 
 const route = Router();
 const repo = new CategoryRepository(CategoryModel);
