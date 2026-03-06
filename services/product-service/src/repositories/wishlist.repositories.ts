@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Wishlist } from '../models/wishlist.model.ts';
+import { Wishlist } from '../models/wishlist.model.js';
 
 export class WishlistRepository {
   async findByUser(userId: string) {

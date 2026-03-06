@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { esClient } from '../src/config/elasticsearch.ts';
-import { ProductModel } from '../src/models/product.models.ts';
-import { ProductVersionModel } from '../src/models/product-version.models.ts';
-import { env } from '../src/config/env.ts';
+import { esClient } from '../src/config/elasticsearch.js';
+import { ProductModel } from '../src/models/product.models.js';
+import { ProductVersionModel } from '../src/models/product-version.models.js';
+import { env } from '../src/config/env.js';
 
 const MONGO_URI = env.mongoUri;
 

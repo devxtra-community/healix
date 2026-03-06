@@ -65,7 +65,7 @@ export class PricingController {
     }
   };
 
-  updateDiscount = async (req, res, next) => {
+  updateDiscount = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const updated = await this.pricingservice.updateDiscount(id, req.body);
@@ -76,7 +76,7 @@ export class PricingController {
     }
   };
 
-  deleteDiscount = async (req, res, next) => {
+  deleteDiscount = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const deleted = await this.pricingservice.deleteDiscount(id);

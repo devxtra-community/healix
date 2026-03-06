@@ -5,9 +5,9 @@
     "target": "ES2022",
     "rootDir": ".",
     "outDir": "dist",
+    "strict": true,
     "esModuleInterop": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true
+    "allowArbitraryExtensions": false
   },
   "include": ["src", "scripts"]
 }
