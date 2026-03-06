@@ -11,6 +11,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { cartService } from '@/src/services/cart.service';
+import { useRouter } from 'next/navigation';
 
 export type CartItem = {
   productId: string;
@@ -25,7 +26,7 @@ export type CartItem = {
 const CartPage = () => {
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  console.log(cartItems);
+  const router = useRouter();
 
   useEffect(() => {
     const loadCart = async () => {
@@ -193,7 +194,11 @@ const CartPage = () => {
                 </span>
               </div>
 
-              <button className="w-full bg-[#00e676] hover:bg-[#00c853] text-white py-4 rounded-full font-bold flex items-center justify-center gap-2 mt-6">
+              <button
+                onClick={() => router.push('/checkout')}
+                disabled={cartItems.length === 0}
+                className="w-full bg-[#00e676] hover:bg-[#00c853] text-white py-4 rounded-full font-bold flex items-center justify-center gap-2 mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Checkout <ArrowRight size={20} />
               </button>
             </div>

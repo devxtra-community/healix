@@ -74,4 +74,46 @@ export class OrderController {
       next(e);
     }
   };
+
+  getStripePaymentClientSecret = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId = req.headers['x-user-id'] as string;
+      const { orderId } = req.params;
+
+      if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+      const result = await this.orderService.getStripeClientSecretForOrder(
+        orderId,
+        userId,
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  syncStripePaymentStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId = req.headers['x-user-id'] as string;
+      const { orderId } = req.params;
+
+      if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+      const result = await this.orderService.syncStripePaymentStatus(
+        orderId,
+        userId,
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

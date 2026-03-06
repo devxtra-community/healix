@@ -7,12 +7,8 @@ const route = Router();
 const orderServiceProxy = createProxyMiddleware({
   target: process.env.CHECKOUT_SERVICE_URL,
   changeOrigin: true,
-  pathRewrite: {
-    '^/': '/api/v1/order/',
-    '^/:orderId': '/api/v1/order/',
-    '^/:orderId/cancel': '/api/v1/order/cancel',
-    '^/admin/all': '/api/v1/order/',
-    '^/:orderId/status': '/api/v1/order/status',
+  pathRewrite: (path) => {
+    return `/api/v1/order${path === '/' ? '' : path}`;
   },
   on: {
     proxyReq(proxyReq, req: Request) {
@@ -33,6 +29,12 @@ route.get(
 );
 route.post(
   '/:orderId/cancel',
+  verifyToken,
+  requireRole([ROLES.USER]),
+  orderServiceProxy,
+);
+route.post(
+  '/:orderId/pay',
   verifyToken,
   requireRole([ROLES.USER]),
   orderServiceProxy,

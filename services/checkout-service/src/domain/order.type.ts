@@ -11,6 +11,7 @@ export interface OrderItem {
   productId: string;
   variantId: string;
   name: string;
+  image?: string;
   quantity: number;
   price: number;
   subtotal: number;
@@ -33,6 +34,7 @@ export interface Order {
   discount?: OrderDiscount;
   totalAmount: number;
   currency: string;
+  paymentMethod?: 'STRIPE' | 'COD';
   paymentId?: string;
   reservationExpiresAt?: string;
   tax?: number;

@@ -8,9 +8,10 @@ export class PaymentService {
   async createPendingPayment(
     orderId: string,
     userId: string,
-    stripePaymentIntentId: string,
     amount: number,
     currency: string,
+    method: Payment['method'],
+    stripePaymentIntentId?: string,
   ) {
     const now = new Date().toISOString();
 
@@ -21,7 +22,7 @@ export class PaymentService {
       stripePaymentIntentId,
       amount,
       currency,
-      method: 'STRIPE',
+      method,
       status: 'PENDING',
       createdAt: now,
       updatedAt: now,

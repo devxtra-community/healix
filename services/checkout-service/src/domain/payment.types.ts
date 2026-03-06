@@ -5,11 +5,11 @@ export interface Payment {
   orderId: string;
   userId: string;
 
-  stripePaymentIntentId: string;
+  stripePaymentIntentId?: string;
 
   amount: number;
   currency: string;
-  method: 'STRIPE';
+  method: 'STRIPE' | 'COD';
 
   status: PaymentStatus;
 
