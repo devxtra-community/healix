@@ -38,7 +38,7 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      await authService.register(formData);
+      await authService.register({ ...formData, provider: 'email' });
       router.push('/login');
     } catch (err) {
       console.error('Register Error:', err);

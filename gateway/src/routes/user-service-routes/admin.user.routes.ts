@@ -26,11 +26,19 @@ const adminServiceProxy = createProxyMiddleware({
 });
 
 router.get(
+  '/users/insights',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  adminServiceProxy,
+);
+
+router.get(
   '/users/:id',
   verifyToken,
   requireRole([ROLES.ADMIN]),
   adminServiceProxy,
 );
+
 router.put(
   '/users/:id',
   verifyToken,

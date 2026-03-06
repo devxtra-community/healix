@@ -128,29 +128,29 @@ export default function ProductForm({
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+    if (!e.target.files?.length) return;
 
     const file = e.target.files[0];
 
     try {
-      // 1️⃣ Get signed URLs from backend
+      // 1️⃣ Get signed URL
       const response = await fetch(
         'http://localhost:4000/api/v1/products/generate-upload-url',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            fileType: file.type,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileType: file.type }),
         },
       );
 
+      if (!response.ok) {
+        throw new Error('Failed to get signed URL');
+      }
+
       const data: SignedUrlResponse = await response.json();
 
-      // 2️⃣ Upload file directly to S3
-      await fetch(data.uploadUrl, {
+      // 2️⃣ Upload to S3
+      const uploadRes = await fetch(data.uploadUrl, {
         method: 'PUT',
         headers: {
           'Content-Type': file.type,
@@ -158,7 +158,11 @@ export default function ProductForm({
         body: file,
       });
 
-      // 3️⃣ Save signed GET URL into state
+      if (!uploadRes.ok) {
+        throw new Error('Upload to S3 failed');
+      }
+
+      // 3️⃣ Save key
       setFormData((prev) => ({
         ...prev,
         versionData: {
@@ -354,16 +358,18 @@ export default function ProductForm({
                 <select
                   value={formData.versionData.status}
                   onChange={(e) =>
-                    updateAttribute(
-                      'form',
-                      e.target.value as ProductVersion['attributes']['form'],
+                    updateVersion(
+                      'status',
+                      e.target.value as ProductVersion['status'],
                     )
                   }
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all appearance-none cursor-pointer"
                 >
                   <option value="active">Active</option>
-                  <option value="draft">Draft</option>
-                  <option value="archived">Archived</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="out-of-stock">Out of Stock</option>
+                  <option value="coming-soon">Coming Soon</option>
+                  <option value="discontinued">Discontinued</option>
                 </select>
               </div>
             </div>

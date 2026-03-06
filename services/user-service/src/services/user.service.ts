@@ -25,6 +25,10 @@ export class UserService {
     return this.userRepository.updateUser(userId, payload);
   }
 
+  async getUserInsights() {
+    return this.userRepository.getUserInsights();
+  }
+
   //   async deleteUser(userId: string) {
   //     return this.userRepository.deleteUser(userId);
   //   }

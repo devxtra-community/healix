@@ -33,6 +33,11 @@ export const customerService = {
     return res.data.data;
   },
 
+  getCustomerInsights: async () => {
+    const res = await adminApi.get('/admin/users/insights');
+    return res.data;
+  },
+
   deleteCustomer: async (id: string): Promise<void> => {
     await adminApi.delete(`/admin/users/${id}`);
   },

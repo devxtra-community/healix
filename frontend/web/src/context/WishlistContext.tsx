@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { wishlistService } from '../services/wishlist.service';
+import { AxiosError } from 'axios';
 
 interface WishlistContextType {
   wishlistIds: string[];
@@ -24,16 +25,29 @@ export const WishlistProvider = ({
 }) => {
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
 
+
   useEffect(() => {
-    const fetchWishlist = async () => {
-      const data = await wishlistService.getWishlist();
-      const ids = data?.products?.map((item: IItem) => item.product._id) || [];
-      setWishlistIds(ids);
+    const init = async () => {
+      try {
+        const data = await wishlistService.getWishlist();
+
+        const ids =
+          data?.products?.map((item: IItem) => item.product._id) || [];
+
+        setWishlistIds(ids);
+      } catch (err) {
+        if (err instanceof AxiosError) {
+          if (err.response?.status !== 401) {
+            console.error(err);
+          }
+        } else {
+          console.error(err);
+        }
+      }
     };
 
-    fetchWishlist();
+    init();
   }, []);
-
   const toggleWishlist = async (productId: string) => {
     const exists = wishlistIds.includes(productId);
 

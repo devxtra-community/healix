@@ -22,29 +22,45 @@ export function createApiClient(authType: 'user' | 'admin') {
   });
 
   api.interceptors.response.use(
-    (res) => res,
+    (response) => response,
     async (error) => {
       const originalRequest = error.config;
 
-      const isRefreshEndpoint =
+      const status = error.response?.status;
+
+      const isRefreshRequest =
         originalRequest?.url?.includes('/auth/user/refresh') ||
         originalRequest?.url?.includes('/auth/admin/refresh');
 
-      if (
-        error.response?.status === 401 &&
-        !originalRequest?._retry &&
-        !isRefreshEndpoint
-      ) {
+      const isCartRequest = originalRequest?.url?.includes('/cart');
+      const isWishlistRequest = originalRequest?.url?.includes('/wishlist');
+
+      // Ignore cart/wishlist 401 for guest users
+      if ((isCartRequest || isWishlistRequest) && status === 401) {
+        return Promise.resolve({
+          data: null,
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: {},
+          config: originalRequest,
+        });
+      }
+
+      // Token refresh logic
+      if (status === 401 && !originalRequest?._retry && !isRefreshRequest) {
         originalRequest._retry = true;
 
         try {
           await api.post(`/auth/${authType}/refresh`);
+
+          // retry original request
           return api(originalRequest);
-        } catch {
+        } catch (refreshError) {
           if (typeof window !== 'undefined') {
             window.location.href =
               authType === 'admin' ? '/admin/login' : '/login';
           }
+          console.log(refreshError);
         }
       }
 

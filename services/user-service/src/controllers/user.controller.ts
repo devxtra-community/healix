@@ -111,6 +111,20 @@ export class UserController {
     }
   }
 
+  async getUserInsights(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const insights = await userService.getUserInsights();
+
+      res.status(200).json(insights);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   /**
    * DELETE /admin/users/:id
    * Admin - Soft delete (recommended)

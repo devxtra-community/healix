@@ -12,8 +12,6 @@ interface DiscountFormProps {
   discountId?: string;
 }
 
-
-
 export default function DiscountForm({
   initialData,
   discountId,

@@ -52,7 +52,7 @@ export default async function ProductDetailsPage({
   const stock = item.stock?.available ?? 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className=" bg-gray-50">
       <div className="max-w-6xl mx-auto px-6 py-10">
         {/* Back */}
         <Link

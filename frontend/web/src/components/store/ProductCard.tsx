@@ -8,16 +8,19 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { WishlistButton } from '../common/WishlistButton';
 import { resolveImage } from '@/src/lib/resolve.image';
+import { useCart } from '@/src/context/CartContext';
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [qty, setQty] = useState(1);
   const router = useRouter();
+  const { incrementCart } = useCart();
 
   const handleAddToCart = async () => {
     if (qty > product.stock) {
       toast.error('Not enough stock');
       return;
     }
+
     if (!product.variantId) {
       toast.error('Product variant not found');
       return;
@@ -29,6 +32,9 @@ const ProductCard = ({ product }: { product: Product }) => {
         variantId: product.variantId,
         quantity: qty,
       });
+
+      // 🔹 instant UI update
+      incrementCart(qty);
 
       toast.success('Added to cart');
     } catch (err) {

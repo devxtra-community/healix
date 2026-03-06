@@ -16,6 +16,7 @@ const Navbar = () => {
     }
   };
 
+
   return (
     <nav className="flex items-center justify-between py-6 px-4 max-w-7xl mx-auto">
       <Link href={'/'} className="flex items-center gap-2">

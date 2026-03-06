@@ -2,7 +2,11 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { cartService } from '@/src/services/cart.service';
-import { CartItem } from '../app/(user)/cart/page';
+import axios from 'axios';
+
+interface CartItem {
+  quantity: number;
+}
 
 interface CartContextType {
   cartCount: number;
@@ -16,19 +20,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartCount, setCartCount] = useState(0);
 
   const refreshCart = async () => {
-    try {
-      const data = await cartService.getCart();
+    const data = await cartService.getCart();
 
-      const totalItems =
-        data?.items?.reduce(
-          (acc: number, item: CartItem) => acc + item.quantity,
-          0,
-        ) || 0;
+    const totalItems =
+      data?.items?.reduce(
+        (acc: number, item: CartItem) => acc + item.quantity,
+        0,
+      ) || 0;
 
-      setCartCount(totalItems);
-    } catch (error) {
-      console.error('Failed to fetch cart', error);
-    }
+    setCartCount(totalItems);
   };
 
   const incrementCart = (qty: number) => {
@@ -36,7 +36,19 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    refreshCart();
+    const init = async () => {
+      try {
+        await refreshCart();
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          return; // guest user
+        }
+
+        console.error(err);
+      }
+    };
+
+    init();
   }, []);
 
   return (
@@ -48,8 +60,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useCart = () => {
   const context = useContext(CartContext);
+
   if (!context) {
     throw new Error('useCart must be used inside CartProvider');
   }
+
   return context;
 };

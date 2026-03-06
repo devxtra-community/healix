@@ -1,18 +1,22 @@
 import { ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface QuickActionCardProps {
   title: string;
   subtitle: string;
   gradient: string;
+  link: string;
 }
 
 export default function QuickActionCard({
   title,
   subtitle,
   gradient,
+  link,
 }: QuickActionCardProps) {
   return (
-    <div
+    <Link
+      href={link}
       className="rounded-2xl p-5 flex justify-between items-start min-h-[100px] relative overflow-hidden transition-transform duration-200 cursor-pointer hover:-translate-y-0.5"
       style={{ background: gradient }}
     >
@@ -27,6 +31,6 @@ export default function QuickActionCard({
       <div className="bg-white/40 p-1.5 rounded-full flex items-center justify-center backdrop-blur-sm">
         <ArrowUpRight size={18} className="text-gray-800" />
       </div>
-    </div>
+    </Link>
   );
 }
