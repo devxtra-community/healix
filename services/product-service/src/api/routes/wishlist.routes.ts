@@ -8,6 +8,7 @@ import {
 
 const router = Router();
 
+//routes
 router.get('/', getWishlist);
 router.post('/', addToWishlist);
 router.delete('/:productId', removeFromWishlist);
