@@ -1,151 +1,193 @@
 name: Backend CI/CD
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - gateway/**
-      - services/**
-  pull_request:
-    branches:
-      - main
+push:
+branches: [main]
+paths:
+- gateway/**
+- services/**
+- packages/**
+pull_request:
+branches:
+- main
 
 jobs:
-  # ==============================
-  # 🧪 CI — BUILD & PACKAGE
-  # ==============================
-  ci:
-    name: CI (Build Backend)
-    runs-on: ubuntu-latest
 
-    steps:
-      # -------- CHECKOUT --------
-      - name: Checkout repository
-        uses: actions/checkout@v4
+# ==============================
 
-      # -------- NODE --------
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+# 🧪 CI — BUILD & PACKAGE
 
-      # -------- PNPM --------
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@9 --activate
+# ==============================
 
-      # -------- INSTALL --------
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+ci:
+name: CI (Build Backend)
+runs-on: ubuntu-latest
 
-      # ✅ LINT
-      - name: Lint backend
-        run: pnpm lint
+```
+steps:
 
-      # -------- BUILD --------
-      - name: Build Gateway
-        run: |
-          cd gateway
-          pnpm build
+  # -------- CHECKOUT --------
+  - name: Checkout repository
+    uses: actions/checkout@v4
 
-      - name: Build Services
-        run: |
-          for dir in services/*; do
-            if [ -f "$dir/package.json" ]; then
-              echo "Building $dir"
-              (cd "$dir" && pnpm build)
-            fi
-          done
+  # -------- NODE --------
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: 20
 
-      # -------- ASSERT --------
-      - name: Assert dist exists
-        run: |
-          test -d gateway/dist
-          found=false
-          for dir in services/*; do
-            [ -d "$dir/dist" ] && found=true
-          done
-          $found
+  # -------- PNPM --------
+  - name: Enable pnpm
+    run: |
+      corepack enable
+      corepack prepare pnpm@9 --activate
 
-      # -------- PACKAGE ARTIFACT --------
-      - name: Prepare backend artifact
-        run: |
-          rm -rf backend-prod
-          mkdir -p backend-prod/gateway
-          mkdir -p backend-prod/services
+  # -------- INSTALL --------
+  - name: Install dependencies
+    run: pnpm install --frozen-lockfile
 
-          # Gateway
-          cp -r gateway/dist gateway/package.json gateway/pnpm-lock.yaml backend-prod/gateway/
+  # -------- LINT --------
+  - name: Lint backend
+    run: pnpm eslint gateway services packages --ext .ts
 
-          # Services
-          for dir in services/*; do
-            if [ -d "$dir/dist" ]; then
-              name=$(basename "$dir")
-              mkdir -p backend-prod/services/$name
-              cp -r "$dir/dist" "$dir/package.json" "$dir/pnpm-lock.yaml" backend-prod/services/$name/
-            fi
-          done
+  # -------- BUILD BACKEND ONLY --------
+  - name: Build packages
+    run: pnpm --filter "./packages/**" build
 
-      - name: Upload backend artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-prod
-          path: backend-prod
+  - name: Build gateway
+    run: pnpm --filter gateway build
 
-  # ==============================
-  # 🚀 CD — DEPLOY TO EC2
-  # ==============================
-  cd:
-    name: CD (Deploy Backend to EC2)
-    needs: ci
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+  - name: Build services
+    run: |
+      for dir in services/*; do
+        if [ -f "$dir/package.json" ]; then
+          echo "Building $dir"
+          (cd "$dir" && pnpm build)
+        fi
+      done
 
-    steps:
-      - name: Download backend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-prod
-          path: backend-prod
+  # -------- ASSERT BUILDS --------
+  - name: Assert dist exists
+    run: |
+      test -d gateway/dist
 
-      - name: Debug artifact
-        run: |
-          echo "===== backend-prod ====="
-          ls -R backend-prod
+      for dir in services/*; do
+        if [ -d "$dir/dist" ]; then
+          echo "✔ $dir built successfully"
+        else
+          echo "❌ $dir missing dist folder"
+          exit 1
+        fi
+      done
 
-      # -------- SCP (WHOLE FOLDER) --------
-      - name: Upload backend to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: backend-prod
-          target: /var/www
-          overwrite: true
+  # -------- PACKAGE ARTIFACT --------
+  - name: Prepare backend artifact
+    run: |
+      rm -rf backend-prod
 
-      # -------- SSH / PM2 --------
-      - name: Install prod deps & restart
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            set -e
+      mkdir -p backend-prod/gateway
+      mkdir -p backend-prod/services
 
-            echo "=== Gateway ==="
-            cd /var/www/backend-prod/gateway
-            pnpm install --prod
-            pm2 reload gateway || pm2 start dist/server.js --name gateway
+      # Gateway
+      cp -r gateway/dist backend-prod/gateway
+      cp gateway/package.json backend-prod/gateway
 
-            echo "=== Services ==="
-            for dir in /var/www/backend-prod/services/*; do
-              cd "$dir"
-              name=$(basename "$dir")
-              pnpm install --prod
-              pm2 reload "$name" || pm2 start dist/server.js --name "$name"
-            done
+      # Services
+      for dir in services/*; do
+        if [ -d "$dir/dist" ]; then
+          name=$(basename "$dir")
 
-            pm2 save
+          mkdir -p backend-prod/services/$name
+
+          cp -r "$dir/dist" backend-prod/services/$name
+          cp "$dir/package.json" backend-prod/services/$name
+        fi
+      done
+
+      # Shared packages
+      if [ -d packages ]; then
+        cp -r packages backend-prod/packages
+      fi
+
+  # -------- UPLOAD ARTIFACT --------
+  - name: Upload backend artifact
+    uses: actions/upload-artifact@v4
+    with:
+      name: backend-prod
+      path: backend-prod
+```
+
+# ==============================
+
+# 🚀 CD — DEPLOY TO EC2
+
+# ==============================
+
+cd:
+name: CD (Deploy Backend to EC2)
+needs: ci
+if: github.ref == 'refs/heads/main'
+runs-on: ubuntu-latest
+
+```
+steps:
+
+  # -------- DOWNLOAD ARTIFACT --------
+  - name: Download backend artifact
+    uses: actions/download-artifact@v4
+    with:
+      name: backend-prod
+      path: backend-prod
+
+  - name: Debug artifact
+    run: |
+      echo "===== backend-prod ====="
+      ls -R backend-prod
+
+  # -------- COPY FILES TO EC2 --------
+  - name: Upload backend to EC2
+    uses: appleboy/scp-action@v0.1.7
+    with:
+      host: ${{ secrets.EC2_HOST }}
+      username: ${{ secrets.EC2_USER }}
+      key: ${{ secrets.EC2_SSH_KEY }}
+      source: backend-prod
+      target: /var/www
+      overwrite: true
+
+  # -------- DEPLOY WITH PM2 --------
+  - name: Install prod deps & restart
+    uses: appleboy/ssh-action@v1.0.3
+    with:
+      host: ${{ secrets.EC2_HOST }}
+      username: ${{ secrets.EC2_USER }}
+      key: ${{ secrets.EC2_SSH_KEY }}
+      script: |
+
+        set -e
+
+        corepack enable
+        corepack prepare pnpm@9 --activate
+
+        cd /var/www/backend-prod
+
+        echo "=== Gateway ==="
+        cd gateway
+        pnpm install --prod
+        pm2 reload gateway || pm2 start dist/server.js --name gateway
+        cd ..
+
+        echo "=== Services ==="
+        for dir in services/*; do
+          cd "$dir"
+
+          name=$(basename "$dir")
+
+          pnpm install --prod
+          pm2 reload "$name" || pm2 start dist/server.js --name "$name"
+
+          cd ..
+        done
+
+        pm2 save
+```

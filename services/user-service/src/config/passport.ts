@@ -12,8 +12,7 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         // Check if user exists
-        let user = await User.findOne({ 'auth.google_id': profile.id });
-
+        let user = await User.findOne({ google_id: profile.id });
         if (user) {
           // Update last login
           user.last_login = new Date();
@@ -25,10 +24,13 @@ passport.use(
         user = await User.findOne({ email: profile.emails?.[0].value });
 
         if (user) {
-          return done(
-            new Error('Email already registered with different method'),
-            false,
-          );
+          user.google_id = profile.id;
+          user.provider = 'google';
+          user.email_verified = true;
+          user.last_login = new Date();
+          await user.save();
+
+          return done(null, user);
         }
 
         // Create new user

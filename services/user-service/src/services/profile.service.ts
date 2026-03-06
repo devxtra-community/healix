@@ -1,3 +1,5 @@
+import { ConflictError } from '../errors/ConflictError.js';
+import { NotFoundError } from '../errors/NotFoundError.js';
 import type { IUserProfile } from '../models/profile.model.js';
 import { ProfileRepository } from '../repositories/profile.repository.js';
 
@@ -14,7 +16,7 @@ export class ProfileService {
     const existingProfile = await this.profileRepo.findByUserId(userId);
 
     if (existingProfile) {
-      throw new Error('Profile already exists for this user');
+      throw new ConflictError('Profile already exists for this user');
     }
 
     return this.profileRepo.create({
@@ -34,7 +36,7 @@ export class ProfileService {
     const profile = await this.profileRepo.findByUserId(userId);
 
     if (!profile) {
-      throw new Error('Profile not found');
+      throw new NotFoundError('Profile not found');
     }
 
     return this.profileRepo.updateByUserId(userId, data);

@@ -73,4 +73,9 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
+// Ensure fast queries for admin dashboards or role-based queries
+userSchema.index({ role: 1 });
+userSchema.index({ role: 1, isActive: 1 }); // active admins/users
+userSchema.index({ last_login: -1 }); // sorting by recent login
+
 export const User = model<IUser>('User', userSchema);

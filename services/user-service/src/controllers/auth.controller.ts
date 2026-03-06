@@ -27,8 +27,17 @@ export class AuthController {
   };
 
   // POST /login
-  login = async (req: Request, res: Response, next: NextFunction) => {
+  loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (req.cookies?.adminAccessToken && req.cookies?.adminRefreshToken) {
+        const adminRefreshToken = req.cookies.adminRefreshToken;
+        const logoutResult = await this.authService.logout(adminRefreshToken);
+        console.log(logoutResult);
+
+        res.clearCookie('adminAccessToken');
+        res.clearCookie('adminRefreshToken');
+      }
+
       const { email, password } = req.body;
 
       if (!email || !password) {
@@ -37,10 +46,17 @@ export class AuthController {
           .json({ success: false, message: 'Email and password are required' });
       }
 
-      const { accessToken, refreshToken } = await this.authService.login(
+      const { accessToken, refreshToken } = await this.authService.loginUser(
         email,
         password,
       );
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 min
+      });
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -48,31 +64,116 @@ export class AuthController {
         sameSite: 'strict',
       });
 
-      res.status(200).json({ success: true, accessToken });
+      res.status(200).json({ success: true });
     } catch (error) {
       next(error);
     }
   };
 
-  // POST /refresh
-  refresh = async (req: Request, res: Response, next: NextFunction) => {
+  loginAdmin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken = req.cookies.refreshToken;
+      if (req.cookies?.accessToken && req.cookies?.refreshToken) {
+        const refreshToken = req.cookies.refreshToken;
+        const logoutResult = await this.authService.logout(refreshToken);
+        console.log(logoutResult);
+
+        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
+      }
+
+      const { email, password } = req.body;
+      const { accessToken, refreshToken } = await this.authService.loginAdmin(
+        email,
+        password,
+      );
+
+      res.cookie('adminAccessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      res.cookie('adminRefreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+      });
+
+      return res.status(200).json({ success: true, accessToken });
+    } catch (error) {
+      next(error);
+    }
+  };
+  // POST /refresh
+  refreshUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const refreshToken = req.header('token');
+
       if (!refreshToken) {
         return res
           .status(401)
           .json({ success: false, message: 'Refresh token missing' });
       }
 
-      const { accessToken } = await this.authService.refresh(refreshToken);
-      res.status(200).json({ success: true, accessToken });
+      const { accessToken } = await this.authService.refreshUser(refreshToken);
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 min
+      });
+
+      res.status(200).json({ success: true });
     } catch (error) {
       next(error);
     }
   };
 
+  refreshAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const adminRefreshToken = req.header('token');
+      if (!adminRefreshToken) {
+        return res
+          .status(401)
+          .json({ success: false, message: 'Admin refresh token missing' });
+      }
+
+      const { accessToken } =
+        await this.authService.refreshAdmin(adminRefreshToken);
+
+      res.cookie('adminAccessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      res.status(200).json({ success: true });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  me = async (req: Request, res: Response) => {
+    const userId = req.headers['x-user-id'] as string;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const user = await this.authService.me(userId);
+
+    res.json({
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    });
+  };
+
   // POST /logout
-  logout = async (req: Request, res: Response, next: NextFunction) => {
+  logoutUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = req.cookies.refreshToken;
       if (!refreshToken) {
@@ -83,6 +184,25 @@ export class AuthController {
 
       await this.authService.logout(refreshToken);
       res.clearCookie('refreshToken');
+      res.clearCookie('accessToken');
+      res.sendStatus(204);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  logoutAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const adminRefreshToken = req.cookies.adminRefreshToken;
+      if (!adminRefreshToken) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Admin Refresh token missing' });
+      }
+
+      await this.authService.logout(adminRefreshToken);
+      res.clearCookie('adminAccessToken');
+      res.clearCookie('adminRefreshToken');
       res.sendStatus(204);
     } catch (error) {
       next(error);

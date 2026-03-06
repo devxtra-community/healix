@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -48,8 +50,6 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -79,6 +79,27 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --background-secondary: #f8f9fc;
+
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --heading-color: #1f2937;
+
+  --button-bg: #000;
+
+  --sidebar-active-bg: #000;
+  --sidebar-active-text: #fff;
+  --shadow-color: rgba(0, 0, 0, 0.15);
+
+  --accent-orange: #f59e0b;
+  --accent-green: #10b981;
+  --accent-blue: #3b82f6;
+
+  --hover-color: #f3f4f6;
+
+  --background: oklch(1 0 0);
+
+  --foreground: oklch(0.145 0 0);
 }
 
 .dark {
