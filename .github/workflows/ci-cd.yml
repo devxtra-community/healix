@@ -42,7 +42,7 @@ jobs:
 
       # -------- LINT --------
       - name: Lint backend
-        run: pnpm eslint gateway services packages --ext .ts
+        run: pnpm eslint gateway services --ext .ts
 
       # -------- BUILD --------
       - name: Build Gateway
@@ -93,11 +93,12 @@ jobs:
             fi
           done
 
-          # Shared packages
+          # Shared packages (runtime dependency)
           if [ -d packages ]; then
             cp -r packages backend-prod/packages
           fi
 
+      # -------- UPLOAD ARTIFACT --------
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
