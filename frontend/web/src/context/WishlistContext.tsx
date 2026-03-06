@@ -25,7 +25,6 @@ export const WishlistProvider = ({
 }) => {
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
 
-
   useEffect(() => {
     const init = async () => {
       try {
