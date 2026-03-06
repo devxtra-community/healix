@@ -70,8 +70,7 @@ export class CategoryControll {
       const search = req.query.search as string | undefined;
       const is_active = req.query.is_active as string | undefined;
 
-      const category_type =
-        req.query.category_type as CategoryType | undefined;
+      const category_type = req.query.category_type as CategoryType | undefined;
 
       const result = await this.categoryService.getAllCategories({
         page,

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /**
  * Base shared fields
@@ -8,8 +8,8 @@ const BaseUserSchema = {
   name: z.string().min(2),
   email: z.string().email(),
 
-  provider: z.enum(["google", "email"]),
-  role: z.enum(["user", "admin"]),
+  provider: z.enum(['google', 'email']),
+  role: z.enum(['user', 'admin']),
 
   avatar: z.string().url().optional(),
   phone: z.string().optional(),
