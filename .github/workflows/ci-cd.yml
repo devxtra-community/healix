@@ -147,9 +147,6 @@ jobs:
           script: |
             set -e
 
-            corepack enable
-            corepack prepare pnpm@9 --activate
-
             echo "=== Gateway ==="
             cd /var/www/backend-prod/gateway
             pnpm install --prod
