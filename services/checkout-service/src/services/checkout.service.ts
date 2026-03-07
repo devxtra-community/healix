@@ -32,7 +32,10 @@ export class CheckoutService {
     //  GET CART
     const cart = await this.cartRepository.getCart(userId);
     if (!cart || cart.items.length === 0) {
-      throw new Error('Cart is empty');
+      return {
+        canProceed: false,
+        message: 'Cart is empty',
+      };
     }
 
     // GET ADDRESS
@@ -91,6 +94,9 @@ export class CheckoutService {
       );
 
       const price = Number(priceRes.data.finalPrice);
+      if (isNaN(price) || price <= 0) {
+        throw new Error(`Invalid price for product ${item.productId}`);
+      }
       const itemSubtotal = price * item.quantity;
 
       subtotal += itemSubtotal;

@@ -109,7 +109,7 @@ export class PricingService {
     const discount = await this.pricingRepository.findActiveDiscount();
     if (!discount) {
       return {
-        finalprice: basePrice,
+        finalPrice: basePrice,
         originalPrice: basePrice,
         discount: 0,
       };
