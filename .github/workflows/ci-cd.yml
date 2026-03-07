@@ -13,6 +13,10 @@ on:
       - main
 
 jobs:
+  # ==============================
+  # CI — BUILD & PACKAGE
+  # ==============================
+
   ci:
     name: CI (Build Backend + Frontend)
     runs-on: ubuntu-latest
@@ -65,12 +69,16 @@ jobs:
           rm -rf backend-prod
           mkdir -p backend-prod
 
+          # workspace root
+          cp package.json backend-prod/
           cp pnpm-workspace.yaml backend-prod/
           cp pnpm-lock.yaml backend-prod/
 
+          # gateway + services
           cp -r gateway backend-prod/
           cp -r services backend-prod/
 
+          # shared packages
           if [ -d packages ]; then
             cp -r packages backend-prod/
           fi
@@ -84,14 +92,14 @@ jobs:
           rm -rf frontend-prod
           mkdir -p frontend-prod
 
-          # copy standalone bundle (server.js + node_modules)
+          # standalone server bundle
           cp -r frontend/web/.next/standalone/frontend/web/. frontend-prod/
 
-          # copy Next static files
+          # static assets
           mkdir -p frontend-prod/.next
           cp -r frontend/web/.next/static frontend-prod/.next/
 
-          # copy public assets
+          # public files
           cp -r frontend/web/public frontend-prod/
 
       # ==============================
@@ -111,7 +119,7 @@ jobs:
           path: frontend-prod
 
   # ==============================
-  # DEPLOY
+  # CD — DEPLOY TO EC2
   # ==============================
 
   cd:
@@ -159,8 +167,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: 'backend-prod/*'
+          source: backend-prod/*
           target: /var/www/backend-prod
+          strip_components: 1
 
       # ==============================
       # UPLOAD FRONTEND
@@ -172,8 +181,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: 'frontend-prod/*'
+          source: frontend-prod/*
           target: /var/www/frontend-prod
+          strip_components: 1
 
       # ==============================
       # START SERVICES
@@ -195,9 +205,11 @@ jobs:
             cd /var/www/backend-prod
             pnpm install --prod
 
+
             echo "=== Gateway ==="
             cd gateway
             pm2 reload gateway || pm2 start dist/server.js --name gateway
+
 
             echo "=== Services ==="
             for dir in /var/www/backend-prod/services/*; do
@@ -206,8 +218,10 @@ jobs:
               pm2 reload "$name" || pm2 start dist/server.js --name "$name"
             done
 
+
             echo "=== Frontend ==="
             cd /var/www/frontend-prod
             pm2 reload frontend || pm2 start server.js --name frontend
+
 
             pm2 save
