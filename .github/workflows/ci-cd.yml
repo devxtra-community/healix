@@ -70,7 +70,7 @@ jobs:
       - name: Assert builds exist
         run: |
           test -d gateway/dist
-          test -d frontend/web/.next
+          test -d frontend/web/.next/standalone
 
       # -------- PACKAGE BACKEND --------
       - name: Prepare backend artifact
@@ -95,16 +95,16 @@ jobs:
             cp -r packages backend-prod/packages
           fi
 
-      # -------- PACKAGE FRONTEND --------
+      # -------- PACKAGE FRONTEND (STANDALONE BUILD) --------
       - name: Prepare frontend artifact
         run: |
           rm -rf frontend-prod
           mkdir -p frontend-prod
 
-          cp -r frontend/web/.next frontend-prod/
+          cp -r frontend/web/.next/standalone/* frontend-prod/
+          mkdir -p frontend-prod/.next
+          cp -r frontend/web/.next/static frontend-prod/.next/
           cp -r frontend/web/public frontend-prod/
-          cp frontend/web/package.json frontend-prod/
-          cp frontend/web/next.config.js frontend-prod/ || true
 
       # -------- UPLOAD ARTIFACTS --------
       - name: Upload backend artifact
@@ -173,7 +173,7 @@ jobs:
           overwrite: true
 
       # -------- SSH / START SERVICES --------
-      - name: Install deps & restart services
+      - name: Restart services
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -200,7 +200,6 @@ jobs:
 
             echo "=== Frontend ==="
             cd /var/www/frontend-prod
-            pnpm install --prod
-            pm2 reload frontend || pm2 start node_modules/next/dist/bin/next --name frontend -- start -p 3000
+            pm2 reload frontend || pm2 start server.js --name frontend
 
             pm2 save
