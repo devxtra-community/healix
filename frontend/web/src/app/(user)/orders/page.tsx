@@ -264,7 +264,6 @@ export default function OrdersPage() {
 
       await loadOrders(true);
     } catch (error) {
-      
       console.warn('Cancel request delayed, retrying status check...');
 
       // wait 2 seconds then reload orders
@@ -278,7 +277,7 @@ export default function OrdersPage() {
         } else {
           toast.error('Unable to cancel this order');
         }
-        throw(error)
+        throw error;
       }, 2000);
     } finally {
       setCancellingOrderId(null);
