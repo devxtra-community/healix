@@ -13,115 +13,117 @@ on:
       - main
 
 jobs:
-  # ==============================
-  # 🧪 CI — BUILD & PACKAGE
-  # ==============================
+# ==============================
+# 🧪 CI — BUILD & PACKAGE
+# ==============================
   ci:
     name: CI (Build Backend + Frontend)
     runs-on: ubuntu-latest
 
     steps:
-      # -------- CHECKOUT --------
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      # -------- NODE --------
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+    # -------- CHECKOUT --------
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      # -------- PNPM --------
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@9 --activate
+    # -------- NODE --------
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
-      # -------- INSTALL --------
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+    # -------- PNPM --------
+    - name: Enable pnpm
+      run: |
+        corepack enable
+        corepack prepare pnpm@9 --activate
 
-      # -------- LINT --------
-      - name: Lint backend
-        run: pnpm eslint gateway services --ext .ts
+    # -------- INSTALL --------
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
 
-      # -------- BUILD BACKEND --------
-      - name: Build Gateway
-        run: |
-          cd gateway
-          pnpm build
+    # -------- LINT --------
+    - name: Lint backend
+      run: pnpm eslint gateway services --ext .ts
 
-      - name: Build Services
-        run: |
-          for dir in services/*; do
-            if [ -f "$dir/package.json" ]; then
-              echo "Building $dir"
-              (cd "$dir" && pnpm build)
-            fi
-          done
+    # -------- BUILD BACKEND --------
+    - name: Build Gateway
+      run: |
+        cd gateway
+        pnpm build
 
-      # -------- BUILD FRONTEND --------
-      - name: Build Frontend
-        run: |
-          cd frontend/web
-          pnpm build
-
-      # -------- ASSERT --------
-      - name: Assert builds exist
-        run: |
-          test -d gateway/dist
-          test -d frontend/web/.next/standalone
-
-      # -------- PACKAGE BACKEND --------
-      - name: Prepare backend artifact
-        run: |
-          rm -rf backend-prod
-          mkdir -p backend-prod/gateway
-          mkdir -p backend-prod/services
-
-          cp -r gateway/dist backend-prod/gateway/
-          cp gateway/package.json backend-prod/gateway/
-
-          for dir in services/*; do
-            if [ -d "$dir/dist" ]; then
-              name=$(basename "$dir")
-              mkdir -p backend-prod/services/$name
-              cp -r "$dir/dist" backend-prod/services/$name/
-              cp "$dir/package.json" backend-prod/services/$name/
-            fi
-          done
-
-          if [ -d packages ]; then
-            cp -r packages backend-prod/packages
+    - name: Build Services
+      run: |
+        for dir in services/*; do
+          if [ -f "$dir/package.json" ]; then
+            echo "Building $dir"
+            (cd "$dir" && pnpm build)
           fi
+        done
 
-      # -------- PACKAGE FRONTEND (STANDALONE BUILD) --------
-      - name: Prepare frontend artifact
-        run: |
-          rm -rf frontend-prod
-          mkdir -p frontend-prod
+    # -------- BUILD FRONTEND --------
+    - name: Build Frontend
+      run: |
+        cd frontend/web
+        pnpm build
 
-          cp -r frontend/web/.next/standalone/* frontend-prod/
-          mkdir -p frontend-prod/.next
-          cp -r frontend/web/.next/static frontend-prod/.next/
-          cp -r frontend/web/public frontend-prod/
+    # -------- ASSERT --------
+    - name: Assert builds exist
+      run: |
+        test -d gateway/dist
+        test -d frontend/web/.next
 
-      # -------- UPLOAD ARTIFACTS --------
-      - name: Upload backend artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-prod
-          path: backend-prod
+    # -------- PACKAGE BACKEND --------
+    - name: Prepare backend artifact
+      run: |
+        rm -rf backend-prod
+        mkdir -p backend-prod/gateway
+        mkdir -p backend-prod/services
 
-      - name: Upload frontend artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-prod
-          path: frontend-prod
+        cp -r gateway/dist backend-prod/gateway/
+        cp gateway/package.json backend-prod/gateway/
 
-  # ==============================
-  # 🚀 CD — DEPLOY TO EC2
-  # ==============================
+        for dir in services/*; do
+          if [ -d "$dir/dist" ]; then
+            name=$(basename "$dir")
+            mkdir -p backend-prod/services/$name
+            cp -r "$dir/dist" backend-prod/services/$name/
+            cp "$dir/package.json" backend-prod/services/$name/
+          fi
+        done
+
+        if [ -d packages ]; then
+          cp -r packages backend-prod/packages
+        fi
+
+    # -------- PACKAGE FRONTEND --------
+    - name: Prepare frontend artifact
+      run: |
+        rm -rf frontend-prod
+        mkdir -p frontend-prod
+
+        cp -r frontend/web/.next frontend-prod/
+        cp -r frontend/web/public frontend-prod/
+        cp frontend/web/package.json frontend-prod/
+        cp frontend/web/pnpm-lock.yaml frontend-prod/
+
+    # -------- UPLOAD ARTIFACTS --------
+    - name: Upload backend artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-prod
+        path: backend-prod
+
+    - name: Upload frontend artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-prod
+        path: frontend-prod
+
+
+# ==============================
+# 🚀 CD — DEPLOY TO EC2
+# ==============================
   cd:
     name: CD (Deploy to EC2)
     needs: ci
@@ -129,77 +131,79 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # -------- DOWNLOAD ARTIFACTS --------
-      - name: Download backend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-prod
-          path: backend-prod
 
-      - name: Download frontend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-prod
-          path: frontend-prod
+    # -------- DOWNLOAD ARTIFACTS --------
+    - name: Download backend artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-prod
+        path: backend-prod
 
-      # -------- DEBUG --------
-      - name: Debug artifacts
-        run: |
-          echo "===== backend ====="
-          ls -R backend-prod
-          echo "===== frontend ====="
-          ls -R frontend-prod
+    - name: Download frontend artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-prod
+        path: frontend-prod
 
-      # -------- UPLOAD BACKEND --------
-      - name: Upload backend to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: backend-prod
-          target: /var/www
-          overwrite: true
+    # -------- DEBUG --------
+    - name: Debug artifacts
+      run: |
+        echo "===== backend ====="
+        ls -R backend-prod
+        echo "===== frontend ====="
+        ls -R frontend-prod
 
-      # -------- UPLOAD FRONTEND --------
-      - name: Upload frontend to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: frontend-prod
-          target: /var/www
-          overwrite: true
+    # -------- UPLOAD BACKEND --------
+    - name: Upload backend to EC2
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: backend-prod
+        target: /var/www
+        overwrite: true
 
-      # -------- SSH / START SERVICES --------
-      - name: Restart services
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            set -e
+    # -------- UPLOAD FRONTEND --------
+    - name: Upload frontend to EC2
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: frontend-prod
+        target: /var/www
+        overwrite: true
 
-            export PNPM_HOME="$HOME/.local/share/pnpm"
-            export PATH="$PNPM_HOME:$PATH"
+    # -------- SSH / START SERVICES --------
+    - name: Restart services
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          set -e
 
-            echo "=== Gateway ==="
-            cd /var/www/backend-prod/gateway
+          export PNPM_HOME="$HOME/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+
+          echo "=== Gateway ==="
+          cd /var/www/backend-prod/gateway
+          pnpm install --prod
+          pm2 reload gateway || pm2 start dist/server.js --name gateway
+
+          echo "=== Services ==="
+          for dir in /var/www/backend-prod/services/*; do
+            cd "$dir"
+            name=$(basename "$dir")
             pnpm install --prod
-            pm2 reload gateway || pm2 start dist/server.js --name gateway
+            pm2 reload "$name" || pm2 start dist/server.js --name "$name"
+          done
 
-            echo "=== Services ==="
-            for dir in /var/www/backend-prod/services/*; do
-              cd "$dir"
-              name=$(basename "$dir")
-              pnpm install --prod
-              pm2 reload "$name" || pm2 start dist/server.js --name "$name"
-            done
+          echo "=== Frontend ==="
+          cd /var/www/frontend-prod
+          pnpm install --prod
+          pm2 reload frontend || pm2 start node_modules/next/dist/bin/next --name frontend -- start -p 3000
 
-            echo "=== Frontend ==="
-            cd /var/www/frontend-prod
-            pm2 reload frontend || pm2 start server.js --name frontend
-
-            pm2 save
+          pm2 save
