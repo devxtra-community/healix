@@ -13,9 +13,6 @@ on:
       - main
 
 jobs:
-  # ==============================
-  # 🧪 CI — BUILD & PACKAGE
-  # ==============================
   ci:
     name: CI (Build Backend + Frontend)
     runs-on: ubuntu-latest
@@ -60,7 +57,7 @@ jobs:
           pnpm build
 
       # ==============================
-      # 📦 PACKAGE BACKEND
+      # PACKAGE BACKEND
       # ==============================
 
       - name: Prepare backend artifact
@@ -79,7 +76,7 @@ jobs:
           fi
 
       # ==============================
-      # 📦 PACKAGE FRONTEND (STANDALONE)
+      # PACKAGE FRONTEND (STANDALONE)
       # ==============================
 
       - name: Prepare frontend artifact
@@ -87,18 +84,18 @@ jobs:
           rm -rf frontend-prod
           mkdir -p frontend-prod
 
-          # standalone server bundle
-          cp -r frontend/web/.next/standalone/frontend/web/* frontend-prod/
+          # copy standalone bundle (server.js + node_modules)
+          cp -r frontend/web/.next/standalone/frontend/web/. frontend-prod/
 
-          # static assets
+          # copy Next static files
           mkdir -p frontend-prod/.next
           cp -r frontend/web/.next/static frontend-prod/.next/
 
-          # public files
+          # copy public assets
           cp -r frontend/web/public frontend-prod/
 
       # ==============================
-      # ⬆️ UPLOAD ARTIFACTS
+      # UPLOAD ARTIFACTS
       # ==============================
 
       - name: Upload backend artifact
@@ -114,7 +111,7 @@ jobs:
           path: frontend-prod
 
   # ==============================
-  # 🚀 CD — DEPLOY TO EC2
+  # DEPLOY
   # ==============================
 
   cd:
@@ -137,7 +134,7 @@ jobs:
           path: frontend-prod
 
       # ==============================
-      # 🧹 CLEAN SERVER
+      # CLEAN SERVER
       # ==============================
 
       - name: Clean previous deploy
@@ -153,7 +150,7 @@ jobs:
             mkdir -p /var/www/frontend-prod
 
       # ==============================
-      # ⬆️ UPLOAD BACKEND
+      # UPLOAD BACKEND
       # ==============================
 
       - name: Upload backend
@@ -162,12 +159,11 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: backend-prod/*
+          source: 'backend-prod/*'
           target: /var/www/backend-prod
-          strip_components: 1
 
       # ==============================
-      # ⬆️ UPLOAD FRONTEND
+      # UPLOAD FRONTEND
       # ==============================
 
       - name: Upload frontend
@@ -176,12 +172,11 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: frontend-prod/*
+          source: 'frontend-prod/*'
           target: /var/www/frontend-prod
-          strip_components: 1
 
       # ==============================
-      # 🔄 START SERVICES
+      # START SERVICES
       # ==============================
 
       - name: Restart services
@@ -196,16 +191,13 @@ jobs:
             export PNPM_HOME="$HOME/.local/share/pnpm"
             export PATH="$PNPM_HOME:$PATH"
 
-
             echo "=== Install workspace dependencies ==="
             cd /var/www/backend-prod
             pnpm install --prod
 
-
             echo "=== Gateway ==="
             cd gateway
             pm2 reload gateway || pm2 start dist/server.js --name gateway
-
 
             echo "=== Services ==="
             for dir in /var/www/backend-prod/services/*; do
@@ -214,11 +206,8 @@ jobs:
               pm2 reload "$name" || pm2 start dist/server.js --name "$name"
             done
 
-
             echo "=== Frontend ==="
             cd /var/www/frontend-prod
-
             pm2 reload frontend || pm2 start server.js --name frontend
-
 
             pm2 save
