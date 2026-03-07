@@ -18,5 +18,5 @@ export const env = {
   stripeSecretKey,
   stripeWebHookSecretKey: process.env.STRIPE_WEBHOOK_SECRET!,
   redis_url: process.env.REDIS_URL,
-  productServiceUrl: process.env.PRODUCT_SERVICE_URL!
+  productServiceUrl: process.env.PRODUCT_SERVICE_URL!,
 };
