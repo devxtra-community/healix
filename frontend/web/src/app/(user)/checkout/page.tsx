@@ -14,9 +14,9 @@ import { cartService } from '@/src/services/cart.service';
 type CartItem = {
   variantId: string;
   name: string;
-  quantity: number;
-  price: number;
-  subtotal: number;
+  quantity?: number;
+  price?: number;
+  subtotal?: number;
 };
 
 type CartResponse = {
@@ -57,14 +57,13 @@ export default function CheckoutPage() {
     loadCheckoutContext();
   }, []);
 
-  const total = useMemo(
-    () =>
-      items.reduce(
-        (sum, item) => sum + (item.subtotal || item.price * item.quantity),
-        0,
-      ),
-    [items],
-  );
+  const total = useMemo(() => {
+    return items.reduce((sum, item) => {
+      const subtotal =
+        item.subtotal ?? (item.price ?? 0) * (item.quantity ?? 0);
+      return sum + subtotal;
+    }, 0);
+  }, [items]);
 
   const placeOrder = async () => {
     if (!selectedAddressId) {
@@ -88,6 +87,7 @@ export default function CheckoutPage() {
     }
 
     setPlacingOrder(true);
+
     try {
       const res = await checkoutService.checkout({
         addressId: selectedAddressId,
@@ -111,6 +111,7 @@ export default function CheckoutPage() {
       }
 
       toast.success('Redirecting to Stripe payment');
+
       router.push(
         `/checkout/stripe?clientSecret=${encodeURIComponent(
           res.paymentIntentClientSecret,
@@ -137,12 +138,14 @@ export default function CheckoutPage() {
         </p>
       </section>
 
+      {/* Addresses */}
       <section className="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100">
         <div className="flex items-center justify-between gap-3 mb-4">
           <h2 className="font-semibold text-lg flex items-center gap-2">
             <MapPinHouse className="h-5 w-5" />
             Saved Addresses
           </h2>
+
           <button
             className="text-sm text-blue-600 hover:text-blue-700"
             onClick={() => router.push('/addresses')}
@@ -175,10 +178,12 @@ export default function CheckoutPage() {
                     onChange={() => setSelectedAddressId(address._id)}
                     className="mt-1"
                   />
+
                   <div>
                     <p className="font-medium capitalize">
                       {address.addressType}
                     </p>
+
                     <p className="text-sm text-gray-700">
                       {address.addressLine1}
                       {address.addressLine2 ? `, ${address.addressLine2}` : ''}
@@ -192,11 +197,13 @@ export default function CheckoutPage() {
         )}
       </section>
 
+      {/* Payment */}
       <section className="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100">
         <h2 className="font-semibold text-lg flex items-center gap-2 mb-4">
           <CreditCard className="h-5 w-5" />
           Payment Method
         </h2>
+
         <div className="grid sm:grid-cols-2 gap-3">
           <button
             onClick={() => setPaymentMethod('COD')}
@@ -207,7 +214,7 @@ export default function CheckoutPage() {
             }`}
           >
             <p className="font-medium">Cash on Delivery</p>
-            <p className="text-sm text-gray-600">Pay when order is delivered</p>
+            <p className="text-sm text-gray-600">Pay when delivered</p>
           </button>
 
           <button
@@ -220,12 +227,13 @@ export default function CheckoutPage() {
           >
             <p className="font-medium">Stripe</p>
             <p className="text-sm text-gray-600">
-              Card or other supported Stripe methods
+              Card or other Stripe payment methods
             </p>
           </button>
         </div>
       </section>
 
+      {/* Summary */}
       <section className="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100">
         <h2 className="font-semibold text-lg flex items-center gap-2 mb-4">
           <Truck className="h-5 w-5" />
@@ -236,19 +244,23 @@ export default function CheckoutPage() {
           <p className="text-sm text-gray-600">Your cart is empty.</p>
         ) : (
           <div className="space-y-3 mb-5">
-            {items.map((item) => (
-              <div
-                key={item.variantId}
-                className="flex items-center justify-between text-sm"
-              >
-                <p className="text-gray-700">
-                  {item.name} x {item.quantity}
-                </p>
-                <p className="font-medium">
-                  ₹{(item.subtotal || item.price * item.quantity).toFixed(2)}
-                </p>
-              </div>
-            ))}
+            {items.map((item) => {
+              const subtotal =
+                item.subtotal ?? (item.price ?? 0) * (item.quantity ?? 0);
+
+              return (
+                <div
+                  key={item.variantId}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <p className="text-gray-700">
+                    {item.name} x {item.quantity ?? 0}
+                  </p>
+
+                  <p className="font-medium">₹{subtotal.toFixed(2)}</p>
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -262,7 +274,7 @@ export default function CheckoutPage() {
           disabled={
             placingOrder || items.length === 0 || addresses.length === 0
           }
-          className="mt-5 w-full bg-[#00e676] hover:bg-[#00c853] text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-5 w-full bg-[#00e676] hover:bg-[#00c853] text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {placingOrder ? 'Processing...' : 'Place Order'}
           <ArrowRight size={18} />

@@ -113,6 +113,8 @@ export class CheckoutService {
       });
     }
 
+    console.log(availableItems)
+
     const order: Order = {
       orderId,
       orderNumber,
@@ -128,7 +130,7 @@ export class CheckoutService {
       createdAt: now,
       updatedAt: now,
     };
-    console.log(order);
+    // console.log(order);
     //  CREATE ORDER
     await this.orderRepository.createOrder(order);
 
