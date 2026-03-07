@@ -13,15 +13,14 @@ on:
       - main
 
 jobs:
-# ==============================
-# 🧪 CI — BUILD & PACKAGE
-# ==============================
+  # ==============================
+  # 🧪 CI — BUILD & PACKAGE
+  # ==============================
   ci:
     name: CI (Build Backend + Frontend)
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -60,8 +59,8 @@ jobs:
           cd frontend/web
           pnpm build
 
-
       # -------- PACKAGE BACKEND --------
+
       - name: Prepare backend artifact
         run: |
           rm -rf backend-prod
@@ -77,18 +76,24 @@ jobs:
             cp -r packages backend-prod/
           fi
 
+      # -------- PACKAGE FRONTEND (STANDALONE) --------
 
-      # -------- PACKAGE FRONTEND --------
       - name: Prepare frontend artifact
         run: |
           rm -rf frontend-prod
-          mkdir frontend-prod
+          mkdir -p frontend-prod
 
-          cp -r frontend/web/.next frontend-prod/
+          # standalone server bundle
+          cp -r frontend/web/.next/standalone/frontend/web/* frontend-prod/
+
+          # static assets
+          mkdir -p frontend-prod/.next
+          cp -r frontend/web/.next/static frontend-prod/.next/
+
+          # public files
           cp -r frontend/web/public frontend-prod/
-          cp frontend/web/package.json frontend-prod/
-          cp frontend/web/pnpm-lock.yaml frontend-prod/
 
+      # -------- UPLOAD ARTIFACTS --------
 
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
@@ -102,11 +107,10 @@ jobs:
           name: frontend-prod
           path: frontend-prod
 
+  # ==============================
+  # 🚀 CD — DEPLOY TO EC2
+  # ==============================
 
-
-# ==============================
-# 🚀 CD — DEPLOY TO EC2
-# ==============================
   cd:
     name: CD (Deploy to EC2)
     needs: ci
@@ -114,7 +118,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Download backend artifact
         uses: actions/download-artifact@v4
         with:
@@ -127,8 +130,8 @@ jobs:
           name: frontend-prod
           path: frontend-prod
 
-
       # -------- CLEAN SERVER --------
+
       - name: Clean previous deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -139,8 +142,8 @@ jobs:
             rm -rf /var/www/backend-prod
             rm -rf /var/www/frontend-prod
 
-
       # -------- UPLOAD BACKEND --------
+
       - name: Upload backend
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -150,8 +153,8 @@ jobs:
           source: backend-prod
           target: /var/www
 
-
       # -------- UPLOAD FRONTEND --------
+
       - name: Upload frontend
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -161,8 +164,8 @@ jobs:
           source: frontend-prod
           target: /var/www
 
-
       # -------- START SERVICES --------
+
       - name: Restart services
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -195,8 +198,9 @@ jobs:
 
             echo "=== Frontend ==="
             cd /var/www/frontend-prod
-            pnpm install --prod
-            pm2 reload frontend || pm2 start node_modules/next/dist/bin/next --name frontend -- start -p 3000
+
+            # standalone server start
+            pm2 reload frontend || pm2 start server.js --name frontend
 
 
             pm2 save
