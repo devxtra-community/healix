@@ -74,7 +74,7 @@ jobs:
           cp pnpm-workspace.yaml backend-prod/
           cp pnpm-lock.yaml backend-prod/
 
-          # gateway + services
+          # services + gateway
           cp -r gateway backend-prod/
           cp -r services backend-prod/
 
@@ -95,11 +95,11 @@ jobs:
           # standalone server bundle
           cp -r frontend/web/.next/standalone/frontend/web/. frontend-prod/
 
-          # static assets
+          # next static assets
           mkdir -p frontend-prod/.next
           cp -r frontend/web/.next/static frontend-prod/.next/
 
-          # public files
+          # public assets
           cp -r frontend/web/public frontend-prod/
 
       # ==============================
@@ -203,7 +203,9 @@ jobs:
 
             echo "=== Install workspace dependencies ==="
             cd /var/www/backend-prod
-            pnpm install --prod
+
+            # disable husky + lifecycle scripts
+            HUSKY=0 pnpm install --prod --ignore-scripts
 
 
             echo "=== Gateway ==="
