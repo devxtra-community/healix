@@ -1,11 +1,12 @@
 import { Router } from 'express';
+import express from 'express';
 import { StripeWebHookController } from '../../controllers/stripe.webhook.controller.js';
 import { PaymentService } from '../../services/payment.service.js';
 import { OrderService } from '../../services/order.service.js';
 
 import { DynamoPaymentRepository } from '../../repositories/payment.repository.dynamo.js';
 import { DynamoOrderRepository } from '../../repositories/order.repository.dynamo.js';
-import { DynamoCartRepository } from '../../repositories/cart.repository.dynamo.js';
+import { cartRepository } from '../../repositories/cart.repository.factory.js';
 
 import { webhookIdempotency } from '../../utils/webhook-idempotency.js';
 import { redis } from '../../config/redis.js';
@@ -16,21 +17,26 @@ const router = Router();
 
 const paymentRepo = new DynamoPaymentRepository();
 const orderRepo = new DynamoOrderRepository();
-const cartRepo = new DynamoCartRepository();
 const refundRepo = new DynamoRefundRepository();
+
 const paymentService = new PaymentService(paymentRepo);
 const refundService = new RefundService(refundRepo, paymentRepo);
-const orderService = new OrderService(orderRepo, refundService);
+const orderService = new OrderService(orderRepo, refundService, paymentRepo);
 
 const webhookidempotency = new webhookIdempotency(redis);
 
 const webhookcontroller = new StripeWebHookController(
   paymentService,
   orderService,
-  cartRepo,
+  cartRepository,
   webhookidempotency,
   refundRepo,
 );
-router.post('/', webhookcontroller.handle);
+
+router.post(
+  '/',
+  express.raw({ type: 'application/json' }),
+  webhookcontroller.handle,
+);
 
 export default router;

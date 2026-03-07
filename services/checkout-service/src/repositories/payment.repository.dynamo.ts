@@ -1,4 +1,9 @@
-import { PutCommand, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  PutCommand,
+  UpdateCommand,
+  QueryCommand,
+  ScanCommand,
+} from '@aws-sdk/lib-dynamodb';
 import { dynamoDB } from '../config/db.js';
 import { PaymentRepository } from './payment.repository.js';
 import { Payment } from '../domain/payment.types.js';
@@ -46,17 +51,41 @@ export class DynamoPaymentRepository implements PaymentRepository {
   }
 
   async getByPaymentIntent(paymentIntentId: string): Promise<Payment | null> {
-    const res = await dynamoDB.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: 'paymentIntent-index',
-        KeyConditionExpression: 'stripePaymentIntentId = :pid',
-        ExpressionAttributeValues: {
-          ':pid': paymentIntentId,
-        },
-      }),
-    );
-    return (res.Items?.[0] as Payment) ?? null;
+    try {
+      const res = await dynamoDB.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: 'paymentIntent-index',
+          KeyConditionExpression: 'stripePaymentIntentId = :pid',
+          ExpressionAttributeValues: {
+            ':pid': paymentIntentId,
+          },
+        }),
+      );
+      return (res.Items?.[0] as Payment) ?? null;
+    } catch (error) {
+      const isMissingIndex =
+        error instanceof Error &&
+        error.name === 'ValidationException' &&
+        error.message.includes('specified index');
+
+      if (!isMissingIndex) {
+        throw error;
+      }
+
+      const fallback = await dynamoDB.send(
+        new ScanCommand({
+          TableName: TABLE_NAME,
+          FilterExpression: 'stripePaymentIntentId = :pid',
+          ExpressionAttributeValues: {
+            ':pid': paymentIntentId,
+          },
+          Limit: 1,
+        }),
+      );
+
+      return (fallback.Items?.[0] as Payment) ?? null;
+    }
   }
   async getByOrder(orderId: string): Promise<Payment | null> {
     const res = await dynamoDB.send(

@@ -1,26 +1,12 @@
-'use client';
+import { Suspense } from 'react';
+import OAuthSuccessClient from './OAuthSuccessClient';
 
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+export const dynamic = 'force-dynamic';
 
-export default function OAuthSuccessPage() {
-  const router = useRouter();
-  const params = useSearchParams();
-
-  useEffect(() => {
-    const accessToken = params.get('accessToken');
-    const refreshToken = params.get('refreshToken');
-
-    if (accessToken) {
-      // save cookie for middleware
-      document.cookie = `accessToken=${accessToken}; path=/`;
-      document.cookie = `refreshToken=${refreshToken}; path=/`;
-
-      router.replace('/store');
-    } else {
-      router.replace('/login');
-    }
-  }, [params, router]);
-
-  return <p>Logging you in...</p>;
+export default function Page() {
+  return (
+    <Suspense fallback={<p>Logging you in...</p>}>
+      <OAuthSuccessClient />
+    </Suspense>
+  );
 }

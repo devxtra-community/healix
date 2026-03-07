@@ -6,7 +6,10 @@ export class CheckoutController {
   checkOut = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.headers['x-user-id'] as string;
-      const { addressId } = req.body;
+      const { addressId, paymentMethod } = req.body as {
+        addressId?: string;
+        paymentMethod?: 'STRIPE' | 'COD';
+      };
 
       if (!userId) {
         return res.status(401).json({ message: 'Unauthorized' });
@@ -16,7 +19,15 @@ export class CheckoutController {
         return res.status(400).json({ message: 'addressId is required' });
       }
 
-      const result = await this.checkoutService.checkOut(userId, addressId);
+      if (paymentMethod && !['STRIPE', 'COD'].includes(paymentMethod)) {
+        return res.status(400).json({ message: 'Invalid payment method' });
+      }
+
+      const result = await this.checkoutService.checkOut(
+        userId,
+        addressId,
+        paymentMethod ?? 'STRIPE',
+      );
       res.status(201).json(result);
     } catch (error) {
       next(error);

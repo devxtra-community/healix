@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { CartController } from '../../controllers/cart.controller.js';
 import { CartService } from '../../services/cart.service.js';
-import { DynamoCartRepository } from '../../repositories/cart.repository.dynamo.js';
+import { cartRepository } from '../../repositories/cart.repository.factory.js';
 
 const route = Router();
 
-const cartRepository = new DynamoCartRepository();
 const cartService = new CartService(cartRepository);
 const cartController = new CartController(cartService);
 route.get('/', cartController.getCart);

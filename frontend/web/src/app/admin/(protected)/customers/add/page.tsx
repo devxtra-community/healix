@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { ArrowLeft, Save } from 'lucide-react';
-import CustomerForm from '@/src/components/admin/customers/CustomerForm';
 
 export default function AddCustomerPage() {
   return (
@@ -36,7 +35,7 @@ export default function AddCustomerPage() {
         </div>
       </div>
 
-      <CustomerForm />
+      {/* <CustomerForm /> */}
     </div>
   );
 }

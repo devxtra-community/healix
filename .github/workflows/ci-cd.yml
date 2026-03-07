@@ -1,4 +1,4 @@
-name: Backend CI/CD
+name: Healix CI/CD
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
       - gateway/**
       - services/**
       - packages/**
+      - frontend/web/**
   pull_request:
     branches:
       - main
@@ -16,7 +17,7 @@ jobs:
   # 🧪 CI — BUILD & PACKAGE
   # ==============================
   ci:
-    name: CI (Build Backend)
+    name: CI (Build Backend + Frontend)
     runs-on: ubuntu-latest
 
     steps:
@@ -44,7 +45,7 @@ jobs:
       - name: Lint backend
         run: pnpm eslint gateway services --ext .ts
 
-      # -------- BUILD --------
+      # -------- BUILD BACKEND --------
       - name: Build Gateway
         run: |
           cd gateway
@@ -59,31 +60,28 @@ jobs:
             fi
           done
 
+      # -------- BUILD FRONTEND --------
+      - name: Build Frontend
+        run: |
+          cd frontend/web
+          pnpm build
+
       # -------- ASSERT --------
-      - name: Assert dist exists
+      - name: Assert builds exist
         run: |
           test -d gateway/dist
-          found=false
-          for dir in services/*; do
-            if [ -d "$dir/dist" ]; then
-              echo "✔ $dir built"
-              found=true
-            fi
-          done
-          $found
+          test -d frontend/web/.next
 
-      # -------- PACKAGE ARTIFACT --------
+      # -------- PACKAGE BACKEND --------
       - name: Prepare backend artifact
         run: |
           rm -rf backend-prod
           mkdir -p backend-prod/gateway
           mkdir -p backend-prod/services
 
-          # Gateway
           cp -r gateway/dist backend-prod/gateway/
           cp gateway/package.json backend-prod/gateway/
 
-          # Services
           for dir in services/*; do
             if [ -d "$dir/dist" ]; then
               name=$(basename "$dir")
@@ -93,40 +91,66 @@ jobs:
             fi
           done
 
-          # Shared packages (runtime dependency)
           if [ -d packages ]; then
             cp -r packages backend-prod/packages
           fi
 
-      # -------- UPLOAD ARTIFACT --------
+      # -------- PACKAGE FRONTEND --------
+      - name: Prepare frontend artifact
+        run: |
+          rm -rf frontend-prod
+          mkdir -p frontend-prod
+
+          cp -r frontend/web/.next frontend-prod/
+          cp -r frontend/web/public frontend-prod/
+          cp frontend/web/package.json frontend-prod/
+          cp frontend/web/next.config.js frontend-prod/ || true
+
+      # -------- UPLOAD ARTIFACTS --------
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend-prod
           path: backend-prod
 
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-prod
+          path: frontend-prod
+
   # ==============================
   # 🚀 CD — DEPLOY TO EC2
   # ==============================
   cd:
-    name: CD (Deploy Backend to EC2)
+    name: CD (Deploy to EC2)
     needs: ci
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
+      # -------- DOWNLOAD ARTIFACTS --------
       - name: Download backend artifact
         uses: actions/download-artifact@v4
         with:
           name: backend-prod
           path: backend-prod
 
-      - name: Debug artifact
-        run: |
-          echo "===== backend-prod ====="
-          ls -R backend-prod
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-prod
+          path: frontend-prod
 
-      # -------- SCP (WHOLE FOLDER) --------
+      # -------- DEBUG --------
+      - name: Debug artifacts
+        run: |
+          echo "===== backend ====="
+          ls -R backend-prod
+          echo "===== frontend ====="
+          ls -R frontend-prod
+
+      # -------- UPLOAD BACKEND --------
       - name: Upload backend to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -137,8 +161,19 @@ jobs:
           target: /var/www
           overwrite: true
 
-      # -------- SSH / PM2 --------
-      - name: Install prod deps & restart
+      # -------- UPLOAD FRONTEND --------
+      - name: Upload frontend to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: frontend-prod
+          target: /var/www
+          overwrite: true
+
+      # -------- SSH / START SERVICES --------
+      - name: Install deps & restart services
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -146,6 +181,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
+
+            export PNPM_HOME="$HOME/.local/share/pnpm"
+            export PATH="$PNPM_HOME:$PATH"
 
             echo "=== Gateway ==="
             cd /var/www/backend-prod/gateway
@@ -159,5 +197,10 @@ jobs:
               pnpm install --prod
               pm2 reload "$name" || pm2 start dist/server.js --name "$name"
             done
+
+            echo "=== Frontend ==="
+            cd /var/www/frontend-prod
+            pnpm install --prod
+            pm2 reload frontend || pm2 start node_modules/next/dist/bin/next --name frontend -- start -p 3000
 
             pm2 save

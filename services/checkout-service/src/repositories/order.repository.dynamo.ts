@@ -40,17 +40,41 @@ export class DynamoOrderRepository implements OrderRespository {
     return (res.Item as Order) ?? null;
   }
   async getUserOrders(userId: string): Promise<Order[]> {
-    const res = await dynamoDB.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: 'GSI1',
-        KeyConditionExpression: 'GSI1PK = :pk',
-        ExpressionAttributeValues: {
-          ':pk': `USER#${userId}`,
-        },
-      }),
-    );
-    return (res.Items as Order[]) ?? [];
+    try {
+      const res = await dynamoDB.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: 'GSI1',
+          KeyConditionExpression: 'GSI1PK = :pk',
+          ExpressionAttributeValues: {
+            ':pk': `USER#${userId}`,
+          },
+        }),
+      );
+      return (res.Items as Order[]) ?? [];
+    } catch (error) {
+      // Some environments do not have GSI1 created yet.
+      const isMissingIndex =
+        error instanceof Error &&
+        error.name === 'ValidationException' &&
+        error.message.includes('specified index');
+
+      if (!isMissingIndex) {
+        throw error;
+      }
+
+      const fallback = await dynamoDB.send(
+        new ScanCommand({
+          TableName: TABLE_NAME,
+          FilterExpression: 'userId = :userId',
+          ExpressionAttributeValues: {
+            ':userId': userId,
+          },
+        }),
+      );
+
+      return (fallback.Items as Order[]) ?? [];
+    }
   }
 
   async getAllOrders(): Promise<Order[]> {

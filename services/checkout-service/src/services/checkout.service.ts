@@ -14,7 +14,11 @@ export class CheckoutService {
     private paymentService: PaymentService,
   ) {}
 
-  async checkOut(userId: string, addressId: string) {
+  async checkOut(
+    userId: string,
+    addressId: string,
+    paymentMethod: 'STRIPE' | 'COD' = 'STRIPE',
+  ) {
     const existingOrder =
       await this.orderRepository.getPendingOrderByUser(userId);
     if (existingOrder) {
@@ -28,7 +32,10 @@ export class CheckoutService {
     //  GET CART
     const cart = await this.cartRepository.getCart(userId);
     if (!cart || cart.items.length === 0) {
-      throw new Error('Cart is empty');
+      return {
+        canProceed: false,
+        message: 'Cart is empty',
+      };
     }
 
     // GET ADDRESS
@@ -36,7 +43,7 @@ export class CheckoutService {
       `${process.env.USER_SERVICE_URL}/address/${addressId}`,
       { headers: { 'x-user-id': userId } },
     );
-    const addressSnapshot = addressRes.data;
+    const addressSnapshot = addressRes.data?.data ?? addressRes.data;
 
     // CHECK AVAILABILITY
 
@@ -87,6 +94,9 @@ export class CheckoutService {
       );
 
       const price = Number(priceRes.data.finalPrice);
+      if (isNaN(price) || price <= 0) {
+        throw new Error(`Invalid price for product ${item.productId}`);
+      }
       const itemSubtotal = price * item.quantity;
 
       subtotal += itemSubtotal;
@@ -95,12 +105,15 @@ export class CheckoutService {
         productId: item.productId,
         variantId: item.variantId,
         name: item.name,
+        image: item.image,
         quantity: item.quantity,
         price,
         subtotal: itemSubtotal,
         attributes: item.attributes,
       });
     }
+
+    console.log(availableItems);
 
     const order: Order = {
       orderId,
@@ -111,40 +124,46 @@ export class CheckoutService {
       subtotal,
       totalAmount: subtotal,
       currency: 'INR',
+      paymentMethod,
       paymentStatus: 'PENDING',
       fulfillmentStatus: 'PLACED',
       createdAt: now,
       updatedAt: now,
     };
-    console.log(order);
+    // console.log(order);
     //  CREATE ORDER
     await this.orderRepository.createOrder(order);
 
-    //  CREATE PAYMENT INTENT
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(order.totalAmount * 100),
-      currency: 'inr',
-      automatic_payment_methods: {
-        enabled: true,
-      },
-      metadata: {
-        orderId,
-        userId,
-        items: JSON.stringify(
-          order.items.map((i) => ({
-            versionId: i.variantId,
-            quantity: i.quantity,
-          })),
-        ),
-      },
-    });
+    const paymentIntentMetadata = {
+      orderId,
+      userId,
+      items: JSON.stringify(
+        order.items.map((i) => ({
+          versionId: i.variantId,
+          quantity: i.quantity,
+        })),
+      ),
+    };
+
+    const paymentIntent =
+      paymentMethod === 'STRIPE'
+        ? await stripe.paymentIntents.create({
+            amount: Math.round(order.totalAmount * 100),
+            currency: 'inr',
+            automatic_payment_methods: {
+              enabled: true,
+            },
+            metadata: paymentIntentMetadata,
+          })
+        : null;
 
     const payment = await this.paymentService.createPendingPayment(
       order.orderId,
       userId,
-      paymentIntent.id,
       order.totalAmount,
       order.currency,
+      paymentMethod,
+      paymentIntent?.id,
     );
 
     await this.orderRepository.updatePaymentId(
@@ -203,10 +222,32 @@ export class CheckoutService {
 
       throw new Error('Stock reservation failed');
     }
+
+    if (paymentMethod === 'COD') {
+      for (const item of order.items) {
+        await axios.post(
+          `${process.env.PRODUCT_SERVICE_URL}/product/stocks/confirm`,
+          {
+            versionId: item.variantId,
+            quantity: item.quantity,
+          },
+        );
+      }
+
+      await this.cartRepository.clearCart(userId);
+
+      return {
+        canProceed: true,
+        orderId: order.orderId,
+        paymentMethod: 'COD' as const,
+      };
+    }
+
     return {
       canProceed: true,
       orderId: order.orderId,
-      paymentIntentClientSecret: paymentIntent.client_secret,
+      paymentMethod: 'STRIPE' as const,
+      paymentIntentClientSecret: paymentIntent?.client_secret ?? null,
     };
   }
 }
