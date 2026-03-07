@@ -13,6 +13,9 @@ on:
       - main
 
 jobs:
+  # ==============================
+  # 🧪 CI — BUILD & PACKAGE
+  # ==============================
   ci:
     name: CI (Build Backend + Frontend)
     runs-on: ubuntu-latest
@@ -56,6 +59,7 @@ jobs:
           cd frontend/web
           pnpm build
 
+      # -------- PACKAGE BACKEND --------
       - name: Prepare backend artifact
         run: |
           rm -rf backend-prod
@@ -78,10 +82,11 @@ jobs:
             cp -r packages backend-prod/packages
           fi
 
+      # -------- PACKAGE FRONTEND --------
       - name: Prepare frontend artifact
         run: |
           rm -rf frontend-prod
-          mkdir -p frontend-prod
+          mkdir frontend-prod
 
           cp -r frontend/web/.next frontend-prod/
           cp -r frontend/web/public frontend-prod/
@@ -100,6 +105,9 @@ jobs:
           name: frontend-prod
           path: frontend-prod
 
+  # ==============================
+  # 🚀 CD — DEPLOY TO EC2
+  # ==============================
   cd:
     name: CD (Deploy to EC2)
     needs: ci
@@ -119,26 +127,38 @@ jobs:
           name: frontend-prod
           path: frontend-prod
 
-      - name: Upload backend to EC2
+      # -------- CLEAN SERVER --------
+      - name: Clean previous deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            rm -rf /var/www/backend-prod
+            rm -rf /var/www/frontend-prod
+
+      # -------- UPLOAD BACKEND --------
+      - name: Upload backend
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: backend-prod/*
-          target: /var/www/backend-prod
-          overwrite: true
+          source: backend-prod
+          target: /var/www
 
-      - name: Upload frontend to EC2
+      # -------- UPLOAD FRONTEND --------
+      - name: Upload frontend
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: frontend-prod/*
-          target: /var/www/frontend-prod
-          overwrite: true
+          source: frontend-prod
+          target: /var/www
 
+      # -------- START SERVICES --------
       - name: Restart services
         uses: appleboy/ssh-action@v1.0.3
         with:
