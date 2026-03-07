@@ -44,8 +44,8 @@ export default function StripePaymentPage() {
   const setupError = !clientSecret
     ? 'Missing Stripe client secret in URL.'
     : !publishableKey
-    ? 'Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY in frontend environment.'
-    : null;
+      ? 'Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY in frontend environment.'
+      : null;
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -93,7 +93,7 @@ export default function StripePaymentPage() {
         if (cancelled) return;
         setLoading(false);
         toast.error(
-          event?.error?.message || 'Failed to load Stripe Payment Element'
+          event?.error?.message || 'Failed to load Stripe Payment Element',
         );
       });
 

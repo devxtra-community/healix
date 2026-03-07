@@ -113,7 +113,7 @@ export class CheckoutService {
       });
     }
 
-    console.log(availableItems)
+    console.log(availableItems);
 
     const order: Order = {
       orderId,
