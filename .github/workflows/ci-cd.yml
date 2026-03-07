@@ -13,14 +13,15 @@ on:
       - main
 
 jobs:
-  # ==============================
-  # 🧪 CI — BUILD & PACKAGE
-  # ==============================
+# ==============================
+# 🧪 CI — BUILD & PACKAGE
+# ==============================
   ci:
     name: CI (Build Backend + Frontend)
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -59,28 +60,23 @@ jobs:
           cd frontend/web
           pnpm build
 
+
       # -------- PACKAGE BACKEND --------
       - name: Prepare backend artifact
         run: |
           rm -rf backend-prod
-          mkdir -p backend-prod/gateway
-          mkdir -p backend-prod/services
+          mkdir backend-prod
 
-          cp -r gateway/dist backend-prod/gateway/
-          cp gateway/package.json backend-prod/gateway/
+          cp pnpm-workspace.yaml backend-prod/
+          cp pnpm-lock.yaml backend-prod/
 
-          for dir in services/*; do
-            if [ -d "$dir/dist" ]; then
-              name=$(basename "$dir")
-              mkdir -p backend-prod/services/$name
-              cp -r "$dir/dist" backend-prod/services/$name/
-              cp "$dir/package.json" backend-prod/services/$name/
-            fi
-          done
+          cp -r gateway backend-prod/
+          cp -r services backend-prod/
 
           if [ -d packages ]; then
-            cp -r packages backend-prod/packages
+            cp -r packages backend-prod/
           fi
+
 
       # -------- PACKAGE FRONTEND --------
       - name: Prepare frontend artifact
@@ -92,6 +88,7 @@ jobs:
           cp -r frontend/web/public frontend-prod/
           cp frontend/web/package.json frontend-prod/
           cp frontend/web/pnpm-lock.yaml frontend-prod/
+
 
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
@@ -105,9 +102,11 @@ jobs:
           name: frontend-prod
           path: frontend-prod
 
-  # ==============================
-  # 🚀 CD — DEPLOY TO EC2
-  # ==============================
+
+
+# ==============================
+# 🚀 CD — DEPLOY TO EC2
+# ==============================
   cd:
     name: CD (Deploy to EC2)
     needs: ci
@@ -115,6 +114,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Download backend artifact
         uses: actions/download-artifact@v4
         with:
@@ -127,6 +127,7 @@ jobs:
           name: frontend-prod
           path: frontend-prod
 
+
       # -------- CLEAN SERVER --------
       - name: Clean previous deploy
         uses: appleboy/ssh-action@v1.0.3
@@ -138,6 +139,7 @@ jobs:
             rm -rf /var/www/backend-prod
             rm -rf /var/www/frontend-prod
 
+
       # -------- UPLOAD BACKEND --------
       - name: Upload backend
         uses: appleboy/scp-action@v0.1.7
@@ -148,6 +150,7 @@ jobs:
           source: backend-prod
           target: /var/www
 
+
       # -------- UPLOAD FRONTEND --------
       - name: Upload frontend
         uses: appleboy/scp-action@v0.1.7
@@ -157,6 +160,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: frontend-prod
           target: /var/www
+
 
       # -------- START SERVICES --------
       - name: Restart services
@@ -171,22 +175,28 @@ jobs:
             export PNPM_HOME="$HOME/.local/share/pnpm"
             export PATH="$PNPM_HOME:$PATH"
 
-            echo "=== Gateway ==="
-            cd /var/www/backend-prod/gateway
+            echo "=== Install workspace dependencies ==="
+            cd /var/www/backend-prod
             pnpm install --prod
+
+
+            echo "=== Gateway ==="
+            cd gateway
             pm2 reload gateway || pm2 start dist/server.js --name gateway
+
 
             echo "=== Services ==="
             for dir in /var/www/backend-prod/services/*; do
               cd "$dir"
               name=$(basename "$dir")
-              pnpm install --prod
               pm2 reload "$name" || pm2 start dist/server.js --name "$name"
             done
+
 
             echo "=== Frontend ==="
             cd /var/www/frontend-prod
             pnpm install --prod
             pm2 reload frontend || pm2 start node_modules/next/dist/bin/next --name frontend -- start -p 3000
+
 
             pm2 save
