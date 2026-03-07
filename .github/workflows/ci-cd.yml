@@ -59,12 +59,14 @@ jobs:
           cd frontend/web
           pnpm build
 
-      # -------- PACKAGE BACKEND --------
+      # ==============================
+      # 📦 PACKAGE BACKEND
+      # ==============================
 
       - name: Prepare backend artifact
         run: |
           rm -rf backend-prod
-          mkdir backend-prod
+          mkdir -p backend-prod
 
           cp pnpm-workspace.yaml backend-prod/
           cp pnpm-lock.yaml backend-prod/
@@ -76,7 +78,9 @@ jobs:
             cp -r packages backend-prod/
           fi
 
-      # -------- PACKAGE FRONTEND (STANDALONE) --------
+      # ==============================
+      # 📦 PACKAGE FRONTEND (STANDALONE)
+      # ==============================
 
       - name: Prepare frontend artifact
         run: |
@@ -93,7 +97,9 @@ jobs:
           # public files
           cp -r frontend/web/public frontend-prod/
 
-      # -------- UPLOAD ARTIFACTS --------
+      # ==============================
+      # ⬆️ UPLOAD ARTIFACTS
+      # ==============================
 
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
@@ -130,7 +136,9 @@ jobs:
           name: frontend-prod
           path: frontend-prod
 
-      # -------- CLEAN SERVER --------
+      # ==============================
+      # 🧹 CLEAN SERVER
+      # ==============================
 
       - name: Clean previous deploy
         uses: appleboy/ssh-action@v1.0.3
@@ -141,8 +149,12 @@ jobs:
           script: |
             rm -rf /var/www/backend-prod
             rm -rf /var/www/frontend-prod
+            mkdir -p /var/www/backend-prod
+            mkdir -p /var/www/frontend-prod
 
-      # -------- UPLOAD BACKEND --------
+      # ==============================
+      # ⬆️ UPLOAD BACKEND
+      # ==============================
 
       - name: Upload backend
         uses: appleboy/scp-action@v0.1.7
@@ -150,10 +162,13 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: backend-prod
-          target: /var/www
+          source: backend-prod/*
+          target: /var/www/backend-prod
+          strip_components: 1
 
-      # -------- UPLOAD FRONTEND --------
+      # ==============================
+      # ⬆️ UPLOAD FRONTEND
+      # ==============================
 
       - name: Upload frontend
         uses: appleboy/scp-action@v0.1.7
@@ -161,10 +176,13 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: frontend-prod
-          target: /var/www
+          source: frontend-prod/*
+          target: /var/www/frontend-prod
+          strip_components: 1
 
-      # -------- START SERVICES --------
+      # ==============================
+      # 🔄 START SERVICES
+      # ==============================
 
       - name: Restart services
         uses: appleboy/ssh-action@v1.0.3
@@ -177,6 +195,7 @@ jobs:
 
             export PNPM_HOME="$HOME/.local/share/pnpm"
             export PATH="$PNPM_HOME:$PATH"
+
 
             echo "=== Install workspace dependencies ==="
             cd /var/www/backend-prod
@@ -199,7 +218,6 @@ jobs:
             echo "=== Frontend ==="
             cd /var/www/frontend-prod
 
-            # standalone server start
             pm2 reload frontend || pm2 start server.js --name frontend
 
 
