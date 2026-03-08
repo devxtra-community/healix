@@ -10,10 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       # ---------------- CHECKOUT ----------------
 
       - name: Checkout
         uses: actions/checkout@v4
+
 
       # ---------------- NODE + PNPM ----------------
 
@@ -28,6 +30,7 @@ jobs:
           node-version: 20
           cache: pnpm
 
+
       # ---------------- INSTALL + BUILD ----------------
 
       - name: Install dependencies
@@ -35,6 +38,7 @@ jobs:
 
       - name: Build workspace
         run: pnpm -r run build
+
 
       # ---------------- SSH SETUP ----------------
 
@@ -44,6 +48,7 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2.pem
           chmod 600 ~/.ssh/ec2.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
 
       # ---------------- PREPARE SERVER ----------------
 
@@ -63,6 +68,7 @@ jobs:
 
           EOF
 
+
       # ---------------- DEPLOY GATEWAY ----------------
 
       - name: Deploy Gateway
@@ -77,6 +83,7 @@ jobs:
             gateway/package.json \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/backend/gateway/
 
+
       # ---------------- DEPLOY SERVICES ----------------
 
       - name: Deploy Services
@@ -85,6 +92,7 @@ jobs:
             -e "ssh -i ~/.ssh/ec2.pem" \
             services/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/backend/services/
+
 
       # ---------------- DEPLOY NEXTJS ----------------
 
@@ -95,6 +103,7 @@ jobs:
             frontend/web/.next/standalone/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/frontend/
 
+
       - name: Deploy Next static
         run: |
           rsync -avz \
@@ -102,12 +111,14 @@ jobs:
             frontend/web/.next/static/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/frontend/.next/static/
 
+
       - name: Deploy public assets
         run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/ec2.pem" \
             frontend/web/public/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/frontend/public/
+
 
       # ---------------- FIX MONOREPO NEXT STRUCTURE ----------------
 
@@ -122,6 +133,7 @@ jobs:
 
           EOF
 
+
       # ---------------- RESTART SERVICES ----------------
 
       - name: Restart services
@@ -131,10 +143,7 @@ jobs:
             echo "Restarting gateway..."
 
             cd /var/www/backend/gateway
-
-            # install gateway dependencies
             pnpm install --prod
-
             pm2 reload gateway || pm2 start dist/server.js --name gateway
 
 
@@ -143,6 +152,9 @@ jobs:
             for dir in /var/www/backend/services/*; do
               cd "$dir"
               name=$(basename "$dir")
+
+              # install dependencies for each service
+              pnpm install --prod
 
               if [ -f "dist/server.js" ]; then
                 pm2 reload "$name" || pm2 start dist/server.js --name "$name"
@@ -153,10 +165,7 @@ jobs:
             echo "Restarting frontend..."
 
             cd /var/www/frontend
-
-            # install frontend dependencies (fixes "Cannot find module 'next'")
             pnpm install --prod
-
             pm2 reload frontend || PORT=3000 pm2 start server.js --name frontend
 
 
