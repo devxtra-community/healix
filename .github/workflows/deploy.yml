@@ -58,7 +58,7 @@ jobs:
 
             rm -rf /var/www/frontend
 
-            # keep .env safe
+            # remove only build folders (keeps .env files safe)
             rm -rf /var/www/backend/gateway/dist
             rm -rf /var/www/backend/services
 
@@ -78,7 +78,12 @@ jobs:
         run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/ec2.pem" \
-            gateway/ \
+            gateway/dist/ \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/backend/gateway/dist/
+
+          rsync -avz \
+            -e "ssh -i ~/.ssh/ec2.pem" \
+            gateway/package.json \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/backend/gateway/
 
 
@@ -86,26 +91,32 @@ jobs:
 
       - name: Deploy Services
         run: |
-          rsync -avz \
+          rsync -avz --delete \
             -e "ssh -i ~/.ssh/ec2.pem" \
             services/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/backend/services/
 
 
-      # ---------------- DEPLOY FRONTEND ----------------
+      # ---------------- DEPLOY NEXTJS ----------------
 
-      - name: Deploy Frontend
+      - name: Deploy Next standalone
         run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/ec2.pem" \
             frontend/web/.next/standalone/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/frontend/
 
+
+      - name: Deploy Next static
+        run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/ec2.pem" \
             frontend/web/.next/static/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/frontend/.next/static/
 
+
+      - name: Deploy public assets
+        run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/ec2.pem" \
             frontend/web/public/ \
@@ -135,6 +146,7 @@ jobs:
             echo "Restarting gateway..."
 
             cd /var/www/backend/gateway
+            pnpm install --prod
             pm2 reload gateway || pm2 start dist/server.js --name gateway
 
 
@@ -143,6 +155,8 @@ jobs:
             for dir in /var/www/backend/services/*; do
               cd "$dir"
               name=$(basename "$dir")
+
+              pnpm install --prod
 
               if [ -f "dist/server.js" ]; then
                 pm2 reload "$name" || pm2 start dist/server.js --name "$name"
@@ -153,7 +167,9 @@ jobs:
             echo "Restarting frontend..."
 
             cd /var/www/frontend
+            pnpm install --prod
             pm2 reload frontend || PORT=3000 pm2 start server.js --name frontend
+
 
             pm2 save
 
