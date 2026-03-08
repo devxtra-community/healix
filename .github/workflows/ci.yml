@@ -1,0 +1,56 @@
+name: Healix CI
+
+on:
+pull_request:
+branches:
+- dev
+- main
+
+push:
+branches:
+- dev
+
+jobs:
+ci:
+runs-on: ubuntu-latest
+
+steps:
+
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+  - name: Setup Node
+    uses: actions/setup-node@v4
+    with:
+      node-version: 20
+
+  - name: Enable pnpm
+    run: |
+      corepack enable
+      corepack prepare pnpm@9 --activate
+
+  - name: Install dependencies
+    run: pnpm install --frozen-lockfile
+
+  - name: Lint
+    run: pnpm eslint gateway services --ext .ts
+
+  - name: Build Gateway
+    run: |
+      cd gateway
+      pnpm build
+
+  - name: Build Services
+    run: |
+      for dir in services/*; do
+        if [ -f "$dir/package.json" ]; then
+          echo "Building $dir"
+          (cd "$dir" && pnpm build)
+        fi
+      done
+
+  - name: Build Frontend
+    run: |
+      cd frontend/web
+      pnpm build
+
