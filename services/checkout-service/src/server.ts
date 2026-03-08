@@ -5,7 +5,6 @@ import { env } from './config/env.js';
 checkoutDBEvents();
 connectDB();
 
-//server
 app.listen(env.port, () => {
   console.log(`checkout service running on ${env.port}`);
 });
