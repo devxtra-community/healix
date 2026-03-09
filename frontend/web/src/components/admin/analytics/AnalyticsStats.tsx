@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import {
   DollarSign,
   ShoppingCart,
@@ -9,42 +10,65 @@ import {
   ArrowDownRight,
 } from 'lucide-react';
 
-const stats = [
-  {
-    title: 'Total Revenue',
-    value: '$54,239',
-    change: '+12.5%',
-    trend: 'up',
-    icon: DollarSign,
-    color: 'bg-emerald-100 text-emerald-600',
-  },
-  {
-    title: 'Total Orders',
-    value: '1,253',
-    change: '+8.2%',
-    trend: 'up',
-    icon: ShoppingCart,
-    color: 'bg-blue-100 text-blue-600',
-  },
-  {
-    title: 'Avg. Order Value',
-    value: '$43.28',
-    change: '-2.1%',
-    trend: 'down',
-    icon: CreditCard,
-    color: 'bg-purple-100 text-purple-600',
-  },
-  {
-    title: 'Refund Rate',
-    value: '1.2%',
-    change: '+0.4%',
-    trend: 'down', // down is bad for refund rate usually, but visually down arrow red is consistent
-    icon: TrendingUp, // Maybe iterate on icon
-    color: 'bg-amber-100 text-amber-600',
-  },
-];
+import { analyticsService } from '@/src/services/analytics.service';
+import { OverviewStats, GrowthStats } from '@/src/types/api/analytics.api';
+
+interface StatsState {
+  overview: OverviewStats;
+  growth: GrowthStats;
+}
 
 export default function AnalyticsStats() {
+  const [data, setData] = useState<StatsState | null>(null);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      const overview = await analyticsService.getOverview();
+      const growth = await analyticsService.getGrowthStats();
+
+      setData({ overview, growth });
+    };
+
+    loadStats();
+  }, []);
+
+  if (!data) return null;
+
+  const stats = [
+    {
+      title: 'Total Revenue',
+      value: `₹${data.overview.revenue.toLocaleString()}`,
+      change: `${data.growth.revenueGrowth.toFixed(1)}%`,
+      trend: data.growth.revenueGrowth >= 0 ? 'up' : 'down',
+      icon: DollarSign,
+      color: 'bg-emerald-100 text-emerald-600',
+    },
+    {
+      title: 'Total Orders',
+      value: data.overview.orders.toString(),
+      change: `${data.growth.orderGrowth.toFixed(1)}%`,
+      trend: data.growth.orderGrowth >= 0 ? 'up' : 'down',
+      icon: ShoppingCart,
+      color: 'bg-blue-100 text-blue-600',
+    },
+    {
+      title: 'Avg. Order Value',
+      value: `₹${data.overview.avgOrderValue.toFixed(2)}`,
+      change: '—',
+      trend: 'up',
+      icon: CreditCard,
+      color: 'bg-purple-100 text-purple-600',
+    },
+    {
+      title: 'Refund Rate',
+      value: `${data.overview.refundRate.toFixed(1)}%`,
+      change: '—',
+      trend: 'down',
+      icon: TrendingUp,
+      color: 'bg-amber-100 text-amber-600',
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
@@ -56,6 +80,7 @@ export default function AnalyticsStats() {
             <div className={`p-3 rounded-xl ${stat.color}`}>
               <stat.icon size={22} />
             </div>
+
             <div
               className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg ${
                 stat.trend === 'up'
@@ -71,8 +96,10 @@ export default function AnalyticsStats() {
               {stat.change}
             </div>
           </div>
+
           <div>
             <p className="text-gray-500 text-sm font-medium">{stat.title}</p>
+
             <h3 className="text-2xl font-bold text-gray-900 mt-1">
               {stat.value}
             </h3>

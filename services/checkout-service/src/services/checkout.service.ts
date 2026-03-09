@@ -6,12 +6,14 @@ import { OrderRespository } from '../repositories/order.repository.js';
 import { Order } from '../domain/order.type.js';
 import { PaymentService } from './payment.service.js';
 import { generateOrderNumber } from '../utils/order-number.js';
+import { AnalyticsService } from '../analytics/analytics.service.js';
 
 export class CheckoutService {
   constructor(
     private cartRepository: CartRepository,
     private orderRepository: OrderRespository,
     private paymentService: PaymentService,
+    private analyticsService: AnalyticsService,
   ) {}
 
   async checkOut(
@@ -21,6 +23,8 @@ export class CheckoutService {
   ) {
     const existingOrder =
       await this.orderRepository.getPendingOrderByUser(userId);
+
+    await this.analyticsService.trackCheckoutStarted();
     if (existingOrder) {
       return {
         canProceed: false,
@@ -235,6 +239,9 @@ export class CheckoutService {
       }
 
       await this.cartRepository.clearCart(userId);
+
+      // ✅ TRACK ANALYTICS
+      await this.analyticsService.trackOrder(order);
 
       return {
         canProceed: true,

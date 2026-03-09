@@ -5,6 +5,7 @@ import checkoutRoute from './api/routes/checkout.route.js';
 import webhookRoutes from './api/routes/webhook.route.js';
 import orderRoute from './api/routes/order.route.js';
 import { releaseExpiredReservations } from './utils/releaseExpiredReservations.js';
+import analyticsRoutes from './analytics/analytics.routes.js';
 
 const app = express();
 //stripe webhook
@@ -41,6 +42,7 @@ app.use((req, _res, next) => {
 app.use('/api/v1/cart', cartRoute);
 app.use('/api/v1/checkout', checkoutRoute);
 app.use('/api/v1/order', orderRoute);
+app.use('/api/v1/analytics', analyticsRoutes);
 
 //error handler
 
