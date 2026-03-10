@@ -50,7 +50,10 @@ export default function UserSidebar({
     >
       {/* Logo */}
       <div className="flex justify-between items-center mb-10 pl-2">
-        <h1 className="text-2xl font-bold tracking-tight">Healix</h1>
+        <Link href="/">
+          {' '}
+          <h1 className="text-2xl font-bold tracking-tight">Healix</h1>
+        </Link>
         <button className="md:hidden p-1" onClick={onClose}>
           <X size={24} />
         </button>

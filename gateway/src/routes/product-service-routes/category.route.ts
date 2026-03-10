@@ -8,10 +8,12 @@ const router = Router();
 const productServiceProxy = createProxyMiddleware({
   target: process.env.PRODUCT_SERVICE_URL!,
   changeOrigin: true,
-  pathRewrite: {
-    '^/': '/api/v1/category/',
-    '^/:id': '/api/v1/category/',
-    '^/:id/restore': '/api/v1/category/',
+  pathRewrite: (path) => {
+    if (path.startsWith('/api/v1/category')) {
+      return path;
+    }
+
+    return `/api/v1/category${path === '/' ? '' : path}`;
   },
   on: {
     proxyReq(proxyReq, req: Request) {
@@ -35,6 +37,12 @@ const productServiceProxy = createProxyMiddleware({
 });
 router.post('/', verifyToken, requireRole([ROLES.ADMIN]), productServiceProxy);
 router.get('/', productServiceProxy);
+router.get(
+  '/adminCategory',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  productServiceProxy,
+);
 router.get('/:id', productServiceProxy);
 router.patch(
   '/:id',

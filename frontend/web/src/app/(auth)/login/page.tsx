@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { FcGoogle } from 'react-icons/fc';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
+import { CgSpinner } from 'react-icons/cg';
 import { authService } from '@/src/services/auth.services';
 
 interface ErrorResponse {
@@ -21,6 +22,15 @@ export default function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resetStep, setResetStep] = useState<'idle' | 'otp'>('idle');
+  const [resetForm, setResetForm] = useState({
+    email: '',
+    otp: '',
+    newPassword: '',
+  });
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
+  const [resetError, setResetError] = useState('');
 
   const { login } = authService;
 
@@ -62,6 +72,62 @@ export default function LoginPage() {
 
   const handleGoogleAuth = () => {
     window.location.href = 'http://localhost:4001/api/v1/auth/google';
+  };
+
+  const handleResetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setResetForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (resetError) setResetError('');
+    if (resetMessage) setResetMessage('');
+  };
+
+  const handleRequestOtp = async () => {
+    if (!resetForm.email) {
+      setResetError('Enter your email address first.');
+      return;
+    }
+
+    setResetLoading(true);
+    setResetError('');
+    setResetMessage('');
+
+    try {
+      const data = await authService.forgotPasswordOtp(resetForm.email);
+      setResetStep('otp');
+      setResetMessage(data.message || 'OTP sent to your email.');
+    } catch (err) {
+      const error = err as AxiosError<ErrorResponse>;
+      setResetError(
+        error.response?.data?.message || 'Unable to send OTP right now.',
+      );
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setResetLoading(true);
+    setResetError('');
+    setResetMessage('');
+
+    try {
+      const data = await authService.resetPasswordWithOtp(resetForm);
+      setResetMessage(data.message || 'Password updated successfully.');
+      setResetForm((prev) => ({
+        ...prev,
+        otp: '',
+        newPassword: '',
+      }));
+    } catch (err) {
+      const error = err as AxiosError<ErrorResponse>;
+      setResetError(error.response?.data?.message || 'Password reset failed.');
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   return (
@@ -148,6 +214,23 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
               />
+              <div className="mt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetStep((prev) => (prev === 'idle' ? 'otp' : 'idle'));
+                    setResetError('');
+                    setResetMessage('');
+                    setResetForm((prev) => ({
+                      ...prev,
+                      email: prev.email || formData.email,
+                    }));
+                  }}
+                  className="text-sm font-medium text-green-700 hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
             </div>
 
             <button
@@ -158,6 +241,97 @@ export default function LoginPage() {
               {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
+
+          {resetStep === 'otp' && (
+            <form
+              onSubmit={handleResetPassword}
+              className="mt-6 rounded-xl border border-green-100 bg-green-50/60 p-4"
+            >
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-800">
+                    Reset password with email OTP
+                  </h2>
+                  <p className="text-xs text-gray-600">
+                    Request a 6-digit code, then set a new password.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetStep('idle');
+                    setResetError('');
+                    setResetMessage('');
+                  }}
+                  className="text-xs font-medium text-gray-500 hover:text-gray-700"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <input
+                  name="email"
+                  type="email"
+                  value={resetForm.email}
+                  onChange={handleResetChange}
+                  placeholder="Email address"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                />
+
+                <div className="flex gap-3">
+                  <input
+                    name="otp"
+                    value={resetForm.otp}
+                    onChange={handleResetChange}
+                    placeholder="6-digit OTP"
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRequestOtp}
+                    disabled={resetLoading}
+                    className="rounded-lg border border-green-700 px-4 py-3 text-sm font-semibold text-green-700 hover:bg-green-100 disabled:opacity-60"
+                  >
+                    {resetLoading ? 'Sending...' : 'Send OTP'}
+                  </button>
+                </div>
+
+                <input
+                  name="newPassword"
+                  type="password"
+                  value={resetForm.newPassword}
+                  onChange={handleResetChange}
+                  placeholder="New password"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                />
+              </div>
+
+              <div className="mt-4 min-h-[24px]">
+                {resetError && (
+                  <p className="text-sm text-red-600">{resetError}</p>
+                )}
+                {resetMessage && (
+                  <p className="text-sm text-green-700">{resetMessage}</p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={resetLoading}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-green-700 px-4 py-3 font-semibold text-white hover:bg-green-800 disabled:opacity-70"
+              >
+                {resetLoading ? (
+                  <>
+                    <CgSpinner className="animate-spin text-lg" />
+                    <span>Updating...</span>
+                  </>
+                ) : (
+                  'Reset password'
+                )}
+              </button>
+            </form>
+          )}
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?{' '}

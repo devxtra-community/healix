@@ -40,6 +40,8 @@ router.post('/register', userServiceProxy);
 router.put('/change_password', verifyToken, userServiceProxy);
 router.delete('/logout', verifyToken, userServiceProxy);
 router.post('/refresh', setUserRefreshToken, userServiceProxy);
+router.post('/password/forgot', userServiceProxy);
+router.post('/password/reset', userServiceProxy);
 router.get('/me', verifyToken, userServiceProxy);
 router.post('/review', verifyToken, userServiceProxy);
 router.put('/review/:id', verifyToken, userServiceProxy);

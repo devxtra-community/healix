@@ -2,105 +2,78 @@
 
 import { useEffect, useState } from 'react';
 import { Search, Filter, Eye, Trash2, ArrowUpDown } from 'lucide-react';
+import { adminOrderService } from '@/src/services/admin-order.service';
+import { AdminOrder } from '@/src/types/api/order.api';
+import { toast } from 'sonner';
 
-const initialOrders = [
-  {
-    id: '#ORD-7821',
-    customer: 'Alice Johnson',
-    date: 'Oct 24, 2023',
-    total: '$142.00',
-    status: 'Completed',
-    payment: 'Mastercard •••• 4242',
-  },
-  {
-    id: '#ORD-7820',
-    customer: 'Robert Smith',
-    date: 'Oct 24, 2023',
-    total: '$340.50',
-    status: 'Processing',
-    payment: 'Visa •••• 1234',
-  },
-  {
-    id: '#ORD-7819',
-    customer: 'Maria Garcia',
-    date: 'Oct 23, 2023',
-    total: '$85.00',
-    status: 'Pending',
-    payment: 'PayPal',
-  },
-  {
-    id: '#ORD-7818',
-    customer: 'David Wilson',
-    date: 'Oct 23, 2023',
-    total: '$1,250.00',
-    status: 'Completed',
-    payment: 'Visa •••• 5678',
-  },
-  {
-    id: '#ORD-7817',
-    customer: 'James Brown',
-    date: 'Oct 22, 2023',
-    total: '$65.00',
-    status: 'Cancelled',
-    payment: 'Mastercard •••• 9012',
-  },
-  {
-    id: '#ORD-7816',
-    customer: 'Linda Davis',
-    date: 'Oct 22, 2023',
-    total: '$210.25',
-    status: 'Completed',
-    payment: 'Apple Pay',
-  },
-  {
-    id: '#ORD-7815',
-    customer: 'Michael Miller',
-    date: 'Oct 21, 2023',
-    total: '$45.00',
-    status: 'Completed',
-    payment: 'Visa •••• 3456',
-  },
-  {
-    id: '#ORD-7814',
-    customer: 'Sarah Wilson',
-    date: 'Oct 21, 2023',
-    total: '$890.00',
-    status: 'Processing',
-    payment: 'Mastercard •••• 7890',
-  },
-];
+type StatusFilter =
+  | 'All'
+  | 'PLACED'
+  | 'PACKED'
+  | 'SHIPPED'
+  | 'DELIVERED'
+  | 'CANCELLED';
 
 export default function OrdersTable() {
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('All');
+  const [loading, setLoading] = useState(false);
 
   const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const normalizedSearch = searchTerm.toLowerCase();
+    const matchesSearch = (order.orderId ?? '')
+      .toLowerCase()
+      .includes(normalizedSearch);
+
     const matchesStatus =
-      statusFilter === 'All' || order.status === statusFilter;
+      statusFilter === 'All' || order.fulfillmentStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const data = await adminOrderService.getAllOrders();
+      setOrders(data);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to fetch orders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    setOrders(initialOrders);
+    fetchOrders();
   }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Completed':
+      case 'DELIVERED':
         return 'bg-emerald-100 text-emerald-600';
-      case 'Processing':
+      case 'SHIPPED':
+      case 'PACKED':
         return 'bg-blue-100 text-blue-600';
-      case 'Pending':
+      case 'PLACED':
         return 'bg-amber-100 text-amber-600';
-      case 'Cancelled':
+      case 'CANCELLED':
         return 'bg-red-100 text-red-600';
       default:
         return 'bg-gray-100 text-gray-600';
     }
+  };
+
+  const formatCurrency = (amount: number, currency?: string) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: currency || 'INR',
+      minimumFractionDigits: 2,
+    }).format(amount);
+
+  const formatPayment = (order: AdminOrder) => {
+    const method = order.paymentMethod || 'N/A';
+    return `${method} • ${order.paymentStatus}`;
   };
 
   return (
@@ -126,13 +99,14 @@ export default function OrdersTable() {
             <select
               className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-2.5 pl-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 cursor-pointer font-medium text-sm"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
             >
               <option value="All">All Status</option>
-              <option value="Completed">Completed</option>
-              <option value="Processing">Processing</option>
-              <option value="Pending">Pending</option>
-              <option value="Cancelled">Cancelled</option>
+              <option value="PLACED">Placed</option>
+              <option value="PACKED">Packed</option>
+              <option value="SHIPPED">Shipped</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="CANCELLED">Cancelled</option>
             </select>
             <Filter
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
@@ -175,37 +149,47 @@ export default function OrdersTable() {
           <tbody className="divide-y divide-gray-100">
             {filteredOrders.map((order) => (
               <tr
-                key={order.id}
+                key={order.orderId}
                 className="hover:bg-gray-50/50 transition-colors"
               >
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
-                  {order.id}
+                  {order.orderNumber || order.orderId}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                  {order.customer}
+                  {order.userId}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                  {order.date}
+                  {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
                 </td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
-                  {order.total}
+                  {formatCurrency(order.totalAmount, order.currency)}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                  {order.payment}
+                  {formatPayment(order)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.fulfillmentStatus)}`}
                   >
-                    {order.status}
+                    {order.fulfillmentStatus}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-lg transition-colors">
+                    <button
+                      type="button"
+                      className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                    >
                       <Eye size={18} />
                     </button>
-                    <button className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                    <button
+                      type="button"
+                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </div>
@@ -219,8 +203,12 @@ export default function OrdersTable() {
       {/* Pagination Controls (Static for now) */}
       <div className="p-6 border-t border-gray-100 flex items-center justify-between">
         <span className="text-sm text-gray-500">
-          Showing <span className="font-medium text-gray-900">1-8</span> of{' '}
-          <span className="font-medium text-gray-900">24</span> orders
+          Showing{' '}
+          <span className="font-medium text-gray-900">
+            {filteredOrders.length}
+          </span>{' '}
+          of <span className="font-medium text-gray-900">{orders.length}</span>{' '}
+          orders
         </span>
         <div className="flex items-center gap-2">
           <button
@@ -234,6 +222,12 @@ export default function OrdersTable() {
           </button>
         </div>
       </div>
+
+      {loading && (
+        <div className="p-4 text-center text-sm text-gray-400">
+          Loading orders...
+        </div>
+      )}
     </div>
   );
 }

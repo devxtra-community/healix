@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { type IUser, User } from '../models/user.model.js';
 import { PaginatedResponse } from '../types/pagination.js';
 
@@ -88,6 +89,18 @@ export class UserRepository {
     return User.findOneAndUpdate({ _id: userId }, payload, {
       new: true,
     });
+  }
+
+  async updatePassword(userId: Types.ObjectId | string, password: string) {
+    return User.findByIdAndUpdate(userId, { password }, { new: true });
+  }
+
+  async updateLastLogin(userId: Types.ObjectId | string) {
+    return User.findByIdAndUpdate(
+      userId,
+      { last_login: new Date() },
+      { new: true },
+    );
   }
 
   async getUserInsights() {

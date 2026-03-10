@@ -101,6 +101,7 @@ export class DynamoCartRepository implements CartRepository {
       expiresAt: number;
     },
   ): Promise<void> {
+    const now = new Date().toISOString();
     await dynamoDB.send(
       new UpdateCommand({
         TableName: TABLE_NAME,
@@ -109,17 +110,23 @@ export class DynamoCartRepository implements CartRepository {
           SK: 'CART',
         },
         UpdateExpression: `
-      SET itemCount = :itemCount,
+      SET userId = :userId,
+          itemCount = :itemCount,
           cartTotal = :cartTotal,
-          #ttl = :ttl
+          #ttl = :ttl,
+          createdAt = if_not_exists(createdAt, :createdAt),
+          updatedAt = :updatedAt
     `,
         ExpressionAttributeNames: {
           '#ttl': 'ttl',
         },
         ExpressionAttributeValues: {
+          ':userId': userId,
           ':itemCount': data.itemCount,
           ':cartTotal': data.cartTotal,
           ':ttl': data.expiresAt,
+          ':createdAt': now,
+          ':updatedAt': now,
         },
       }),
     );

@@ -14,6 +14,7 @@ const service = new CategoryService(repo, productRepo);
 const controller = new CategoryControll(service);
 route.post('/', adminOnly, controller.createCatrgoryHandler);
 route.get('/', controller.getAllCategoryHandler);
+route.get('/adminCategory', controller.getAllCategoryAdminHandler);
 route.get('/:id', controller.getCategoryByIdHandler);
 route.patch('/:id', adminOnly, controller.updateHandler);
 route.delete('/:id', adminOnly, controller.deleteHandler);

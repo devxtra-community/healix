@@ -40,4 +40,24 @@ export class EmailService {
       throw new Error('Could not send email');
     }
   }
+
+  async sendPasswordResetOtp(email: string, otp: string) {
+    try {
+      await this.transporter.sendMail({
+        from: `"Healix" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: 'Your Healix password reset code',
+        html: `
+          <p>Hello,</p>
+          <p>Use this OTP to reset your Healix password:</p>
+          <h2 style="letter-spacing: 4px;">${otp}</h2>
+          <p>This code expires in 10 minutes. If you didn't request this, you can ignore this email.</p>
+        `,
+      });
+      console.log(`Password reset OTP sent to ${email}`);
+    } catch (err) {
+      console.error('Error sending password reset OTP email:', err);
+      throw new Error('Could not send email');
+    }
+  }
 }

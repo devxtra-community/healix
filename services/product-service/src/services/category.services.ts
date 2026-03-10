@@ -47,18 +47,20 @@ export class CategoryService {
     return this.categoryRepository.findById(id);
   }
 
-  async getAllCategories(query: GetCategoriesQuery) {
+  async getAllCategories(query: GetCategoriesQuery, isAdmin = false) {
     const page = Math.max(1, Number(query.page) || 1);
     const limit = Math.max(1, Number(query.limit) || 10);
 
     const filter: CategoryFilter = {};
 
-    // is_active filter
+    if (!isAdmin) {
+      filter.is_active = true;
+    }
+
     if (query.is_active !== undefined) {
       filter.is_active = query.is_active === true || query.is_active === 'true';
     }
 
-    // Search filter
     if (query.search) {
       filter.$or = [
         { name: { $regex: query.search, $options: 'i' } },
@@ -66,7 +68,6 @@ export class CategoryService {
       ];
     }
 
-    // category type filter
     if (query.category_type) {
       filter.category_type = query.category_type;
     }

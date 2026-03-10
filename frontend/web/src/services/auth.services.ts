@@ -31,6 +31,20 @@ export const authService = {
     return await userApi.get('/auth/user/me');
   },
 
+  forgotPasswordOtp: async (email: string) => {
+    const res = await userApi.post('/auth/user/password/forgot', { email });
+    return res.data;
+  },
+
+  resetPasswordWithOtp: async (data: {
+    email: string;
+    otp: string;
+    newPassword: string;
+  }) => {
+    const res = await userApi.post('/auth/user/password/reset', data);
+    return res.data;
+  },
+
   logoutUser: async () => {
     await userApi.delete('/auth/user/logout');
   },

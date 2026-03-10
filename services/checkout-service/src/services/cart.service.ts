@@ -11,6 +11,14 @@ export class CartService {
   async getCart(userId: string): Promise<Cart | null> {
     return this.cartRepository.getCart(userId);
   }
+
+  private buildCartMeta(items: CartItem[]) {
+    return {
+      itemCount: items.reduce((sum, cartItem) => sum + cartItem.quantity, 0),
+      cartTotal: items.reduce((sum, cartItem) => sum + cartItem.subtotal, 0),
+    };
+  }
+
   async addItem(userId: string, item: CartItem): Promise<void> {
     //  Check product exists & active
     const productRes = await axios.get(
@@ -93,8 +101,7 @@ export class CartService {
         ]
       : [normalizedItem];
 
-    const itemCount = items.reduce((s, i) => s + i.quantity, 0);
-    const cartTotal = items.reduce((s, i) => s + i.subtotal, 0);
+    const { itemCount, cartTotal } = this.buildCartMeta(items);
 
     await this.cartRepository.updateCartMeta(userId, {
       itemCount,
@@ -117,9 +124,7 @@ export class CartService {
       return;
     }
 
-    const itemCount = updatedCart.items.reduce((sum, i) => sum + i.quantity, 0);
-
-    const cartTotal = updatedCart.items.reduce((sum, i) => sum + i.subtotal, 0);
+    const { itemCount, cartTotal } = this.buildCartMeta(updatedCart.items);
 
     await this.cartRepository.updateCartMeta(userId, {
       itemCount,

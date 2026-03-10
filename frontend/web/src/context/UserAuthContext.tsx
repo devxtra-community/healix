@@ -9,6 +9,13 @@ export type User = {
   name: string;
   email: string;
   avatar?: string;
+  phone?: string;
+  provider?: 'google' | 'email';
+  emailVerified?: boolean;
+  isActive?: boolean;
+  lastLogin?: string | Date | null;
+  createdAt?: string | Date;
+  role?: string;
 };
 
 type UserAuthContextType = {
@@ -28,12 +35,15 @@ export function UserAuthProvider({ children }: { children: React.ReactNode }) {
   const { userMe, logoutUser } = authService;
 
   const refreshUser = async () => {
+    setLoading(true);
     try {
       const res = await userMe();
       setUser(res.data);
     } catch {
       setUser(null);
       router.replace('/login');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,7 +54,9 @@ export function UserAuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    refreshUser().finally(() => setLoading(false));
+    void refreshUser();
+    // refreshUser depends on router and service references that are stable here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

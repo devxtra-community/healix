@@ -169,6 +169,13 @@ export class AuthController {
       email: user.email,
       role: user.role,
       name: user.name,
+      avatar: user.avatar,
+      phone: user.phone,
+      provider: user.provider,
+      emailVerified: user.email_verified,
+      isActive: user.isActive,
+      lastLogin: user.last_login,
+      createdAt: user.createdAt,
     });
   };
 
@@ -234,6 +241,55 @@ export class AuthController {
     try {
       const tokens = await this.authService.verifyMagicLink(token);
       res.status(200).json({ success: true, ...tokens });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  requestPasswordResetOtp = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Email is required' });
+      }
+
+      await this.authService.requestPasswordResetOtp(email);
+      res.status(200).json({
+        success: true,
+        message: 'If the email exists, an OTP has been sent',
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  resetPasswordWithOtp = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { email, otp, newPassword } = req.body;
+
+      if (!email || !otp || !newPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email, OTP, and new password are required',
+        });
+      }
+
+      await this.authService.resetPasswordWithOtp(email, otp, newPassword);
+      res.status(200).json({
+        success: true,
+        message: 'Password reset successful. You can now login.',
+      });
     } catch (error) {
       next(error);
     }
