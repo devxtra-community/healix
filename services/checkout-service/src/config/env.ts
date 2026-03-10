@@ -10,6 +10,7 @@ if (!stripeSecretKey.startsWith('sk_')) {
 }
 
 export const env = {
+  mongoUri: process.env.MONGO_URI!,
   port: Number(process.env.PORT || 4003),
   awsRegion: process.env.AWS_REGION || 'ap-south-1',
   dynamoEndpoint: process.env.DYNAMODB_ENDPOINT,

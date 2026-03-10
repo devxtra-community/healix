@@ -12,6 +12,7 @@ import { webhookIdempotency } from '../../utils/webhook-idempotency.js';
 import { redis } from '../../config/redis.js';
 import { DynamoRefundRepository } from '../../repositories/refund.repository.dynamo.js';
 import { RefundService } from '../../services/refund.service.js';
+import { AnalyticsService } from '../../analytics/analytics.service.js';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ const refundService = new RefundService(refundRepo, paymentRepo);
 const orderService = new OrderService(orderRepo, refundService, paymentRepo);
 
 const webhookidempotency = new webhookIdempotency(redis);
+const analyticsService = new AnalyticsService();
 
 const webhookcontroller = new StripeWebHookController(
   paymentService,
@@ -31,6 +33,7 @@ const webhookcontroller = new StripeWebHookController(
   cartRepository,
   webhookidempotency,
   refundRepo,
+  analyticsService,
 );
 
 router.post(

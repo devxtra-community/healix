@@ -8,6 +8,7 @@ import { OrderService } from '../services/order.service.js';
 import { CartRepository } from '../repositories/cart.repository.js';
 import { webhookIdempotency } from '../utils/webhook-idempotency.js';
 import { DynamoRefundRepository } from '../repositories/refund.repository.dynamo.js';
+import { AnalyticsService } from '../analytics/analytics.service.js';
 
 export class StripeWebHookController {
   constructor(
@@ -16,6 +17,7 @@ export class StripeWebHookController {
     private cartRepo: CartRepository,
     private webhookIdempotancy: webhookIdempotency,
     private refundRepo: DynamoRefundRepository,
+    private analyticsService: AnalyticsService,
   ) {}
 
   handle = async (req: Request, res: Response) => {
@@ -53,11 +55,12 @@ export class StripeWebHookController {
 
         const payment = await this.paymentService.markSuccess(intent.id);
 
-        // fallback using metadata if payment not found
+        let orderId: string | null = null;
+
         if (!payment) {
           console.log('⚠️ Payment record not found. Using metadata fallback.');
 
-          const orderId = intent.metadata?.orderId;
+          orderId = intent.metadata?.orderId;
 
           if (!orderId) {
             console.log('❌ orderId missing in metadata');
@@ -66,7 +69,8 @@ export class StripeWebHookController {
 
           await this.orderService.markPaid(orderId);
         } else {
-          await this.orderService.markPaid(payment.orderId);
+          orderId = payment.orderId;
+          await this.orderService.markPaid(orderId);
         }
 
         const items = JSON.parse(intent.metadata.items || '[]');
@@ -80,6 +84,12 @@ export class StripeWebHookController {
 
         if (payment) {
           await this.cartRepo.clearCart(payment.userId);
+        }
+
+        // ✅ TRACK ANALYTICS HERE
+        if (orderId) {
+          const order = await this.orderService.getOrder(orderId);
+          if (order) await this.analyticsService.trackOrder(order);
         }
 
         console.log('✅ Payment processed successfully');
@@ -136,6 +146,12 @@ export class StripeWebHookController {
           refund.metadata.refundId,
           'SUCCESS',
           refund.id,
+        );
+
+        // ✅ TRACK REFUND ANALYTICS
+        await this.analyticsService.trackRefund(
+          refund.amount / 100,
+          new Date().toISOString(),
         );
 
         console.log('↩️ Refund processed');

@@ -1,9 +1,13 @@
 import { CartRepository } from '../repositories/cart.repository.js';
 import { Cart, CartItem } from '../domain/cart.types.js';
 import axios from 'axios';
+import { AnalyticsService } from '../analytics/analytics.service.js';
 
 export class CartService {
-  constructor(private cartRepository: CartRepository) {}
+  constructor(
+    private cartRepository: CartRepository,
+    private analyticsService: AnalyticsService,
+  ) {}
   async getCart(userId: string): Promise<Cart | null> {
     return this.cartRepository.getCart(userId);
   }
@@ -66,8 +70,16 @@ export class CartService {
     };
 
     const existingCart = await this.cartRepository.getCart(userId);
+    const isNewCart = !existingCart || existingCart.items.length === 0;
 
     await this.cartRepository.upsertItem(userId, normalizedItem);
+
+    // track cart creation only once
+    if (isNewCart) {
+      await this.analyticsService.trackCartCreated();
+    }
+
+    await this.analyticsService.trackAddToCart();
 
     const items = existingCart
       ? [
