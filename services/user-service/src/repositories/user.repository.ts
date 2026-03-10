@@ -11,6 +11,17 @@ type AdminUserFilter = {
   }>;
 };
 
+type AnalyticsCustomer = {
+  userId: string;
+  totalOrders: number;
+  totalSpent: number;
+};
+
+type UserBasic = {
+  _id: Types.ObjectId;
+  name: string;
+};
+
 export class UserRepository {
   async findByEmail(email: string): Promise<IUser | null> {
     return await User.findOne({ email }); //isDeleted: false
@@ -108,25 +119,14 @@ export class UserRepository {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(now.getDate() - 7);
 
-    // Total customers
-    const totalCustomers = await User.countDocuments({
-      role: 'user',
-    });
+    // BASIC CUSTOMER STATS
+    const totalCustomers = await User.countDocuments({ role: 'user' });
 
-    // New customers (last 7 days)
     const newCustomers = await User.countDocuments({
       role: 'user',
       createdAt: { $gte: oneWeekAgo },
     });
 
-    // VIP customers (example: you can adjust logic)
-    // Here assuming users with more than 5 orders OR add vip flag later
-    const vipCustomers = await User.countDocuments({
-      role: 'user',
-      isActive: true,
-    });
-
-    // Retention calculation (basic example)
     const activeUsers = await User.countDocuments({
       role: 'user',
       isActive: true,
@@ -136,28 +136,64 @@ export class UserRepository {
       ? Math.round((activeUsers / totalCustomers) * 100)
       : 0;
 
-    // Top 5 latest customers (temporary until you connect orders)
-    const topCustomers = await User.find({ role: 'user' })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select('name email')
-      .lean();
+    let analyticsCustomers: AnalyticsCustomer[] = [];
+
+    try {
+      const analyticsRes = await fetch(
+        'http://localhost:4003/api/v1/analytics/users/top?limit=5',
+      );
+
+      if (analyticsRes.ok) {
+        const response: unknown = await analyticsRes.json();
+
+        if (Array.isArray(response)) {
+          analyticsCustomers = response as AnalyticsCustomer[];
+        } else if (
+          typeof response === 'object' &&
+          response !== null &&
+          'data' in response
+        ) {
+          analyticsCustomers = (response as { data: AnalyticsCustomer[] }).data;
+        }
+      }
+    } catch (error) {
+      console.error('Analytics service unavailable:', error);
+    }
+
+    const userIds = analyticsCustomers.map((c) => c.userId);
+
+    let users: UserBasic[] = [];
+
+    if (userIds.length > 0) {
+      users = await User.find({ _id: { $in: userIds } })
+        .select('_id name')
+        .lean<UserBasic[]>();
+    }
+
+    const userMap = new Map<string, UserBasic>(
+      users.map((u) => [String(u._id), u]),
+    );
+
+    const topCustomers = analyticsCustomers.map((stat) => {
+      const user = userMap.get(String(stat.userId));
+
+      return {
+        _id: stat.userId,
+        name: user?.name ?? 'Unknown',
+        totalOrders: stat.totalOrders ?? 0,
+        totalSpent: stat.totalSpent ?? 0,
+      };
+    });
 
     return {
       newCustomers,
-      vipCustomers,
+      vipCustomers: topCustomers.filter((c) => c.totalSpent > 5000).length,
       totalCustomers,
       retentionRate,
-      retentionGrowth: 2.4, // static for now
-      topCustomers: topCustomers.map((user) => ({
-        _id: user._id,
-        name: user.name,
-        totalOrders: 0, // update later when you connect orders
-        totalSpent: 0,
-      })),
+      retentionGrowth: 2.4,
+      topCustomers,
     };
   }
-
   // async deleteUser(userId: string): Promise<IUser | null> {
   //   return User.findOneAndUpdate(
   //     { _id: userId, isDeleted: false },
