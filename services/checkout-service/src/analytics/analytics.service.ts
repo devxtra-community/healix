@@ -3,6 +3,7 @@ import { CartStats } from './models/cartStats.model.js';
 import { FunnelStats } from './models/funnelStats.model.js';
 import { ProductStats } from './models/productStats.model.js';
 import { SalesDaily } from './models/salesDaily.model.js';
+import { UserStats } from './models/userAnalytics.model.js';
 
 export class AnalyticsService {
   //ORDER CREATED
@@ -10,19 +11,8 @@ export class AnalyticsService {
   async trackOrder(order: Order): Promise<void> {
     const date = new Date(order.createdAt).toISOString().split('T')[0];
 
-    await SalesDaily.updateOne(
-      { date },
-      {
-        $inc: {
-          revenue: order.totalAmount,
-          orders: 1,
-        },
-      },
-      { upsert: true },
-    );
-
-    for (const item of order.items) {
-      await ProductStats.updateOne(
+    const productUpdates = order.items.map((item) =>
+      ProductStats.updateOne(
         { productId: item.productId },
         {
           $inc: {
@@ -31,22 +21,49 @@ export class AnalyticsService {
           },
         },
         { upsert: true },
-      );
-    }
-
-    await CartStats.updateOne(
-      { date },
-      {
-        $inc: { cartsConverted: 1 },
-      },
-      { upsert: true },
+      ),
     );
 
-    await FunnelStats.updateOne(
-      { date },
-      { $inc: { ordersCompleted: 1 } },
-      { upsert: true },
-    );
+    await Promise.all([
+      SalesDaily.updateOne(
+        { date },
+        {
+          $inc: {
+            revenue: order.totalAmount,
+            orders: 1,
+          },
+        },
+        { upsert: true },
+      ),
+
+      CartStats.updateOne(
+        { date },
+        { $inc: { cartsConverted: 1 } },
+        { upsert: true },
+      ),
+
+      FunnelStats.updateOne(
+        { date },
+        { $inc: { ordersCompleted: 1 } },
+        { upsert: true },
+      ),
+
+      UserStats.updateOne(
+        { userId: order.userId },
+        {
+          $inc: {
+            totalOrders: 1,
+            totalSpent: order.totalAmount,
+          },
+          $set: {
+            lastOrderAt: new Date(order.createdAt),
+          },
+        },
+        { upsert: true },
+      ),
+
+      ...productUpdates,
+    ]);
   }
 
   //REFUND CREATED
@@ -348,5 +365,49 @@ export class AnalyticsService {
       revenueGrowth,
       orderGrowth,
     };
+  }
+
+  async getUserAnalytics(userId: string) {
+    return UserStats.findOne({ userId });
+  }
+
+  async getTopCustomers(limit = 10) {
+    return UserStats.find().sort({ totalSpent: -1 }).limit(limit);
+  }
+
+  async getMostActiveCustomers(limit = 10) {
+    return UserStats.find().sort({ totalOrders: -1 }).limit(limit);
+  }
+
+  async getUserOverview() {
+    const stats = await UserStats.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalCustomers: { $sum: 1 },
+          totalOrders: { $sum: '$totalOrders' },
+          totalRevenue: { $sum: '$totalSpent' },
+        },
+      },
+    ]);
+
+    return (
+      stats[0] ?? {
+        totalCustomers: 0,
+        totalOrders: 0,
+        totalRevenue: 0,
+      }
+    );
+  }
+
+  async getCustomerGrowth() {
+    return UserStats.aggregate([
+      {
+        $group: {
+          _id: '$createdAt',
+          users: { $sum: 1 },
+        },
+      },
+    ]);
   }
 }

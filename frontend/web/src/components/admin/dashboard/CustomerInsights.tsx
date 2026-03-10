@@ -48,6 +48,8 @@ export default function CustomerInsights() {
     );
   }
 
+  console.log(data);
+
   if (!data) return null;
 
   const stats = [
