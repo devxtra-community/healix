@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '../services/auth.services';
 
@@ -34,7 +40,7 @@ export function UserAuthProvider({ children }: { children: React.ReactNode }) {
 
   const { userMe, logoutUser } = authService;
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     setLoading(true);
     try {
       const res = await userMe();
@@ -45,7 +51,7 @@ export function UserAuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router, userMe]);
 
   const logout = async () => {
     await logoutUser();
@@ -55,9 +61,7 @@ export function UserAuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     void refreshUser();
-    // refreshUser depends on router and service references that are stable here.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshUser]);
 
   return (
     <UserAuthContext.Provider value={{ user, loading, refreshUser, logout }}>
