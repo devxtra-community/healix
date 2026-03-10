@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '../services/auth.services';
 
@@ -9,6 +15,13 @@ export type User = {
   name: string;
   email: string;
   avatar?: string;
+  phone?: string;
+  provider?: 'google' | 'email';
+  emailVerified?: boolean;
+  isActive?: boolean;
+  lastLogin?: string | Date | null;
+  createdAt?: string | Date;
+  role?: string;
 };
 
 type UserAuthContextType = {
@@ -27,15 +40,18 @@ export function UserAuthProvider({ children }: { children: React.ReactNode }) {
 
   const { userMe, logoutUser } = authService;
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await userMe();
       setUser(res.data);
     } catch {
       setUser(null);
       router.replace('/login');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [router, userMe]);
 
   const logout = async () => {
     await logoutUser();
@@ -44,8 +60,8 @@ export function UserAuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    refreshUser().finally(() => setLoading(false));
-  }, []);
+    void refreshUser();
+  }, [refreshUser]);
 
   return (
     <UserAuthContext.Provider value={{ user, loading, refreshUser, logout }}>

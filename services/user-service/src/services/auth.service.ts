@@ -22,6 +22,12 @@ import { comparePassword, hashPassword } from '../utils/password.js';
 import { generateMagicToken } from '../utils/token.js';
 import { EmailService } from './email.service.js';
 
+const hashTokenValue = (value: string) =>
+  crypto.createHash('sha256').update(value).digest('hex');
+
+const generateOtp = () =>
+  Math.floor(100000 + Math.random() * 900000).toString();
+
 export class AuthService {
   private userRepo: UserRepository;
   private refreshRepo: RefreshTokenRepository;
@@ -90,6 +96,8 @@ export class AuthService {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
+    await this.userRepo.updateLastLogin(user._id);
+
     return { accessToken, refreshToken };
   }
 
@@ -130,6 +138,8 @@ export class AuthService {
       type: 'admin',
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
+
+    await this.userRepo.updateLastLogin(user._id);
 
     return { accessToken, refreshToken };
   }
@@ -215,6 +225,7 @@ export class AuthService {
     await this.magicRepo.create({
       userId: user._id,
       tokenHash,
+      purpose: 'magic_link',
       expiresAt: new Date(Date.now() + 10 * 60 * 1000),
     });
 
@@ -223,8 +234,8 @@ export class AuthService {
   }
 
   async verifyMagicLink(token: string) {
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    const record = await this.magicRepo.findValidToken(tokenHash);
+    const tokenHash = hashTokenValue(token);
+    const record = await this.magicRepo.findValidToken(tokenHash, 'magic_link');
 
     if (!record) {
       throw new BadRequestError('Invalid or expired magic link');
@@ -249,5 +260,52 @@ export class AuthService {
     });
 
     return { accessToken, refreshToken };
+  }
+
+  async requestPasswordResetOtp(email: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.userRepo.findByEmail(normalizedEmail);
+
+    if (!user || user.provider !== 'email' || user.role !== 'user') {
+      return;
+    }
+
+    const otp = generateOtp();
+    const tokenHash = hashTokenValue(otp);
+
+    await this.magicRepo.invalidateByUserId(user._id, 'password_reset');
+    await this.magicRepo.create({
+      userId: user._id,
+      tokenHash,
+      purpose: 'password_reset',
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    });
+
+    await this.emailService.sendPasswordResetOtp(user.email, otp);
+  }
+
+  async resetPasswordWithOtp(email: string, otp: string, newPassword: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.userRepo.findByEmail(normalizedEmail);
+
+    if (!user || user.provider !== 'email' || user.role !== 'user') {
+      throw new BadRequestError('Invalid email or OTP');
+    }
+
+    const tokenHash = hashTokenValue(otp.trim());
+    const record = await this.magicRepo.findValidToken(
+      tokenHash,
+      'password_reset',
+    );
+
+    if (!record || record.userId.toString() !== user._id.toString()) {
+      throw new BadRequestError('Invalid email or OTP');
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await this.userRepo.updatePassword(user._id, hashedPassword);
+    await this.magicRepo.markUsed(record._id);
+    await this.magicRepo.invalidateByUserId(user._id, 'password_reset');
   }
 }

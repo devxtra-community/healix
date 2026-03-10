@@ -17,6 +17,8 @@ router.post('/login', validate(LoginSchema), authController.loginUser);
 
 router.post('/refresh', authController.refreshUser);
 router.delete('/logout', authController.logoutUser);
+router.post('/password/forgot', authController.requestPasswordResetOtp);
+router.post('/password/reset', authController.resetPasswordWithOtp);
 
 router.get('/me', authMiddleware, authController.me);
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -10,22 +11,34 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const data = [
-  { name: 'Jan', sales: 2500 },
-  { name: 'Feb', sales: 7500 },
-  { name: 'Mar', sales: 6000 },
-  { name: 'Apr', sales: 9000 },
-  { name: 'May', sales: 7800 },
-  { name: 'Jun', sales: 5500 },
-  { name: 'Jul', sales: 3000 },
-  { name: 'Aug', sales: 8500 },
-  { name: 'Sep', sales: 7000 },
-  { name: 'Oct', sales: 10000 },
-  { name: 'Nov', sales: 6500 },
-  { name: 'Dec', sales: 3500 },
-];
+import { analyticsService } from '@/src/services/analytics.service';
+import { RevenueChartPoint } from '@/src/types/api/analytics.api';
+
+interface ChartPoint {
+  name: string;
+  sales: number;
+}
 
 export default function SalesChart() {
+  const [data, setData] = useState<ChartPoint[]>([]);
+
+  useEffect(() => {
+    const loadRevenue = async () => {
+      const res: RevenueChartPoint[] =
+        await analyticsService.getRevenueChart(30);
+
+      const chartData: ChartPoint[] = res.map((item) => ({
+        name: new Date(item.date).toLocaleDateString('en-US', {
+          month: 'short',
+        }),
+        sales: item.revenue,
+      }));
+
+      setData(chartData);
+    };
+
+    loadRevenue();
+  }, []);
   return (
     <div className="bg-white rounded-[20px] p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] h-full flex flex-col">
       <div className="flex justify-between items-center mb-8 max-[500px]:flex-col max-[500px]:items-start max-[500px]:gap-4">

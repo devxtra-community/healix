@@ -89,7 +89,19 @@ export class CategoryControll {
       }
     }
   };
+  getAllCategoryAdminHandler = async (req: Request, res: Response) => {
+    try {
+      const result = await this.categoryService.getAllCategories(
+        req.query,
+        true, // admin
+      );
 
+      res.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Something went wrong' });
+    }
+  };
   updateHandler = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;

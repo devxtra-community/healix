@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import {
   AreaChart,
   Area,
@@ -10,22 +11,36 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const data = [
-  { name: 'Jan', revenue: 4000, profit: 2400 },
-  { name: 'Feb', revenue: 3000, profit: 1398 },
-  { name: 'Mar', revenue: 2000, profit: 9800 },
-  { name: 'Apr', revenue: 2780, profit: 3908 },
-  { name: 'May', revenue: 1890, profit: 4800 },
-  { name: 'Jun', revenue: 2390, profit: 3800 },
-  { name: 'Jul', revenue: 3490, profit: 4300 },
-  { name: 'Aug', revenue: 4200, profit: 5100 },
-  { name: 'Sep', revenue: 5100, profit: 5900 },
-  { name: 'Oct', revenue: 6200, profit: 6500 },
-  { name: 'Nov', revenue: 5800, profit: 5400 },
-  { name: 'Dec', revenue: 7500, profit: 6800 },
-];
+import { analyticsService } from '@/src/services/analytics.service';
+import { RevenueChartPoint } from '@/src/types/api/analytics.api';
+
+interface ChartPoint {
+  name: string;
+  revenue: number;
+  profit: number;
+}
 
 export default function RevenueChart() {
+  const [data, setData] = useState<ChartPoint[]>([]);
+
+  useEffect(() => {
+    const loadRevenue = async () => {
+      const res: RevenueChartPoint[] =
+        await analyticsService.getRevenueChart(365);
+
+      const chartData: ChartPoint[] = res.map((item) => ({
+        name: new Date(item.date).toLocaleDateString('en-US', {
+          month: 'short',
+        }),
+        revenue: item.revenue,
+        profit: Math.round(item.revenue * 0.3), // placeholder profit calc
+      }));
+
+      setData(chartData);
+    };
+
+    loadRevenue();
+  }, []);
   return (
     <div className="bg-white p-6 rounded-[20px] shadow-sm border border-gray-100 flex flex-col h-full">
       <div className="flex justify-between items-center mb-8">

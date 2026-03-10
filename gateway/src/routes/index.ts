@@ -15,6 +15,7 @@ import searchRoutes from './product-service-routes/search.routes.js';
 import wishlistRoutes from './product-service-routes/wishlist.route.js';
 import adminUserRoutes from './user-service-routes/admin.user.routes.js';
 import reviewRoutes from './user-service-routes/review.route.js';
+import analyticsRoute from './checkout-service-routes/analytics.route.js';
 
 const route = Router();
 
@@ -39,4 +40,5 @@ route.use('/wishlist', wishlistRoutes);
 route.use('/cart', cartRoute);
 route.use('/checkout', checkoutRoute);
 route.use('/order', orderRoute);
+route.use('/analytics', analyticsRoute);
 export default route;

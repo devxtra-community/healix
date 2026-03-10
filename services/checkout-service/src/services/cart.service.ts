@@ -1,12 +1,24 @@
 import { CartRepository } from '../repositories/cart.repository.js';
 import { Cart, CartItem } from '../domain/cart.types.js';
 import axios from 'axios';
+import { AnalyticsService } from '../analytics/analytics.service.js';
 
 export class CartService {
-  constructor(private cartRepository: CartRepository) {}
+  constructor(
+    private cartRepository: CartRepository,
+    private analyticsService: AnalyticsService,
+  ) {}
   async getCart(userId: string): Promise<Cart | null> {
     return this.cartRepository.getCart(userId);
   }
+
+  private buildCartMeta(items: CartItem[]) {
+    return {
+      itemCount: items.reduce((sum, cartItem) => sum + cartItem.quantity, 0),
+      cartTotal: items.reduce((sum, cartItem) => sum + cartItem.subtotal, 0),
+    };
+  }
+
   async addItem(userId: string, item: CartItem): Promise<void> {
     //  Check product exists & active
     const productRes = await axios.get(
@@ -66,8 +78,16 @@ export class CartService {
     };
 
     const existingCart = await this.cartRepository.getCart(userId);
+    const isNewCart = !existingCart || existingCart.items.length === 0;
 
     await this.cartRepository.upsertItem(userId, normalizedItem);
+
+    // track cart creation only once
+    if (isNewCart) {
+      await this.analyticsService.trackCartCreated();
+    }
+
+    await this.analyticsService.trackAddToCart();
 
     const items = existingCart
       ? [
@@ -81,8 +101,7 @@ export class CartService {
         ]
       : [normalizedItem];
 
-    const itemCount = items.reduce((s, i) => s + i.quantity, 0);
-    const cartTotal = items.reduce((s, i) => s + i.subtotal, 0);
+    const { itemCount, cartTotal } = this.buildCartMeta(items);
 
     await this.cartRepository.updateCartMeta(userId, {
       itemCount,
@@ -105,9 +124,7 @@ export class CartService {
       return;
     }
 
-    const itemCount = updatedCart.items.reduce((sum, i) => sum + i.quantity, 0);
-
-    const cartTotal = updatedCart.items.reduce((sum, i) => sum + i.subtotal, 0);
+    const { itemCount, cartTotal } = this.buildCartMeta(updatedCart.items);
 
     await this.cartRepository.updateCartMeta(userId, {
       itemCount,

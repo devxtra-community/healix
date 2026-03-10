@@ -21,7 +21,7 @@ const ProfilePage = () => {
         {/* Profile Card */}
         <div className="bg-white rounded-xl border p-8 flex items-center space-x-6 mb-8">
           <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-2xl font-bold text-gray-600">
-            {user?.avatar}
+            {user?.name[0]}
           </div>
           <div>
             <h3 className="text-xl font-bold">{user?.name}</h3>

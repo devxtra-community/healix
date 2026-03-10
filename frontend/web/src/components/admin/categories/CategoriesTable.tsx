@@ -46,11 +46,12 @@ export default function CategoriesTable() {
     try {
       setLoading(true);
 
-      const response: PaginatedResponse = await CategoryService.getCategories({
-        page,
-        limit,
-        search: searchTerm,
-      });
+      const response: PaginatedResponse =
+        await CategoryService.getCategoriesForAdmin({
+          page,
+          limit,
+          search: searchTerm,
+        });
 
       console.log(response);
 
