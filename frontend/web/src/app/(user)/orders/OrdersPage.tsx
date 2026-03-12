@@ -255,30 +255,32 @@ export default function OrdersPage() {
   };
 
   const cancelOrder = async (order: UserOrder) => {
+    // Optimistically mark as cancelled in UI
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.orderId === order.orderId
+          ? { ...o, fulfillmentStatus: 'CANCELLED' as const }
+          : o,
+      ),
+    );
+    setCancellingOrderId(order.orderId);
+
     try {
-      setCancellingOrderId(order.orderId);
-
       await orderService.cancelOrder(order.orderId);
-
       toast.success('Order cancelled successfully');
-
-      await loadOrders(true);
+      // Refresh to get the definitive server state
+      setTimeout(() => loadOrders(true), 1500);
     } catch (error) {
-      console.warn('Cancel request delayed, retrying status check...');
-
-      // wait 2 seconds then reload orders
-      setTimeout(async () => {
-        const updated = await loadOrders(true);
-
-        const latest = updated.find((o) => o.orderId === order.orderId);
-
-        if (latest?.fulfillmentStatus === 'CANCELLED') {
-          toast.success('Order cancelled successfully');
-        } else {
-          toast.error('Unable to cancel this order');
-        }
-        throw error;
-      }, 2000);
+      console.error('Cancel order failed', error);
+      // Revert the optimistic update on failure
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.orderId === order.orderId
+            ? { ...o, fulfillmentStatus: order.fulfillmentStatus }
+            : o,
+        ),
+      );
+      toast.error('Unable to cancel this order');
     } finally {
       setCancellingOrderId(null);
     }

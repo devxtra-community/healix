@@ -20,4 +20,7 @@ export const env = {
   stripeWebHookSecretKey: process.env.STRIPE_WEBHOOK_SECRET!,
   redis_url: process.env.REDIS_URL,
   productServiceUrl: process.env.PRODUCT_SERVICE_URL!,
+  userServiceUrl: process.env.USER_SERVICE_URL!,
+  rabbitmqUrl: process.env.RABBITMQ_URL || 'amqp://localhost',
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
 };

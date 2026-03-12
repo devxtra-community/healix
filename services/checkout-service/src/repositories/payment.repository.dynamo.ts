@@ -87,6 +87,22 @@ export class DynamoPaymentRepository implements PaymentRepository {
       return (fallback.Items?.[0] as Payment) ?? null;
     }
   }
+
+  async getByCheckoutSessionId(sessionId: string): Promise<Payment | null> {
+    const fallback = await dynamoDB.send(
+      new ScanCommand({
+        TableName: TABLE_NAME,
+        FilterExpression: 'stripeCheckoutSessionId = :sid',
+        ExpressionAttributeValues: {
+          ':sid': sessionId,
+        },
+        Limit: 1,
+      }),
+    );
+
+    return (fallback.Items?.[0] as Payment) ?? null;
+  }
+
   async getByOrder(orderId: string): Promise<Payment | null> {
     const res = await dynamoDB.send(
       new QueryCommand({

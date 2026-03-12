@@ -27,4 +27,16 @@ const checkoutServiceProxy = createProxyMiddleware({
   },
 });
 route.post('/', verifyToken, requireRole([ROLES.USER]), checkoutServiceProxy);
+route.post(
+  '/stripe/create-session',
+  verifyToken,
+  requireRole([ROLES.USER]),
+  checkoutServiceProxy,
+);
+route.get(
+  '/stripe/session/:sessionId/verify',
+  verifyToken,
+  requireRole([ROLES.USER]),
+  checkoutServiceProxy,
+);
 export default route;

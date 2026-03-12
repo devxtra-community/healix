@@ -1,3 +1,5 @@
+import { Order } from './order.type.js';
+
 export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
 
 export interface Payment {
@@ -6,10 +8,13 @@ export interface Payment {
   userId: string;
 
   stripePaymentIntentId?: string;
+  stripeCheckoutSessionId?: string;
 
   amount: number;
   currency: string;
   method: 'STRIPE' | 'COD';
+  checkoutDraft?: Order;
+  stockReserved?: boolean;
 
   status: PaymentStatus;
 

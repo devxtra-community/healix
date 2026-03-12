@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { stripe } from '../config/stripe.js';
-import axios from 'axios';
 import { env } from '../config/env.js';
 import { PaymentService } from '../services/payment.service.js';
 import { OrderService } from '../services/order.service.js';
+import { CheckoutService } from '../services/checkout.service.js';
 import { CartRepository } from '../repositories/cart.repository.js';
 import { webhookIdempotency } from '../utils/webhook-idempotency.js';
 import { DynamoRefundRepository } from '../repositories/refund.repository.dynamo.js';
@@ -14,6 +14,7 @@ export class StripeWebHookController {
   constructor(
     private paymentService: PaymentService,
     private orderService: OrderService,
+    private checkoutService: CheckoutService,
     private cartRepo: CartRepository,
     private webhookIdempotancy: webhookIdempotency,
     private refundRepo: DynamoRefundRepository,
@@ -48,49 +49,11 @@ export class StripeWebHookController {
       // PAYMENT SUCCESS
       // =========================
 
-      if (event.type === 'payment_intent.succeeded') {
-        const intent = event.data.object as Stripe.PaymentIntent;
+      if (event.type === 'checkout.session.completed') {
+        const session = event.data.object as Stripe.Checkout.Session;
 
-        console.log('💰 PaymentIntent:', intent.id);
-
-        const payment = await this.paymentService.markSuccess(intent.id);
-
-        let orderId: string | null = null;
-
-        if (!payment) {
-          console.log('⚠️ Payment record not found. Using metadata fallback.');
-
-          orderId = intent.metadata?.orderId;
-
-          if (!orderId) {
-            console.log('❌ orderId missing in metadata');
-            return res.sendStatus(200);
-          }
-
-          await this.orderService.markPaid(orderId);
-        } else {
-          orderId = payment.orderId;
-          await this.orderService.markPaid(orderId);
-        }
-
-        const items = JSON.parse(intent.metadata.items || '[]');
-
-        for (const item of items) {
-          await axios.post(
-            `${env.productServiceUrl}/product/stocks/confirm`,
-            item,
-          );
-        }
-
-        if (payment) {
-          await this.cartRepo.clearCart(payment.userId);
-        }
-
-        // ✅ TRACK ANALYTICS HERE
-        if (orderId) {
-          const order = await this.orderService.getOrder(orderId);
-          if (order) await this.analyticsService.trackOrder(order);
-        }
+        console.log('💰 CheckoutSession:', session.id);
+        await this.checkoutService.handleCompletedStripeSession(session.id);
 
         console.log('✅ Payment processed successfully');
       }
@@ -99,23 +62,9 @@ export class StripeWebHookController {
       // PAYMENT FAILED
       // =========================
 
-      if (event.type === 'payment_intent.payment_failed') {
-        const intent = event.data.object as Stripe.PaymentIntent;
-
-        const payment = await this.paymentService.markFailed(intent.id);
-
-        if (!payment) return res.sendStatus(200);
-
-        await this.orderService.markFailed(payment.orderId);
-
-        const items = JSON.parse(intent.metadata.items || '[]');
-
-        for (const item of items) {
-          await axios.post(
-            `${env.productServiceUrl}/product/stocks/release`,
-            item,
-          );
-        }
+      if (event.type === 'checkout.session.expired') {
+        const session = event.data.object as Stripe.Checkout.Session;
+        await this.checkoutService.releaseStripeSession(session.id);
 
         console.log('❌ Payment failed handled');
       }

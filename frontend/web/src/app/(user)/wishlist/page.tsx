@@ -101,7 +101,7 @@ export default function WishlistPage() {
                     <img
                       src={resolveImage(version.images[0])}
                       alt={version.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   )}
                 </div>
