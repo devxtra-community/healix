@@ -375,6 +375,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      ioredis:
+        specifier: ^5.9.0
+        version: 5.9.0
       mongoose:
         specifier: ^9.1.1
         version: 9.1.2
@@ -427,6 +430,9 @@ importers:
       install:
         specifier: ^0.13.0
         version: 0.13.0
+      ioredis:
+        specifier: ^5.9.0
+        version: 5.9.0
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
