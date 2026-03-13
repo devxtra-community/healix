@@ -3,7 +3,7 @@ import { AppError } from './AppError.js';
 //Invalid input
 //Wrong format
 export class BadRequestError extends AppError {
-    constructor(message = 'Bad request') {
-        super(message, 400);
-    }
+  constructor(message = 'Bad request') {
+    super(message, 400);
+  }
 }

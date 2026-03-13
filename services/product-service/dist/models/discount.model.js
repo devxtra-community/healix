@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
-const DiscountSchema = new Schema({
+const DiscountSchema = new Schema(
+  {
     code: { type: String, required: true, unique: true },
     type: { type: String, enum: ['percentage', 'flat'], required: true },
     value: { type: Number, required: true },
@@ -11,10 +12,12 @@ const DiscountSchema = new Schema({
     start_date: { type: Date, required: true },
     end_date: { type: Date, required: true },
     active: { type: Boolean, default: true },
-}, {
+  },
+  {
     timestamps: {
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
     },
-});
+  },
+);
 export const DiscountModel = model('Discount', DiscountSchema);

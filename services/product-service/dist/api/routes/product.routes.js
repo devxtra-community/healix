@@ -7,7 +7,11 @@ router.get('/admin/all', adminOnly, productcontroller.getAllProductsForAdmin);
 router.get('/version/:versionId', productcontroller.getProductVersion);
 router.get('/:productId', productcontroller.getProduct);
 router.post('/', adminOnly, productcontroller.createProduct);
-router.post('/:productId/versions', adminOnly, productcontroller.createNewVersion);
+router.post(
+  '/:productId/versions',
+  adminOnly,
+  productcontroller.createNewVersion,
+);
 router.get('/', productcontroller.getProductsForUser);
 router.patch('/:productId', productcontroller.restoreProduct);
 router.delete('/:productId', adminOnly, productcontroller.deleteProduct);

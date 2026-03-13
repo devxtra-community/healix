@@ -6,7 +6,11 @@ import { PricingService } from '../../services/pricing.services.js';
 import { adminOnly } from '../middlewares/auth.middleware.js';
 import { StockRepository } from '../../repositories/stock.repositories.js';
 const router = Router();
-const pricingService = new PricingService(new ProductRepository(), new PricingRepository(), new StockRepository());
+const pricingService = new PricingService(
+  new ProductRepository(),
+  new PricingRepository(),
+  new StockRepository(),
+);
 const pricingController = new PricingController(pricingService);
 router.post('/base', adminOnly, pricingController.setBasePrice);
 router.post('/discount', adminOnly, pricingController.createDiscount);

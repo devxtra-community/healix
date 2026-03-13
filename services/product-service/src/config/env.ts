@@ -6,7 +6,8 @@ export const env = {
   mongoUri: process.env.MONGO_URI!,
   redisHost: process.env.REDIS_HOST || '127.0.0.1',
   redisPort: Number(process.env.REDIS_PORT) || 6379,
-  productsCacheTtlSeconds: Number(process.env.PRODUCTS_CACHE_TTL_SECONDS) || 300,
+  productsCacheTtlSeconds:
+    Number(process.env.PRODUCTS_CACHE_TTL_SECONDS) || 300,
 
   AWS_REGION: process.env.AWS_REGION!,
   AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY!,
