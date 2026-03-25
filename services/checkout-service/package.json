@@ -20,6 +20,11 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.968.0",
     "@aws-sdk/lib-dynamodb": "^3.968.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.71.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.213.0",
+    "@opentelemetry/resources": "^2.6.0",
+    "@opentelemetry/sdk-node": "^0.213.0",
+    "@opentelemetry/semantic-conventions": "^1.40.0",
     "amqplib": "^0.10.9",
     "axios": "^1.13.2",
     "cors": "^2.8.5",
