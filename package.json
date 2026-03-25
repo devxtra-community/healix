@@ -14,7 +14,11 @@
     "lint": "eslint frontend gateway services --ext .js,.ts,.jsx,.tsx",
     "format": "prettier --write frontend gateway services",
     "prepare": "husky",
-    "dev": "concurrently \"pnpm -r --parallel dev\""
+    "dev": "concurrently \"pnpm -r --parallel dev\" \"pnpm checkout:workers\"",
+    "checkout:worker": "pnpm --filter checkout-service worker:checkout",
+    "order:worker": "pnpm --filter checkout-service worker:order",
+    "stock:worker": "pnpm --filter checkout-service worker:stock",
+    "checkout:workers": "concurrently \"pnpm checkout:worker\" \"pnpm order:worker\" \"pnpm stock:worker\""
   },
   "keywords": [],
   "author": "",

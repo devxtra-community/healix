@@ -202,80 +202,84 @@ export default function AccountPage() {
             </div>
           </div>
 
-          <form
-            onSubmit={handleResetPassword}
-            className="rounded-3xl border bg-white p-6 shadow-sm"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Forgot password reset
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Send an OTP to your email and reset the password from this
-                  page.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-5 space-y-4">
-              <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="Email address"
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
-              />
-
-              <div className="flex gap-3">
-                <input
-                  name="otp"
-                  value={form.otp}
-                  onChange={handleChange}
-                  placeholder="Enter OTP"
-                  className="flex-1 rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
-                />
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={loading}
-                  className="rounded-2xl border border-emerald-700 px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-60"
-                >
-                  Send OTP
-                </button>
-              </div>
-
-              <input
-                name="newPassword"
-                type="password"
-                value={form.newPassword}
-                onChange={handleChange}
-                placeholder="New password"
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
-              />
-            </div>
-
-            <div className="mt-4 min-h-[24px]">
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              {message && <p className="text-sm text-emerald-700">{message}</p>}
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-70"
+          {user?.provider !== 'google' && (
+            <form
+              onSubmit={handleResetPassword}
+              className="rounded-3xl border bg-white p-6 shadow-sm"
             >
-              {loading ? (
-                <>
-                  <CgSpinner className="animate-spin text-lg" />
-                  <span>Updating password...</span>
-                </>
-              ) : (
-                'Reset password'
-              )}
-            </button>
-          </form>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Forgot password reset
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Send an OTP to your email and reset the password from this
+                    page.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                <input
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="Email address"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                />
+
+                <div className="flex gap-3">
+                  <input
+                    name="otp"
+                    value={form.otp}
+                    onChange={handleChange}
+                    placeholder="Enter OTP"
+                    className="flex-1 rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={loading}
+                    className="rounded-2xl border border-emerald-700 px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-60"
+                  >
+                    Send OTP
+                  </button>
+                </div>
+
+                <input
+                  name="newPassword"
+                  type="password"
+                  value={form.newPassword}
+                  onChange={handleChange}
+                  placeholder="New password"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                />
+              </div>
+
+              <div className="mt-4 min-h-[24px]">
+                {error && <p className="text-sm text-red-600">{error}</p>}
+                {message && (
+                  <p className="text-sm text-emerald-700">{message}</p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-70"
+              >
+                {loading ? (
+                  <>
+                    <CgSpinner className="animate-spin text-lg" />
+                    <span>Updating password...</span>
+                  </>
+                ) : (
+                  'Reset password'
+                )}
+              </button>
+            </form>
+          )}
         </div>
       </section>
     </div>

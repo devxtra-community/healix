@@ -1,6 +1,7 @@
+import axios from 'axios';
+import { env } from '../config/env.js';
 import { OrderRespository } from '../repositories/order.repository.js';
 import { RefundService } from './refund.service.js';
-import axios from 'axios';
 import { PaymentRepository } from '../repositories/payment.repository.js';
 import { stripe } from '../config/stripe.js';
 
@@ -52,24 +53,38 @@ export class OrderService {
         err instanceof Error &&
         err.name === 'ConditionalCheckFailedException'
       ) {
-        // idempotent cancel → silently succeed
-        return;
+        return { status: 'PROCESSING' as const };
       }
       throw err;
     }
 
-    // RELEASE STOCK
-    for (const item of order.items) {
-      await axios.post(
-        `${process.env.PRODUCT_SERVICE_URL}/product/stocks/release`,
-        item,
+    if (order.paymentStatus !== 'SUCCESS') {
+      await this.orderRepo.updatePaymentStatus(orderId, 'FAILED');
+    }
+
+    // Only release reserved stock when the order was never paid.
+    // For PENDING/FAILED orders, stock is still in the `reserved` bucket
+    // and must be returned to `available`.
+    //
+    // For SUCCESS orders (Stripe), stock was already moved through
+    // confirmStock() which decremented `reserved` and `total` — there is
+    // nothing left in `reserved` to release. Instead we trigger a refund.
+    if (order.paymentStatus !== 'SUCCESS') {
+      await Promise.allSettled(
+        order.items.map((item) =>
+          axios.post(`${env.productServiceUrl}/product/stocks/release`, {
+            versionId: item.variantId,
+            quantity: item.quantity,
+          }),
+        ),
       );
     }
 
-    // REFUND ONLY IF PAID
     if (order.paymentStatus === 'SUCCESS' && order.paymentId) {
       await this.refundService.createRefund(order);
     }
+
+    return { status: 'PROCESSING' as const };
   }
 
   async getStripeClientSecretForOrder(orderId: string, userId: string) {

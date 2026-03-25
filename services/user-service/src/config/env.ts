@@ -6,6 +6,9 @@ dotenv.config();
 export const env = {
   port: Number(process.env.PORT || 4001),
   mongoUri: process.env.MONGO_URI || '',
+  redisHost: process.env.REDIS_HOST || '127.0.0.1',
+  redisPort: Number(process.env.REDIS_PORT) || 6379,
+  meCacheTtlSeconds: Number(process.env.ME_CACHE_TTL_SECONDS) || 300,
 
   jwt: {
     user: {

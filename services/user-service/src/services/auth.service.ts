@@ -21,12 +21,16 @@ import {
 import { comparePassword, hashPassword } from '../utils/password.js';
 import { generateMagicToken } from '../utils/token.js';
 import { EmailService } from './email.service.js';
+import { deleteCache, getCache, setCache } from '../utils/cache.js';
+import { env } from '../config/env.js';
 
 const hashTokenValue = (value: string) =>
   crypto.createHash('sha256').update(value).digest('hex');
 
 const generateOtp = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
+
+const getMeCacheKey = (userId: string) => `auth:me:${userId}`;
 
 export class AuthService {
   private userRepo: UserRepository;
@@ -97,6 +101,7 @@ export class AuthService {
     });
 
     await this.userRepo.updateLastLogin(user._id);
+    await deleteCache(getMeCacheKey(user._id.toString()));
 
     return { accessToken, refreshToken };
   }
@@ -140,6 +145,7 @@ export class AuthService {
     });
 
     await this.userRepo.updateLastLogin(user._id);
+    await deleteCache(getMeCacheKey(user._id.toString()));
 
     return { accessToken, refreshToken };
   }
@@ -199,11 +205,20 @@ export class AuthService {
   //ME
 
   async me(userId: string) {
+    const cacheKey = getMeCacheKey(userId);
+    const cachedUser = await getCache<IUser>(cacheKey);
+
+    if (cachedUser) {
+      return cachedUser;
+    }
+
     const user = await this.userRepo.findById(userId);
 
     if (!user) {
       throw new NotFoundError('User not found');
     }
+
+    await setCache(cacheKey, user, env.meCacheTtlSeconds);
 
     return user;
   }

@@ -52,4 +52,10 @@ route.patch(
   requireRole([ROLES.ADMIN]),
   orderServiceProxy,
 );
+route.post(
+  '/:orderId/sync-payment',
+  verifyToken,
+  requireRole([ROLES.USER]),
+  orderServiceProxy,
+);
 export default route;

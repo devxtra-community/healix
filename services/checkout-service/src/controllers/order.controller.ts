@@ -67,9 +67,8 @@ export class OrderController {
 
       if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-      await this.orderService.cancelOrder(orderId, userId);
-
-      res.status(200).json({ message: 'Order cancelled successfully' });
+      const result = await this.orderService.cancelOrder(orderId, userId);
+      res.status(202).json(result);
     } catch (e) {
       next(e);
     }

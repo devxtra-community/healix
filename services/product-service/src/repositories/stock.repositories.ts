@@ -81,6 +81,23 @@ export class StockRepository {
     quantity: number,
     session?: ClientSession,
   ) {
+    // First check whether the stock document even exists for this versionId
+    const existing = await ProductStockModel.findOne({
+      product_version_id: productVersionId,
+    }).session(session ?? null);
+
+    if (!existing) {
+      throw new Error(
+        `Stock record not found for versionId: ${productVersionId}`,
+      );
+    }
+
+    if (existing.reserved < quantity) {
+      throw new Error(
+        `Cannot release ${quantity} units — only ${existing.reserved} are reserved for versionId: ${productVersionId}`,
+      );
+    }
+
     const stock = await ProductStockModel.findOneAndUpdate(
       {
         product_version_id: productVersionId,
@@ -95,7 +112,11 @@ export class StockRepository {
       { new: true, session },
     );
 
-    if (!stock) throw new Error('Invalid stock release');
+    // Defensive fallback (race condition guard)
+    if (!stock)
+      throw new Error(
+        'Stock release failed due to a concurrent update. Please retry.',
+      );
     return stock;
   }
 

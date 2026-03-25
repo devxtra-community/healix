@@ -8,5 +8,6 @@ export interface PaymentRepository {
     status: Payment['status'],
   ): Promise<void>;
   getByPaymentIntent(paymentIntentId: string): Promise<Payment | null>;
+  getByCheckoutSessionId(sessionId: string): Promise<Payment | null>;
   getByOrder(orderId: string): Promise<Payment | null>;
 }

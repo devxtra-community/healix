@@ -49,6 +49,24 @@ export default function ProductPurchaseSection({
 
   return (
     <div className="mt-6 space-y-4">
+      {/* Stock badge */}
+      {stock === 0 ? (
+        <div className="inline-flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-600 text-sm font-medium px-3 py-1.5 rounded-full">
+          <span className="w-2 h-2 bg-red-500 rounded-full" />
+          Out of Stock
+        </div>
+      ) : stock <= 5 ? (
+        <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium px-3 py-1.5 rounded-full">
+          <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+          Only {stock} left — Order soon!
+        </div>
+      ) : (
+        <div className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-sm font-medium px-3 py-1.5 rounded-full">
+          <span className="w-2 h-2 bg-green-500 rounded-full" />
+          In Stock
+        </div>
+      )}
+
       {/* Quantity Selector */}
       <div className="flex items-center justify-between">
         <div className="flex items-center bg-gray-100 rounded-full px-3 py-1">
@@ -69,14 +87,16 @@ export default function ProductPurchaseSection({
           </button>
         </div>
 
-        <p className="text-sm text-gray-500">Stock: {stock}</p>
+        <p className="text-sm text-gray-500">
+          {stock > 0 ? `${stock} available` : ''}
+        </p>
       </div>
 
       {/* Add to Cart */}
       <button
         disabled={stock === 0}
         onClick={handleAddToCart}
-        className="w-full bg-black text-white py-3 rounded-lg font-medium hover:opacity-90 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+        className="w-full bg-black text-white py-3 rounded-lg font-medium hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
       >
         {stock === 0
           ? 'Out of Stock'

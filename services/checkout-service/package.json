@@ -8,7 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "worker:checkout": "tsx src/workers/checkout.worker.ts",
+    "worker:order": "tsx src/workers/order.worker.ts",
+    "worker:stock": "tsx src/workers/stock.worker.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +20,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.968.0",
     "@aws-sdk/lib-dynamodb": "^3.968.0",
+    "amqplib": "^0.10.9",
     "axios": "^1.13.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -27,6 +31,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.8",
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.7",
     "@typescript-eslint/eslint-plugin": "^8.52.0",

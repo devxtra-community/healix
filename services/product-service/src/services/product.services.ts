@@ -5,6 +5,11 @@ import { IProduct } from '../models/product.models.js';
 import { ProductRepository } from '../repositories/product.repositories.js';
 import { StockRepository } from '../repositories/stock.repositories.js';
 import { IProductStock } from '../models/product-stock.models.js';
+import { deleteCache, getCache, setCache } from '../utils/cache.js';
+import { env } from '../config/env.js';
+
+const PRODUCTS_CACHE_KEY = 'products:user:list';
+
 type ProductWithCurrentVersion = Omit<IProduct, 'current_version_id'> & {
   current_version_id: IProductVersion;
 };
@@ -51,6 +56,7 @@ export class ProductService {
       );
 
       await session.commitTransaction();
+      await deleteCache(PRODUCTS_CACHE_KEY);
       return product;
     } catch (error) {
       await session.abortTransaction();
@@ -102,6 +108,7 @@ export class ProductService {
       );
 
       await session.commitTransaction();
+      await deleteCache(PRODUCTS_CACHE_KEY);
       return newVersion;
     } catch (error) {
       await session.abortTransaction();
@@ -133,7 +140,16 @@ export class ProductService {
 
   // ================= USER LIST =================
   async getProductsForUser(): Promise<unknown[]> {
-    return this.productRepository.getProductsForUser();
+    const cachedProducts = await getCache<unknown[]>(PRODUCTS_CACHE_KEY);
+
+    if (cachedProducts) {
+      return cachedProducts;
+    }
+
+    const products = await this.productRepository.getProductsForUser();
+    await setCache(PRODUCTS_CACHE_KEY, products, env.productsCacheTtlSeconds);
+
+    return products;
   }
 
   // ================= DELETE PRODUCT =================
@@ -142,7 +158,10 @@ export class ProductService {
       throw new Error('Invalid product ID');
     }
 
-    return this.productRepository.deleteProduct(productId);
+    const product = await this.productRepository.deleteProduct(productId);
+    await deleteCache(PRODUCTS_CACHE_KEY);
+
+    return product;
   }
 
   async restoreProduct(productId: string): Promise<IProduct | null> {
@@ -150,6 +169,9 @@ export class ProductService {
       throw new Error('Invalid product ID');
     }
 
-    return this.productRepository.restoreProduct(productId);
+    const product = await this.productRepository.restoreProduct(productId);
+    await deleteCache(PRODUCTS_CACHE_KEY);
+
+    return product;
   }
 }

@@ -184,19 +184,45 @@ export class DynamoOrderRepository implements OrderRespository {
   }
 
   async getPendingOrderByUser(userId: string): Promise<Order | null> {
-    const res = await dynamoDB.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        KeyConditionExpression: 'PK = :pk',
-        FilterExpression: 'paymentStatus = :status',
-        ExpressionAttributeValues: {
-          ':pk': `USER#${userId}`,
-          ':status': 'PENDING',
-        },
-      }),
-    );
+    try {
+      const res = await dynamoDB.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: 'GSI1',
+          KeyConditionExpression: 'GSI1PK = :pk',
+          FilterExpression: 'paymentStatus = :status',
+          ExpressionAttributeValues: {
+            ':pk': `USER#${userId}`,
+            ':status': 'PENDING',
+          },
+          Limit: 1,
+        }),
+      );
 
-    return (res.Items?.[0] as Order) ?? null;
+      return (res.Items?.[0] as Order) ?? null;
+    } catch (error) {
+      const isMissingIndex =
+        error instanceof Error &&
+        error.name === 'ValidationException' &&
+        error.message.includes('specified index');
+
+      if (!isMissingIndex) {
+        throw error;
+      }
+
+      const fallback = await dynamoDB.send(
+        new ScanCommand({
+          TableName: TABLE_NAME,
+          FilterExpression: 'userId = :userId AND paymentStatus = :status',
+          ExpressionAttributeValues: {
+            ':userId': userId,
+            ':status': 'PENDING',
+          },
+        }),
+      );
+
+      return (fallback.Items?.[0] as Order) ?? null;
+    }
   }
   async cancelOrder(orderId: string): Promise<void> {
     await dynamoDB.send(
