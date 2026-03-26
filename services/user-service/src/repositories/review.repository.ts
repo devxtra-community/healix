@@ -54,18 +54,18 @@ export class ReviewRepository {
     const skip = (page - 1) * limit;
 
     return Promise.all([
-      ReviewModel.find({ productId })
+      ReviewModel.find({ productId, isApproved: true })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
-      ReviewModel.countDocuments({ productId }),
+      ReviewModel.countDocuments({ productId, isApproved: true }),
     ]);
   }
 
   //average rating for a product
   getAverageRating(productId: Types.ObjectId) {
     return ReviewModel.aggregate([
-      { $match: { productId } },
+      { $match: { productId, isApproved: true } },
       {
         $group: {
           _id: '$productId',

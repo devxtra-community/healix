@@ -17,6 +17,8 @@ export class ReviewController {
       const review = await this.reviewService.createReview({
         productId: new Types.ObjectId(req.body.productId),
         userId,
+        userName: req.body.userName,
+        productName: req.body.productName,
         rating: req.body.rating,
         reviewerGoal: req.body.reviewerGoal as ReviewerGoal,
         usagePeriod: req.body.usagePeriod,
@@ -83,6 +85,25 @@ export class ReviewController {
     }
   };
 
+  approveReview = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const reviewId = new Types.ObjectId(req.params.id);
+      const isApproved = req.body.isApproved;
+
+      const updated = await this.reviewService.updateReviewStatus(
+        reviewId,
+        isApproved,
+      );
+
+      res.status(200).json({
+        message: 'Review status updated successfully',
+        data: updated,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   getProductReviews = async (
     req: Request,
     res: Response,
@@ -90,11 +111,8 @@ export class ReviewController {
   ) => {
     try {
       const productId = new Types.ObjectId(req.params.productId);
-      const { productImage } = req.body;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
-
-      console.log(productImage);
 
       const result = await this.reviewService.getProductReviews(
         productId,

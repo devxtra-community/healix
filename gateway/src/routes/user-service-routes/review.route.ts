@@ -32,7 +32,7 @@ const reviewServiceProxy = createProxyMiddleware({
 router.post(
   '/',
   verifyToken,
-  requireRole([ROLES.ADMIN]), //later user
+  requireRole([ROLES.USER, ROLES.ADMIN]),
   reviewServiceProxy,
 );
 router.patch(
@@ -51,5 +51,18 @@ router.get('/products/:productId/reviews', reviewServiceProxy);
 router.get('/products/:productId/rating', reviewServiceProxy);
 
 router.get('/', verifyToken, requireRole([ROLES.ADMIN]), reviewServiceProxy);
+
+router.patch(
+  '/admin/:id/approve',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  reviewServiceProxy,
+);
+router.get(
+  '/admin/all',
+  verifyToken,
+  requireRole([ROLES.ADMIN]),
+  reviewServiceProxy,
+);
 
 export default router;

@@ -185,6 +185,10 @@ async function startWorker() {
   await connectMongo();
 
   const channel = await connectRabbitMQ();
+  if (!channel) {
+    console.warn('checkout worker bypassing: RabbitMQ unavailable');
+    return;
+  }
   await channel.prefetch(1);
 
   console.log('checkout worker running');

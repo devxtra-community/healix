@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { CategoryService } from '@/src/services/category.service';
 
 interface Category {
@@ -32,6 +33,10 @@ const iconMap: Record<string, React.ReactNode> = {
 
 const CategorySection = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const selectedCategoryId = searchParams.get('category');
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -42,6 +47,23 @@ const CategorySection = () => {
 
     fetchCategories();
   }, []);
+
+  const updateCategoryFilter = (categoryId?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (categoryId) {
+      params.set('category', categoryId);
+    } else {
+      params.delete('category');
+    }
+
+    const query = params.toString();
+    router.push(
+      query
+        ? `${pathname}?${query}#products-section`
+        : `${pathname}#products-section`,
+    );
+  };
 
   return (
     <section className="px-4 max-w-7xl mx-auto mb-16">
@@ -57,14 +79,36 @@ const CategorySection = () => {
         id="products"
         className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4"
       >
+        <button
+          type="button"
+          onClick={() => updateCategoryFilter()}
+          className={`rounded-2xl p-6 flex flex-col items-center border transition ${
+            !selectedCategoryId
+              ? 'bg-green-500 text-white border-green-500 shadow-lg'
+              : 'bg-gray-50 hover:bg-white border-transparent hover:shadow-lg'
+          }`}
+        >
+          <Sparkles className="w-6 h-6" />
+          <span className="text-xs mt-2 font-medium">All</span>
+        </button>
         {categories.map((cat) => (
-          <div
+          <button
+            type="button"
             key={cat._id}
-            className="bg-gray-50 hover:bg-white rounded-2xl p-6 flex flex-col items-center hover:shadow-lg transition"
+            onClick={() =>
+              updateCategoryFilter(
+                selectedCategoryId === cat._id ? undefined : cat._id,
+              )
+            }
+            className={`rounded-2xl p-6 flex flex-col items-center border transition ${
+              selectedCategoryId === cat._id
+                ? 'bg-green-500 text-white border-green-500 shadow-lg'
+                : 'bg-gray-50 hover:bg-white border-transparent hover:shadow-lg'
+            }`}
           >
-            {iconMap[cat.icon]}
-            <span className="text-xs mt-2">{cat.name}</span>
-          </div>
+            {iconMap[cat.icon] ?? <Sparkles className="w-6 h-6" />}
+            <span className="text-xs mt-2 font-medium">{cat.name}</span>
+          </button>
         ))}
       </div>
     </section>

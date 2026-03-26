@@ -91,7 +91,7 @@ const reviewSchema = new Schema<ReviewDocument>(
 
     isApproved: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   {

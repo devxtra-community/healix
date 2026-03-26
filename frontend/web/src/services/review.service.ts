@@ -1,10 +1,48 @@
 import adminApi from '../lib/axios.admin';
 import userApi from '../lib/axios.user';
 
+export interface ReviewItem {
+  _id: string;
+  productId?: string;
+  userId?: string;
+  userName: string;
+  productName?: string;
+  rating: number;
+  reviewerGoal?: string;
+  usagePeriod?: string;
+  title?: string;
+  description?: string;
+  attachments?: {
+    type: 'image' | 'video';
+    url: string;
+  }[];
+  isApproved?: boolean;
+  isVerifiedPurchase?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ProductReviewsResponse {
+  data: ReviewItem[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
+}
+
+export interface ProductRatingSummary {
+  averageRating: number;
+  totalReviews: number;
+}
+
 export const reviewService = {
   // ✅ Create Review
   createReview: async (data: {
     productId: string;
+    userName: string;
+    productName: string;
     rating: number;
     reviewerGoal:
       | 'weight-loss'
@@ -19,7 +57,7 @@ export const reviewService = {
       url: string;
     }[];
   }) => {
-    const res = await adminApi.post('/reviews', data); //later user
+    const res = await userApi.post('/reviews', data);
     return res.data;
   },
 
@@ -46,22 +84,38 @@ export const reviewService = {
   },
 
   // ✅ Get Reviews for a Product
-  getProductReviews: async (productId: string, page = 1, limit = 10) => {
+  getProductReviews: async (
+    productId: string,
+    page = 1,
+    limit = 10,
+  ): Promise<ProductReviewsResponse> => {
     const res = await userApi.get(
-      `/products/${productId}/reviews?page=${page}&limit=${limit}`,
+      `/reviews/products/${productId}/reviews?page=${page}&limit=${limit}`,
     );
     return res.data;
   },
 
   // ✅ Get Product Rating Summary
-  getProductRating: async (productId: string) => {
-    const res = await userApi.get(`/products/${productId}/rating`);
+  getProductRating: async (
+    productId: string,
+  ): Promise<ProductRatingSummary> => {
+    const res = await userApi.get(`/reviews/products/${productId}/rating`);
     return res.data;
   },
 
   // ✅ Admin - Get All Reviews
   getAllReviews: async (page = 1, limit = 10) => {
-    const res = await adminApi.get(`/reviews?page=${page}&limit=${limit}`);
+    const res = await adminApi.get(
+      `/reviews/admin/all?page=${page}&limit=${limit}`,
+    );
+    return res.data;
+  },
+
+  // ✅ Admin - Approve review
+  updateReviewStatus: async (reviewId: string, isApproved: boolean) => {
+    const res = await adminApi.patch(`/reviews/admin/${reviewId}/approve`, {
+      isApproved,
+    });
     return res.data;
   },
 };

@@ -5,9 +5,10 @@ import {
   ProductVersion,
 } from '@/src/types/api/product.api';
 import { ArrowLeft } from 'lucide-react';
-import { headers } from 'next/headers';
 import Link from 'next/link';
 import ProductPurchaseSection from '@/src/components/store/ProductPurchaseSection';
+import RelatedProducts from '@/src/components/store/RelatedProducts';
+import ProductReviews from '@/src/components/store/ProductReviews';
 
 const S3_BASE = 'https://healix-product-images.s3.ap-south-1.amazonaws.com/';
 
@@ -34,9 +35,6 @@ export default async function ProductDetailsPage({
 }) {
   const { id } = await params;
 
-  const hdrs = await headers();
-  const referer = hdrs.get('referer') || '/';
-
   const item = (await productService.getProduct(id)) as ProductApiResponse;
 
   const version = getCurrentVersion(item);
@@ -56,7 +54,7 @@ export default async function ProductDetailsPage({
       <div className="max-w-6xl mx-auto px-6 py-10">
         {/* Back */}
         <Link
-          href={referer}
+          href="/store"
           className="flex items-center gap-2 text-gray-600 hover:text-black mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -149,6 +147,18 @@ export default async function ProductDetailsPage({
             />
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <ProductReviews
+          productId={item._id}
+          productName={version.name || 'Product'}
+        />
+
+        {/* Related Products Section */}
+        <RelatedProducts
+          categoryId={item.category_id as string}
+          currentProductId={item._id}
+        />
       </div>
     </div>
   );

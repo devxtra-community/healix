@@ -14,42 +14,49 @@ const QUEUES = [...new Set(Object.values(EVENT_QUEUE_MAP))];
 
 let channel: Channel | null = null;
 
-export async function connectRabbitMQ(): Promise<Channel> {
+export async function connectRabbitMQ(): Promise<Channel | null> {
   if (channel) {
     return channel;
   }
 
-  const conn = await amqp.connect(AMQP_URL);
+  try {
+    const conn = await amqp.connect(AMQP_URL);
 
-  conn.on('error', (err: Error) => {
-    console.error('RabbitMQ connection error:', err.message);
-    channel = null;
-  });
+    conn.on('error', (err: Error) => {
+      console.error('RabbitMQ connection error:', err.message);
+      channel = null;
+    });
 
-  conn.on('close', () => {
-    console.warn('RabbitMQ connection closed. Will reconnect on next publish.');
-    channel = null;
-  });
+    conn.on('close', () => {
+      console.warn(
+        'RabbitMQ connection closed. Will reconnect on next publish.',
+      );
+      channel = null;
+    });
 
-  const ch = await conn.createChannel();
-  channel = ch;
+    const ch = await conn.createChannel();
+    channel = ch;
 
-  ch.on('error', (err: Error) => {
-    console.error('RabbitMQ channel error:', err.message);
-    channel = null;
-  });
+    ch.on('error', (err: Error) => {
+      console.error('RabbitMQ channel error:', err.message);
+      channel = null;
+    });
 
-  ch.on('close', () => {
-    console.warn('RabbitMQ channel closed.');
-    channel = null;
-  });
+    ch.on('close', () => {
+      console.warn('RabbitMQ channel closed.');
+      channel = null;
+    });
 
-  for (const queue of QUEUES) {
-    await ch.assertQueue(queue, { durable: true });
+    for (const queue of QUEUES) {
+      await ch.assertQueue(queue, { durable: true });
+    }
+
+    console.log('RabbitMQ connected');
+    return ch;
+  } catch {
+    console.warn('Failed to connect to RabbitMQ. Running without event queue.');
+    return null;
   }
-
-  console.log('RabbitMQ connected');
-  return ch;
 }
 
 export async function publishEvent(
@@ -63,6 +70,12 @@ export async function publishEvent(
   }
 
   const activeChannel = await connectRabbitMQ();
+
+  if (!activeChannel) {
+    console.warn(`Dropped event ${event} - RabbitMQ is not connected.`);
+    return;
+  }
+
   const message = { event, payload };
 
   activeChannel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {

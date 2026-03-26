@@ -4,6 +4,8 @@ import { ReviewerGoal, AttachmentType } from '../models/review.type.js';
 export interface CreateReviewDTO {
   productId: Types.ObjectId;
   userId: Types.ObjectId;
+  userName: string;
+  productName: string;
   rating: number;
   reviewerGoal: ReviewerGoal;
   usagePeriod: string;

@@ -45,7 +45,7 @@ export default function ReviewsTable() {
 
   const handleApprove = async (id: string, approved: boolean) => {
     try {
-      await reviewService.updateReview(id, { isApproved: approved });
+      await reviewService.updateReviewStatus(id, approved);
       fetchReviews();
     } catch (error) {
       console.error(error);

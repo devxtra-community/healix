@@ -71,6 +71,20 @@ export class ReviewService {
     await this.reviewRepo.deleteById(reviewId);
   }
 
+  //approve or reject a review
+  async updateReviewStatus(
+    reviewId: Types.ObjectId,
+    isApproved: boolean,
+  ): Promise<ReviewDocument | null> {
+    const review = await this.reviewRepo.findById(reviewId);
+
+    if (!review) {
+      throw new NotFoundError('Review not found');
+    }
+
+    return this.reviewRepo.updateById(reviewId, { isApproved });
+  }
+
   //Get reviews for a product (paginated)
   async getProductReviews(productId: Types.ObjectId, page = 1, limit = 10) {
     const [reviews, total] = await this.reviewRepo.findPaginatedByProduct(
