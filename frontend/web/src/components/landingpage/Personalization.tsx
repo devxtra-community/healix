@@ -3,19 +3,22 @@ import React from 'react';
 const steps = [
   {
     title: 'Tell Us About Yourself',
-    description: 'Take a quick quiz about your habits, preferences, goals, and daily routine.',
+    description:
+      'Take a quick quiz about your habits, preferences, goals, and daily routine.',
     bgColor: 'bg-[#FAFFD1]',
     borderColor: 'border-[#E5ED9C]',
   },
   {
     title: 'We Analyze Your Inputs',
-    description: 'Our system studies your answers to identify the nutrients and ingredients your body may benefit from the most.',
+    description:
+      'Our system studies your answers to identify the nutrients and ingredients your body may benefit from the most.',
     bgColor: 'bg-[#F0F0FF]',
     borderColor: 'border-[#D1D1FF]',
   },
   {
     title: 'Get Your Personalised Products',
-    description: 'You receive a personalized blend created specifically for your needs—nothing generic, nothing wasted.',
+    description:
+      'You receive a personalized blend created specifically for your needs—nothing generic, nothing wasted.',
     bgColor: 'bg-[#D1FFEB]',
     borderColor: 'border-[#9CEDB5]',
   },
@@ -39,8 +42,12 @@ export default function Personalization() {
             key={idx}
             className={`p-4 md:p-8 rounded-xl border-2 ${step.bgColor} ${step.borderColor} text-left transition-transform hover:scale-[1.01]`}
           >
-            <h3 className="text-base md:text-xl font-bold mb-2">{step.title}</h3>
-            <p className="text-sm md:text-base text-gray-700">{step.description}</p>
+            <h3 className="text-base md:text-xl font-bold mb-2">
+              {step.title}
+            </h3>
+            <p className="text-sm md:text-base text-gray-700">
+              {step.description}
+            </p>
           </div>
         ))}
       </div>

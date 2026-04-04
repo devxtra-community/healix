@@ -5,7 +5,10 @@ import { Brain, Zap, Activity, Leaf, ArrowUpRight } from 'lucide-react';
 import { CircularGallery } from '../animation/CircularGallery';
 import Marquee from 'react-fast-marquee';
 import { productService } from '@/src/services/product.service';
-import { ProductApiResponse, ProductVersion } from '@/src/types/api/product.api';
+import {
+  ProductApiResponse,
+  ProductVersion,
+} from '@/src/types/api/product.api';
 import { useRouter } from 'next/navigation';
 
 export type GalleryItem = {
@@ -36,14 +39,16 @@ export default function HealixPage() {
 
   function resolveImage(src?: string | null) {
     if (!src) return '/placeholder.png';
-    if (src.startsWith('http')) return `/api/proxy?url=${encodeURIComponent(src)}`;
+    if (src.startsWith('http'))
+      return `/api/proxy?url=${encodeURIComponent(src)}`;
     return `/api/proxy?url=${encodeURIComponent(S3_BASE + src)}`;
   }
 
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = (await productService.getProducts()) as ProductApiResponse[];
+        const res =
+          (await productService.getProducts()) as ProductApiResponse[];
         const formatted: GalleryItem[] = res
           .map((dt) => {
             const product = dt.current_version as ProductVersion | undefined;
@@ -92,12 +97,16 @@ export default function HealixPage() {
       {/* About / Mission Section */}
       <section className="max-w-4xl mx-auto text-center py-10 md:py-20 px-4 md:px-6">
         <h1 className="text-2xl md:text-3xl lg:text-4xl leading-snug font-medium mb-8 md:mb-10">
-          At <span className="text-[#5D9F3C] font-bold">Healix,</span> we are passionate about
-          delivering clean, nutrient-dense products that support a{' '}
-          <span className="text-[#5D9F3C]">healthier</span> lifestyle. Rooted in the{' '}
-          <span className="text-[#5D9F3C]">science of wellness,</span> our store sources{' '}
-          <span className="text-[#5D9F3C]">high-quality</span> ingredients and{' '}
-          <span className="text-[#5D9F3C]">follows sustainable, transparent practices</span>{' '}
+          At <span className="text-[#5D9F3C] font-bold">Healix,</span> we are
+          passionate about delivering clean, nutrient-dense products that
+          support a <span className="text-[#5D9F3C]">healthier</span> lifestyle.
+          Rooted in the{' '}
+          <span className="text-[#5D9F3C]">science of wellness,</span> our store
+          sources <span className="text-[#5D9F3C]">high-quality</span>{' '}
+          ingredients and{' '}
+          <span className="text-[#5D9F3C]">
+            follows sustainable, transparent practices
+          </span>{' '}
           to protect your health.
         </h1>
         <button className="bg-[#10E36E] hover:bg-[#0dc961] text-white px-8 py-3 rounded-full font-semibold flex items-center gap-2 mx-auto transition-all">
