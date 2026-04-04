@@ -1,4 +1,4 @@
-import "./telemetry.js";
+import './telemetry.js';
 import 'dotenv/config';
 import app from './app.js';
 

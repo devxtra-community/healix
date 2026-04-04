@@ -1,4 +1,4 @@
-import "./telemetry.js";
+import './telemetry.js';
 import app from './app.js';
 import { checkoutDBEvents, connectDB } from './config/db.js';
 import { env } from './config/env.js';
