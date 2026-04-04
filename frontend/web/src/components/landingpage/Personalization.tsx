@@ -26,24 +26,28 @@ const steps = [
 
 export default function Personalization() {
   return (
-    <section className="py-20 px-6 max-w-4xl mx-auto text-center">
-      <h2 className="text-4xl font-semibold mb-6">
+    <section className="py-10 md:py-20 px-4 md:px-6 max-w-4xl mx-auto text-center">
+      <h2 className="text-2xl md:text-4xl font-semibold mb-4 md:mb-6">
         Why Personalization Matters
       </h2>
-      <p className="text-xl text-gray-700 leading-relaxed mb-12">
+      <p className="text-base md:text-xl text-gray-700 leading-relaxed mb-8 md:mb-12">
         Your body is unique. your nutrition should be too. Our personalized
         approach ensures you get the right ingredients, in the right amounts,
         made specifically for your goals and lifestyle.
       </p>
 
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {steps.map((step, idx) => (
           <div
             key={idx}
-            className={`p-8 rounded-xl border-2 ${step.bgColor} ${step.borderColor} text-left transition-transform hover:scale-[1.01]`}
+            className={`p-4 md:p-8 rounded-xl border-2 ${step.bgColor} ${step.borderColor} text-left transition-transform hover:scale-[1.01]`}
           >
-            <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-            <p className="text-gray-700">{step.description}</p>
+            <h3 className="text-base md:text-xl font-bold mb-2">
+              {step.title}
+            </h3>
+            <p className="text-sm md:text-base text-gray-700">
+              {step.description}
+            </p>
           </div>
         ))}
       </div>

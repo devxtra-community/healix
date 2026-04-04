@@ -7,12 +7,7 @@ type Props = {
   bgColor?: string;
 };
 
-const ProductCard = ({
-  imageSrc,
-  heightClass,
-  title,
-  bgColor = 'bg-white',
-}: Props) => {
+const ProductCard = ({ imageSrc, heightClass, title, bgColor }: Props) => {
   return (
     <div
       className={`${heightClass} ${bgColor} w-full rounded-3xl relative overflow-hidden group transition-transform duration-500 hover:scale-[1.02]`}

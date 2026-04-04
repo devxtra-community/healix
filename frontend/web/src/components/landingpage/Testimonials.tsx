@@ -13,21 +13,21 @@ export default function Testimonials() {
     "I've tried so many supplements, but nothing ever felt right. My personalized formula finally gave me steady energy without the crashes. Total game changer!";
 
   return (
-    <section className="py-20 bg-white overflow-hidden">
-      <h2 className="text-3xl font-semibold text-center mb-16">
+    <section className="py-12 md:py-20 bg-white overflow-hidden">
+      <h2 className="text-2xl md:text-3xl font-semibold text-center mb-8 md:mb-16">
         What Our Customers Are Saying
       </h2>
 
-      <div className="flex flex-wrap justify-center gap-6 px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 max-w-5xl mx-auto">
         {reviews.map((item, idx) => (
           <div
             key={idx}
-            className="flex bg-white border border-gray-100 rounded-xl p-4 shadow-sm max-w-sm items-start gap-4"
+            className="flex bg-white border border-gray-100 rounded-xl p-4 shadow-sm w-full items-start gap-4"
           >
             <img
               src={item.img}
               alt="Product"
-              className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
+              className="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover flex-shrink-0"
             />
             <div>
               <p className="text-sm text-gray-600 italic mb-2">"{quote}"</p>

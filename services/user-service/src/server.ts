@@ -1,3 +1,4 @@
+import './telemetry.js';
 import app from './app.js';
 import { connectDB, registerDBEvents } from './config/db.js';
 import { env } from './config/env.js';
