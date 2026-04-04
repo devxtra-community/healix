@@ -106,8 +106,7 @@ async function startWorker() {
       process.exit(0);
     });
   });
-}p
-
+}
 startWorker().catch((error) => {
   console.error('order worker failed to start', error);
   process.exit(1);

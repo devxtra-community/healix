@@ -5,10 +5,7 @@ import { Brain, Zap, Activity, Leaf, ArrowUpRight } from 'lucide-react';
 import { CircularGallery } from '../animation/CircularGallery';
 import Marquee from 'react-fast-marquee';
 import { productService } from '@/src/services/product.service';
-import {
-  ProductApiResponse,
-  ProductVersion,
-} from '@/src/types/api/product.api';
+import { ProductApiResponse, ProductVersion } from '@/src/types/api/product.api';
 import { useRouter } from 'next/navigation';
 
 export type GalleryItem = {
@@ -39,58 +36,50 @@ export default function HealixPage() {
 
   function resolveImage(src?: string | null) {
     if (!src) return '/placeholder.png';
-    if (src.startsWith('http')) {
-      return `/api/proxy?url=${encodeURIComponent(src)}`;
-    }
+    if (src.startsWith('http')) return `/api/proxy?url=${encodeURIComponent(src)}`;
     return `/api/proxy?url=${encodeURIComponent(S3_BASE + src)}`;
   }
 
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res =
-          (await productService.getProducts()) as ProductApiResponse[];
-        console.log('API Response:', res);
-
-        // Map API data to gallery items safely
+        const res = (await productService.getProducts()) as ProductApiResponse[];
         const formatted: GalleryItem[] = res
           .map((dt) => {
             const product = dt.current_version as ProductVersion | undefined;
-            if (!product) return null; // skip products without a current version
+            if (!product) return null;
             return {
               id: dt._id,
-              text: product.name ? product.name : `Unnamed Product`,
+              text: product.name ? product.name : 'Unnamed Product',
               image: resolveImage(product.images?.[0] ?? ''),
             };
           })
-          .filter((item): item is GalleryItem => item !== null); // type-safe filter
-
+          .filter((item): item is GalleryItem => item !== null);
         setProducts(formatted);
       } catch (err) {
         console.error('Failed to fetch products:', err);
       }
     }
-
     fetchProducts();
   }, []);
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900">
-      {/* Top Banner Navigation */}
+      {/* Benefits Marquee Banner */}
       <div className="border-b border-gray-100">
-        <div className=" mx-auto px-4">
-          <p className="text-center py-6 text-sm font-medium text-gray-600">
+        <div className="mx-auto px-4">
+          <p className="text-center py-4 md:py-6 text-sm font-medium text-gray-600">
             Benefits That Support Your Everyday Wellness
           </p>
-          <div className="flex overflow-x-auto no-scrollbar justify-between items-center py-4 border-t border-gray-100">
+          <div className="flex overflow-x-auto no-scrollbar items-center py-3 md:py-4 border-t border-gray-100">
             <Marquee pauseOnClick={false} pauseOnHover={false}>
               {categories.map((cat, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center space-x-2 px-6 border-r last:border-r-0 border-gray-200 whitespace-nowrap"
+                  className="flex items-center space-x-2 px-4 md:px-6 border-r last:border-r-0 border-gray-200 whitespace-nowrap"
                 >
                   {cat.icon}
-                  <span className="text-sm font-bold uppercase tracking-tight">
+                  <span className="text-xs md:text-sm font-bold uppercase tracking-tight">
                     {cat.label}
                   </span>
                 </div>
@@ -100,23 +89,16 @@ export default function HealixPage() {
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section className="max-w-4xl mx-auto text-center py-20 px-6">
-        <h1 className="text-3xl md:text-4xl leading-snug font-medium mb-10">
-          At <span className="text-[#5D9F3C] font-bold">Healix,</span> we are
-          passionate about <br />
-          delivering clean, nutrient-dense products <br />
-          that support a <span className="text-[#5D9F3C]">healthier</span>{' '}
-          lifestyle. Rooted in <br />
-          the
-          <span className="text-[#5D9F3C]">science of wellness,</span> our store
-          sources <br /> <span className="text-[#5D9F3C]">high-quality</span>{' '}
-          ingredients and
-          <span className="text-[#5D9F3C] ">
-            follows <br />
-            sustainable, transparent practices
-          </span>{' '}
-          to <br /> protect your health.
+      {/* About / Mission Section */}
+      <section className="max-w-4xl mx-auto text-center py-10 md:py-20 px-4 md:px-6">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl leading-snug font-medium mb-8 md:mb-10">
+          At <span className="text-[#5D9F3C] font-bold">Healix,</span> we are passionate about
+          delivering clean, nutrient-dense products that support a{' '}
+          <span className="text-[#5D9F3C]">healthier</span> lifestyle. Rooted in the{' '}
+          <span className="text-[#5D9F3C]">science of wellness,</span> our store sources{' '}
+          <span className="text-[#5D9F3C]">high-quality</span> ingredients and{' '}
+          <span className="text-[#5D9F3C]">follows sustainable, transparent practices</span>{' '}
+          to protect your health.
         </h1>
         <button className="bg-[#10E36E] hover:bg-[#0dc961] text-white px-8 py-3 rounded-full font-semibold flex items-center gap-2 mx-auto transition-all">
           Learn More
@@ -128,10 +110,10 @@ export default function HealixPage() {
 
       {/* Circular Gallery */}
       <section>
-        <h2 className="text-center text-xl font-medium">
+        <h2 className="text-center text-lg md:text-xl font-medium px-4">
           Your Daily Essential for Better Health
         </h2>
-        <div className="h-[500px] w-full relative mb-6">
+        <div className="h-[280px] md:h-[500px] w-full relative mb-6">
           <CircularGallery
             items={products}
             bend={2}
@@ -140,13 +122,13 @@ export default function HealixPage() {
             scrollSpeed={1.5}
             scrollEase={0.05}
             font="bold 30px 'Inter', sans-serif"
-            onCardClick={(id: string) => router.push(`/store/${id}`)} // <-- Next.js navigation
+            onCardClick={(id: string) => router.push(`/store/${id}`)}
           />
         </div>
 
         {/* Bottom CTA */}
         <div className="text-center px-6 mb-10">
-          <p className="text-gray-600 text-sm max-w-md mx-auto mb-8">
+          <p className="text-gray-600 text-sm max-w-md mx-auto mb-6 md:mb-8">
             Explore our full range of targeted nutrition products designed to
             help you feel and perform your best every day.
           </p>

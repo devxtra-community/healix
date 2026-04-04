@@ -11,7 +11,7 @@ const ProductCard = ({
   imageSrc,
   heightClass,
   title,
-  bgColor = 'bg-white',
+  bgColor ,
 }: Props) => {
   return (
     <div
